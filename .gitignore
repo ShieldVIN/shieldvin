@@ -1,0 +1,45 @@
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+
+# ── Build output ──────────────────────────────────────────────────────────────
+dist/
+gen/
+*.tsbuildinfo
+
+# ── Secrets — NEVER commit ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+.npmrc
+
+# ── Midnight / NIGHTGATE local state ──────────────────────────────────────────
+private-state-db/
+.midnight/
+zk-artifacts/
+managed/
+*.sqlite
+*.db
+
+# ── Salt seeds ────────────────────────────────────────────────────────────────
+# These are proof openings. Publishing one undoes leaf salting; losing one makes
+# an anchored root permanently unprovable. Back them up OUT OF BAND, never here.
+seeds/
+*.seed
+
+# ── Local-only material (see docs/DECISIONS.md) ───────────────────────────────
+patent/
+Midnight Build Club/
+Archive - GitHub Repos*/
+
+# ── Editor / OS ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

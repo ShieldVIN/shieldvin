@@ -1,0 +1,79 @@
+# Roadmap
+
+Phases are ordered by dependency, not by date. Dates attach once
+[Q3](DECISIONS.md#open) — which Buildathon wave to target — is settled.
+
+For reference, the [Midnight Buildathon](https://midnight.network/hackathon/buildathon) runs three
+separately-judged waves: Wave 1 builds 27 Aug – 16 Sep, Wave 2 to 17 Oct, Wave 3 to 16 Nov. The
+format explicitly rewards iteration over one-shot polish, so an existing project is not penalised for
+entering mid-stream.
+
+---
+
+## Phase 0 — A vehicle passport that anchors and proves one thing
+
+**Done when:** a vehicle record can be created, anchored to Midnight preprod, and a single ZK
+predicate proved and independently verified against live contract state.
+
+- [ ] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages — **first
+      task, gates everything else**
+- [ ] CAP project scaffold with `@odatano/nightgate` at a pinned version
+- [ ] `db/passport-schema.cds` — vehicle domain model
+- [ ] `PROVABLE_FIELDS` registry, 16 slots per FIELDS.md
+- [ ] Canonicalisation and anchoring path
+- [ ] Odometer monotonicity predicate, end to end
+- [ ] Minimal producer UI — create, anchor, prove
+- [ ] `contentSaltSeed` persistence **with a tested restore path**
+
+**Explicitly not in Phase 0:** hardware, multi-tier UI, dealer workflows, Cardano, mainnet.
+
+The odometer proof is the whole point of this phase. One predicate working end to end demonstrates
+more than six half-wired ones.
+
+## Phase 1 — Tiered disclosure and a real audience
+
+**Done when:** three distinct viewers see three genuinely different views of the same vehicle, and a
+grant can elevate a viewer's tier on-chain.
+
+- [ ] Tier redaction in `passport-service.ts`
+- [ ] **Query guard** — reject `$filter`/`$orderby`/`$apply` that probe invisible columns. Redaction
+      alone is bypassable; see [ARCHITECTURE.md](ARCHITECTURE.md)
+- [ ] Disclosure grant issue and revoke
+- [ ] Grantee identity binding — `sha256(did)`
+- [ ] Consumer viewer — the buyer-facing scan
+- [ ] Remaining predicates: accident count, recycled content, battery health
+- [ ] Auth strategy and HTTP security middleware (NIGHTGATE provides neither)
+
+## Phase 2 — Closing the trust gap
+
+**Done when:** a sensor-signed reading can be distinguished from a self-declared one, and the
+difference is visible to a verifier.
+
+- [ ] Simulated secure element producing signed readings
+- [ ] Provenance marking — self-declared vs sensor-attested
+- [ ] Curve-agile signature spec (**not** Ed25519 — see [R1](DECISIONS.md#reversed))
+- [ ] In-circuit verification design against ledger 9, documented and ready rather than deployed
+
+This is the differentiator. It is deliberately last because Phases 0 and 1 must stand alone first —
+and because in-circuit signature verification is not available on any public network today.
+
+## Phase 3 — Interoperability
+
+- [ ] Battery passport join via slot 12 — the regulation's interoperability clause, working
+- [ ] NIGHTPASS composition demo
+- [ ] EU DPP Registry enrolment path
+- [ ] Dealer workflow — the [D7](DECISIONS.md#settled) beachhead
+
+---
+
+## Ordering principles
+
+**Verify before building.** Every architectural claim in these docs comes from reading ODATANO's
+public repositories, not from running them. Phase 0's first task is confirming the assumptions.
+
+**One predicate working beats six wired up.** A single end-to-end proof exercises canonicalisation,
+anchoring, proving, submission and verification. Breadth without that is scaffolding.
+
+**Do not claim fraud prevention before Phase 2.** Phases 0–1 make fraud *attributable* and rollbacks
+*detectable*. That is a real and defensible claim. Prevention is not, and overclaiming to a judge or
+a partner is how credibility is lost.
