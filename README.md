@@ -65,6 +65,10 @@ we contribute upstream where our needs are general rather than vehicle-specific.
 | [DECISIONS.md](docs/DECISIONS.md) | Settled decisions and the reasoning behind them |
 | [ROADMAP.md](docs/ROADMAP.md) | Phased delivery plan |
 | [FIELDS.md](docs/FIELDS.md) | The provable-field registry and why it is capacity-constrained |
+| [REGULATION.md](docs/REGULATION.md) | Primary legal sources, with direct EUR-Lex links |
+
+**New here?** Start with [REGULATION.md](docs/REGULATION.md) — the regulation is *why* this project
+exists, and the full text is one click away.
 
 ## Licence
 

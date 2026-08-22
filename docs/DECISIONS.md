@@ -25,17 +25,21 @@ Cardano twin is a plausible *later* addition — the two share a frozen core so 
 is a known path — but it is not in scope and must not dilute Phase 0.
 
 ### D3 — Framed as Regulation (EU) 2026/1738 compliance infrastructure · 2026-08-21
-The Digital Circularity Vehicle Passport is mandatory from 1 Sep 2032; the regulation entered into
-force 13 Aug 2026 and applies from 1 Sep 2028.
+The Digital Circularity Vehicle Passport (Article 46 of
+**[Regulation (EU) 2026/1738](https://eur-lex.europa.eu/eli/reg/2026/1738/oj)**) is mandatory from
+1 Sep 2032; the regulation entered into force 13 Aug 2026 and applies from 1 Sep 2028. Full
+citations and primary sources: [REGULATION.md](REGULATION.md).
 
 **Why:** it converts ShieldVIN from a product nobody is obliged to buy into an implementation of an
 obligation everyone in scope must meet. It also resolves a real structural problem in the earlier
 positioning, where the paying customer (OEMs) was not the customer whose pain justified the product
 (used-car buyers). Compliance collapses that gap.
 
-**Do not overclaim.** ESPR (Reg 2024/1781) explicitly *excludes* vehicles; the battery regulation
-reaches the battery, not the vehicle. 2026/1738 is the correct and only citation for a vehicle-level
-passport obligation.
+**Do not overclaim.** [ESPR (Reg 2024/1781)](https://eur-lex.europa.eu/eli/reg/2024/1781/oj)
+explicitly *excludes* vehicles at Article 1(2); the
+[battery regulation](https://eur-lex.europa.eu/eli/reg/2023/1542/oj) reaches the battery, not the
+vehicle. 2026/1738 is the correct and only citation for a vehicle-level passport obligation — see
+[REGULATION.md](REGULATION.md).
 
 ### D4 — No patent. Apache-2.0, fully open source · 2026-08-21
 The patent track is dropped. No CIPC filing, no UK IPO filing.

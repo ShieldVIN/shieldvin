@@ -22,8 +22,10 @@ Three consequences follow, and all three are unforgiving:
 
 ## Proposed panel — 16/16 slots
 
-Chosen to serve both the Reg 2026/1738 circularity obligation and the fraud cases that make the
-passport worth reading. Numerics first, per the ordering rule.
+Chosen to serve both the circularity obligation in
+**[Regulation (EU) 2026/1738](https://eur-lex.europa.eu/eli/reg/2026/1738/oj)** and the fraud cases
+that make the passport worth reading. Numerics first, per the ordering rule. Recycled-content slots
+trace to Article 29; the passport itself to Article 46 — see [REGULATION.md](REGULATION.md).
 
 | # | Field | Type | Serves | Why it earns a slot |
 |---|---|---|---|---|
@@ -45,7 +47,8 @@ passport worth reading. Numerics first, per the ordering rule.
 | 15 | `euTypeApprovalNumber` | string | 2026/1738 | Binds to type approval. |
 
 **Slot 12 is the strategically interesting one.** Battery state of health is where a vehicle passport
-and a battery passport touch. Regulation 2026/1738 asks for interoperability with other vehicle
+and a [battery passport](https://eur-lex.europa.eu/eli/reg/2023/1542/oj) touch. Regulation 2026/1738
+asks for interoperability with other vehicle
 environmental passports; this field is where that stops being a slogan. It is also the natural
 demonstration of ShieldVIN and NIGHTPASS composing rather than competing.
 

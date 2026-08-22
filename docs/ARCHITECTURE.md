@@ -1,5 +1,10 @@
 # Architecture
 
+The legal basis for everything below is
+**[Regulation (EU) 2026/1738](https://eur-lex.europa.eu/eli/reg/2026/1738/oj)**, Article 46 — see
+[REGULATION.md](REGULATION.md) for primary sources and the scope boundaries that constrain what we
+may claim.
+
 ## Shape
 
 ShieldVIN is a **SAP CAP application** that installs `@odatano/nightgate` as a plugin. NIGHTGATE
