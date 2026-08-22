@@ -18,14 +18,23 @@ predicate proved and independently verified against live contract state.
 - [ ] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages — **first
       task, gates everything else**
 - [ ] CAP project scaffold with `@odatano/nightgate` at a pinned version
-- [ ] `db/passport-schema.cds` — vehicle domain model
+- [ ] `db/vehicle-schema.cds` — vehicle domain model
 - [ ] `PROVABLE_FIELDS` registry, 16 slots per FIELDS.md
 - [ ] Canonicalisation and anchoring path
+- [ ] **Treasury and sponsor wiring** — designated sponsor session, one organisation wallet, and
+      confirmation that attribution lands on the organisation rather than on us
+- [ ] **Measure DUST cost per anchor and per proof** — gates all pricing; see
+      [BUILD-SCOPE.md](BUILD-SCOPE.md)
 - [ ] Odometer monotonicity predicate, end to end
-- [ ] Minimal producer UI — create, anchor, prove
+- [ ] `app/scan` — QR to verdict, mobile, no login
 - [ ] `contentSaltSeed` persistence **with a tested restore path**
+- [ ] Seed data and a demo scenario
 
-**Explicitly not in Phase 0:** hardware, multi-tier UI, dealer workflows, Cardano, mainnet.
+**Explicitly not in Phase 0:** billing, hardware, tiered disclosure UI, the console beyond a rough
+form, Cardano, mainnet.
+
+Sponsoring and cost measurement come **before** polished UI. If the unit economics do not work, the
+UI is wasted effort.
 
 The odometer proof is the whole point of this phase. One predicate working end to end demonstrates
 more than six half-wired ones.

@@ -90,6 +90,39 @@ Never a `^` or `~` range on any ODATANO package.
 leaf salting at the same version broke every older client. Also keep a vendored copy of the exact
 version in use — the org has a bus factor of one.
 
+### D11 — Plain HTML/CSS/JS for every UI surface, console included · 2026-08-22
+No SAPUI5, no React, no build-step framework for application UI.
+
+**Why:** the product constraint is that this be simple enough for anyone — a used-car buyer with a
+phone, a two-person independent dealer. NIGHTPASS uses SAPUI5 for operator apps and plain HTML for
+public ones; we go plain throughout, because our operator *is* a small dealer rather than an SAP
+shop. Also avoids a framework learning curve on a small team.
+
+### D12 — Custodial per-organisation wallets, built to accept external signers · 2026-08-22
+ShieldVIN custodies one wallet session per organisation. `srv/lib/sponsor.ts` puts the signing source
+behind an interface so self-custody drops in later without a rewrite.
+
+**Why:** attribution is the entire value of Phases 0–1. If ShieldVIN signed everything, ShieldVIN
+would be asserting facts it cannot verify — transferring liability in exactly the wrong direction.
+Per-organisation wallets keep the dealer's name on the record while never showing them a key.
+
+**Claim honestly:** custodial attestation is tamper-evident and attributable, **not** non-repudiable.
+Pair every attestation with an authenticated intent record. See [BUILD-SCOPE.md](BUILD-SCOPE.md).
+
+### D13 — Every transaction sponsored from a ShieldVIN treasury · 2026-08-22
+No customer ever holds DUST or NIGHT. A designated treasury session pays all fees via NIGHTGATE's
+`sponsorSessionId` / `NIGHTGATE_FEE_SPONSOR_SESSION`.
+
+**Consequence:** we pay per transaction, so per-organisation rate limiting is a cost control, not
+just an abuse control. Treasury NIGHT is free on preprod and a real operating cost on mainnet.
+
+### D14 — All payments fiat; billing gates the action, not the chain · 2026-08-22
+One-off, subscription or annual, in fiat. No crypto payment path. Entitlement is checked in `srv/`
+before NIGHTGATE is called; the contract never learns an invoice exists.
+
+**Deferred:** no billing in Phase 0 and no provider chosen. Plans cannot be priced until DUST cost
+per anchor and per proof is measured — which is why that measurement is a Phase 0 task.
+
 ---
 
 ## Reversed

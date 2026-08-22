@@ -39,6 +39,18 @@ to individual **provable fields**. From then on:
   revealing the underlying value.
 - **Disclosure grants** control who may read which tier, enforced both in the API and on-chain.
 
+### Nobody touches a wallet
+
+A buyer scans a QR code and sees a verdict — *odometer: never rolled back* — with no app, no
+account, and no login. A dealer signs in with an email and a password. Neither ever holds a key, a
+token, or any cryptocurrency.
+
+Every transaction fee is paid from a ShieldVIN treasury. Every customer payment is ordinary fiat —
+card, direct debit or invoice. The blockchain is an implementation detail, and it is meant to stay
+one. See [BUILD-SCOPE.md](docs/BUILD-SCOPE.md).
+
+### The hard part
+
 The hard part is not the cryptography — [NIGHTGATE](https://github.com/ODATANO/NIGHTGATE) already
 provides it. The hard part is the honest one, described plainly in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): proving a number is *the anchored number* is not the
@@ -62,6 +74,7 @@ we contribute upstream where our needs are general rather than vehicle-specific.
 | Document | What it covers |
 |---|---|
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, the trust model, and its honest limits |
+| [BUILD-SCOPE.md](docs/BUILD-SCOPE.md) | Structure, stack, sponsoring and billing models, Phase 0 list |
 | [DECISIONS.md](docs/DECISIONS.md) | Settled decisions and the reasoning behind them |
 | [ROADMAP.md](docs/ROADMAP.md) | Phased delivery plan |
 | [FIELDS.md](docs/FIELDS.md) | The provable-field registry and why it is capacity-constrained |
