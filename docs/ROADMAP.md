@@ -10,10 +10,23 @@ entering mid-stream.
 
 ---
 
-## Phase 0 — A vehicle passport that anchors and proves one thing
+## Phase 0 — A working vehicle passport
 
-**Done when:** a vehicle record can be created, anchored to Midnight preprod, and a single ZK
-predicate proved and independently verified against live contract state.
+**Done when:** a vehicle passport can be registered on Midnight preprod, an odometer reading recorded
+as private state, and monotonicity and threshold claims proved in-circuit without the reading ever
+being disclosed — reachable end-to-end from a browser.
+
+The centrepiece is `contracts/shieldvin_passport.compact` (D16). Readings are witnesses; only
+commitments reach the ledger. **Compile in WSL2** — Compact has no native Windows binary.
+
+### Contract surface
+
+| Circuit | Does | Private state |
+|---|---|---|
+| `registerPassport` | Anchor a vehicle's content root | — |
+| `recordReading` | Store a reading commitment, prove it is not lower than the last | The reading itself |
+| `proveThreshold` | Prove a reading is above or below a bound | The reading |
+| `verifyForRole` | Disclose only what a role is entitled to | Role secret |
 
 - [ ] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages — **first
       task, gates everything else**

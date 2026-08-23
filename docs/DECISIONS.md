@@ -145,6 +145,24 @@ before NIGHTGATE is called; the contract never learns an invoice exists.
 **Deferred:** no billing in Phase 0 and no provider chosen. Plans cannot be priced until DUST cost
 per anchor and per proof is measured — which is why that measurement is a Phase 0 task.
 
+### D16 — ShieldVIN writes its own Compact contract; NIGHTGATE deploys and calls it · 2026-08-23
+The vehicle passport logic lives in a ShieldVIN Compact contract with genuine private-state
+management. NIGHTGATE registers it via `cds.requires.nightgate.contracts.<ref>` and supplies
+deployment, invocation and fee sponsoring.
+
+**Why:** the earlier plan leaned entirely on NIGHTGATE's precompiled `attestation-vault-32`, and
+"no Compact toolchain required" was recorded as a benefit. That is the wrong shape for this project.
+The passport's distinguishing logic — readings held as witnesses, monotonicity proven in-circuit,
+values never disclosed — is ours, and it belongs in a contract we wrote and can reason about.
+
+**Consequence:** Compact is now on the critical path. It has no native Windows binary, and on this
+host `compact` resolves to the Windows NTFS utility — **always compile in WSL2**. Toolchain verified
+2026-08-23: CLI 0.5.2, compiler 0.31.1 (language 0.23, ledger 8), smoke compile passing.
+
+**Attribution:** ShieldVIN is a consumer application built *on* NIGHTGATE, in the same relation
+[NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) is. That dependency is stated plainly in the
+README rather than left to be discovered.
+
 ---
 
 ## Reversed
