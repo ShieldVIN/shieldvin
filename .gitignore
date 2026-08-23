@@ -38,6 +38,16 @@ patent/
 Midnight Build Club/
 Archive - GitHub Repos*/
 
+# ── Local-only tracking — security backlog and open issues ────────────────────
+# Canonical copies live OUTSIDE this repo at ../_local-tracking/. These patterns
+# are a second line of defence in case one is ever created in the tree.
+# GitHub Issues/Wiki/Projects are disabled on this repo by design.
+_local/
+_local-tracking/
+*.local.md
+OPEN-ISSUES.md
+SECURITY-BACKLOG.md
+
 # ── Editor / OS ───────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
