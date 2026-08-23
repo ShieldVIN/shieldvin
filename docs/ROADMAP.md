@@ -17,14 +17,16 @@ predicate proved and independently verified against live contract state.
 
 - [ ] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages — **first
       task, gates everything else**
-- [ ] CAP project scaffold with `@odatano/nightgate` at a pinned version
+- [ ] CAP scaffold with `@odatano/nightgate` 0.19.0 pinned, registering `attestation-vault-32`
+- [ ] `npx nightgate-fetch-keys attestation-vault-32` — keys are not packed in npm
 - [ ] `db/vehicle-schema.cds` — vehicle domain model
-- [ ] `PROVABLE_FIELDS` registry, 16 slots per FIELDS.md
+- [ ] `PROVABLE_FIELDS` registry, 32 slots per FIELDS.md (26 used, 6 reserved)
 - [ ] Canonicalisation and anchoring path
-- [ ] **Treasury and sponsor wiring** — designated sponsor session, one organisation wallet, and
-      confirmation that attribution lands on the organisation rather than on us
-- [ ] **Measure DUST cost per anchor and per proof** — gates all pricing; see
-      [BUILD-SCOPE.md](BUILD-SCOPE.md)
+- [ ] **Treasury pool and sponsor wiring** — at least two sponsor wallets with registered NIGHT
+      UTxOs, to exercise the lease pool rather than a single-wallet happy path; confirm attribution
+      lands on the organisation rather than on us
+- [ ] **Measure DUST cost** per anchor and per proof, batched versus unbatched, width 32 versus 16 —
+      gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md)
 - [ ] Odometer monotonicity predicate, end to end
 - [ ] `app/scan` — QR to verdict, mobile, no login
 - [ ] `contentSaltSeed` persistence **with a tested restore path**

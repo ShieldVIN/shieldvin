@@ -1,87 +1,146 @@
 # Provable field registry
 
-> **Headline finding: a credible vehicle field panel fits in NIGHTGATE's 16 slots — but exactly,
-> with zero headroom.** This is the tightest constraint in the whole design and the first thing to
-> raise with the ODATANO maintainer.
+**Target: `attestation-vault-32` — 32 slots, depth 5.** 26 fields in use, 6 reserved.
 
-## The constraint
+> This document was rewritten on 2026-08-23. NIGHTGATE 0.19.0 (22 Aug) introduced a 32-slot vault
+> lineage, lifting what had been this project's tightest constraint. The previous revision described
+> a 16-slot panel filled to capacity.
 
-NIGHTGATE's content tree is fixed at **depth 4 = 16 leaves** (`MERKLE_DEPTH = 4` in `@odatano/dpp-sdk`).
-A provable field *is* a slot in a frozen, ordered array. Its leaf index is its position in that array.
+## Slot widths
 
-Three consequences follow, and all three are unforgiving:
+`@odatano/dpp-sdk@0.2.0` exposes `VAULT_SLOT_WIDTHS = [8, 16, 32]`, with `MERKLE_DEPTH = 4`
+documented as *"DEFAULT tree depth (16-slot panel), **not a limit**"*. Width maps to depth via
+`depthForWidth()` — 16 → 4, 32 → 5.
 
-1. **Sixteen is the hard cap.** A seventeenth field means depth 5, which means new circuits in the
-   `attestation-vault` Compact contract — leaving the "no Compact toolchain required" comfort zone
-   and requiring upstream cooperation.
-2. **Changing the registry changes every root.** Adding, removing or reordering a field alters the
-   content root and schema id of *every* passport, forcing a re-anchor of all of them. The SDK's own
-   guidance: extend in **one batch with a re-anchor round, never field by field**.
-3. **Ordering is load-bearing.** Numeric fields must precede string fields. Numerics are scaled to
-   milli-units (×1000) into a Uint64; strings commit to a hash of the exact string.
+NIGHTGATE's own note on why the menu stops at 32:
 
-## Proposed panel — 16/16 slots
+> Widths were measured before the choice: prover keys scale linearly and wasm proving hits its
+> memory ceiling at 64, so the menu is 16 and 32.
 
-Chosen to serve both the circularity obligation in
-**[Regulation (EU) 2026/1738](https://eur-lex.europa.eu/eli/reg/2026/1738/oj)** and the fraud cases
-that make the passport worth reading. Numerics first, per the ordering rule. Recycled-content slots
-trace to Article 29; the passport itself to Article 46 — see [REGULATION.md](REGULATION.md).
+**Width is effectively permanent.** Cross-root proofs relate documents of the same width only, so a
+document family picks a width and keeps it. Changing later means re-anchoring every passport onto a
+different contract lineage. We choose 32 now, while we have nothing anchored and the choice is free.
 
-| # | Field | Type | Serves | Why it earns a slot |
-|---|---|---|---|---|
-| 0 | `odometerKm` | numeric | Fraud | The headline claim. Monotonicity across anchor versions is the demo. |
-| 1 | `accidentCount` | numeric | Fraud | "Never written off" without disclosing incidents. |
-| 2 | `ownerCount` | numeric | Fraud | Title-washing signal. |
-| 3 | `serviceCount` | numeric | Fraud | Maintenance evidence without the service book. |
-| 4 | `co2FootprintKgCO2e` | numeric | 2026/1738 | Environmental declaration. |
-| 5 | `recycledPlasticPct` | numeric | 2026/1738 | Recycled-content target — a core obligation. |
-| 6 | `recycledSteelPct` | numeric | 2026/1738 | Recycled-content target. |
-| 7 | `recycledAluminiumPct` | numeric | 2026/1738 | Recycled-content target. |
-| 8 | `criticalRawMaterialPct` | numeric | 2026/1738 | CRM declaration. |
-| 9 | `recyclabilityPct` | numeric | 2026/1738 | Inherited from the 3R type-approval regime. |
-| 10 | `recoverabilityPct` | numeric | 2026/1738 | Inherited from the 3R type-approval regime. |
-| 11 | `dismantlingTimeMinutes` | numeric | 2026/1738 | Design-for-dismantling evidence. |
-| 12 | `batteryStateOfHealthPct` | numeric | Interop | **The join to the battery passport.** |
-| 13 | `vinHash` | string | Fraud | Identity, disclosed only at authority tier. |
-| 14 | `vehicleCategory` | string | 2026/1738 | M1 / N1 / etc. |
-| 15 | `euTypeApprovalNumber` | string | 2026/1738 | Binds to type approval. |
+## Two rules that constrain the layout
 
-**Slot 12 is the strategically interesting one.** Battery state of health is where a vehicle passport
-and a [battery passport](https://eur-lex.europa.eu/eli/reg/2023/1542/oj) touch. Regulation 2026/1738
-asks for interoperability with other vehicle
-environmental passports; this field is where that stops being a slogan. It is also the natural
-demonstration of ShieldVIN and NIGHTPASS composing rather than competing.
+**Numerics must precede all strings.** `provableFieldKind()` returns `'numeric' | 'string'`, and the
+registry ordering is frozen shared vocabulary.
 
-## What did not make the cut
+**Reserved slots must be typed by position.** A slot reserved *after* the strings can only ever hold
+a string. Adding a numeric later would mean reordering — which changes every root. So the reserve is
+split: four numeric slots before the strings, two string slots after.
 
-Dropped for want of space, not want of merit — evidence that 16 is genuinely too few:
+**Overflow is loud, not silent.** `padToWidth` throws rather than dropping the tail, *"a registry
+that outgrew its width would otherwise silently stop anchoring its last fields."*
 
-`hazardousSubstanceFlags`, `partsReusedPct`, `batteryChemistry`, `motorType`, `fuelType`,
-`grossVehicleWeightKg`, `firstRegistrationDate`, `writeOffCategory`, `manufacturerBPN`,
-`dismantlerFacilityId`, `emissionsClass`, `lastInspectionDate`.
+---
 
-Several of these are plausibly *mandatory* under the 2028 application date. If even two become
-required, the panel overflows.
+## The panel
 
-## Open questions for ODATANO
+Numerics scale ×1000 into Uint64 (`VALUE_SCALE = 1000`). Strings commit to the blake2b-256 digest of
+the exact string. Public label is `fieldKeyHex(name)` = blake2b-256 of the field name.
 
-1. **Would depth 5 (32 slots) be considered upstream?** It is a `merkle.ts` constant plus circuit
-   work in `attestation-vault`, and it would benefit any product category richer than a battery.
-   Vehicles are the obvious second category and we are volunteering to be the forcing function.
-2. **Is per-domain depth feasible**, or is depth necessarily global to the contract?
-3. **Could `schemaId` carry the depth**, letting depth-4 and depth-5 passports coexist without a
-   flag day?
-4. **Is our reading correct** that a vehicle panel of ≤16 slots needs *no* change to the deployed
-   `attestation-vault` contract, since leaves are keyed by opaque 32-byte field keys?
+### Numeric — slots 0–17
+
+| # | Field | Serves | Note |
+|---|---|---|---|
+| 0 | `odometerKm` | Fraud | The headline claim; monotonicity across versions is the demo |
+| 1 | `accidentCount` | Fraud | "Never written off" without disclosing incidents |
+| 2 | `ownerCount` | Fraud | Title-washing signal |
+| 3 | `serviceCount` | Fraud | Maintenance evidence without the service book |
+| 4 | `writeOffCategory` | Fraud | 0 = none; category codes above |
+| 5 | `firstRegistrationDate` | Identity | Epoch days |
+| 6 | `lastInspectionDate` | Identity | Epoch days |
+| 7 | `co2FootprintKgCO2e` | Art 46 | Environmental declaration |
+| 8 | `recycledPlasticPct` | Art 29 | Recycled-content target |
+| 9 | `recycledPlasticFromELVPct` | Art 29 | Share sourced from end-of-life vehicles |
+| 10 | `recycledSteelPct` | Art 29 | Recycled-content target |
+| 11 | `recycledAluminiumPct` | Art 29 | Recycled-content target |
+| 12 | `criticalRawMaterialPct` | Art 46 | CRM declaration |
+| 13 | `reusabilityPct` | 3R | Inherited from Directive 2005/64/EC |
+| 14 | `recyclabilityPct` | 3R | Inherited from Directive 2005/64/EC |
+| 15 | `recoverabilityPct` | 3R | Inherited from Directive 2005/64/EC |
+| 16 | `dismantlingTimeMinutes` | Art 46 | Design-for-dismantling evidence |
+| 17 | `batteryStateOfHealthPct` | Interop | **The join to the battery passport** |
+
+### Reserved numeric — slots 18–21
+
+Deliberately empty. Absent leaves are still salted and still anchored, so occupying one later costs
+a re-anchor but no reordering.
+
+### String — slots 22–29
+
+| # | Field | Serves | Note |
+|---|---|---|---|
+| 22 | `vinHash` | Fraud | Identity; disclosed only at authority tier |
+| 23 | `vehicleCategory` | Art 46 | M1 / N1 / etc. |
+| 24 | `euTypeApprovalNumber` | Art 46 | Binds to type approval |
+| 25 | `manufacturerBPN` | Supply chain | Business partner number |
+| 26 | `fuelType` | Art 46 | Powertrain classification |
+| 27 | `batteryChemistry` | Interop | Mirrors the battery passport's own field |
+| 28 | `emissionsClass` | Art 46 | Euro standard |
+| 29 | `batteryPassportId` | Interop | **The explicit link to a battery passport** |
+
+### Reserved string — slots 30–31
+
+---
+
+## Why the reserve exists
+
+The previous 16-slot panel was full on day one, and twelve credible fields had to be cut — several
+plausibly mandatory once 2026/1738 applies in 2028. Filling 32/32 would repeat that mistake at a
+larger scale.
+
+Six reserved slots is roughly 19% headroom, split by type so either kind of field can be added
+without reordering. Anything beyond that needs a genuine re-anchor round, which the SDK's own
+guidance says to do **in one batch, never field by field**.
+
+## Interop is now two slots, not one
+
+Slots 17 and 29 together are the regulation's interoperability clause made concrete: state of health
+carries the *claim*, passport id carries the *link*. That pairing is what makes a
+[NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) composition demo real rather than rhetorical —
+same stack, same hashing, same disclosure vocabulary.
+
+---
+
+## Operational requirements
+
+**Prover keys must be fetched before the first proof.** The 32-slot keys are not packed into npm:
+
+```bash
+npx nightgate-fetch-keys attestation-vault-32
+```
+
+*"Prover keys are part of the artifact generation digest. A server booting without them says so by
+name; container images already contain them."*
+
+**Every document-bound action must name the wider vault** — `compiledArtifactRef:
+'attestation-vault-32'` — and browser consumers import
+`@odatano/nightgate/browser/attestation-vault-32` and pass `slotWidth: 32` to the `prepare*` helpers.
+
+**`allowedMask` widened to Integer64.** SQLite needs nothing. **PostgreSQL and HANA need a schema
+redeploy** — which bites at deployment rather than in development, since we develop on SQLite.
+
+---
 
 ## Verification status
 
-Everything on this page derives from reading the public ODATANO repositories, **not** from running
-the code. Before any of it is built on, confirm against the actual published packages:
+Confirmed by reading the published `@odatano/dpp-sdk@0.2.0` type definitions directly:
 
-- [ ] `MERKLE_DEPTH = 4` in the installed `@odatano/dpp-sdk`
-- [ ] Numeric scale is ×1000 into Uint64
-- [ ] Strings must follow all numerics in registry order
-- [ ] A ≤16-slot custom panel needs no contract change
-- [ ] Salted leaves require `contentSaltSeed` persistence — and losing it makes a root permanently
-      unprovable, which makes seed backup an operational requirement, not a nicety
+- ✅ `VAULT_SLOT_WIDTHS = [8, 16, 32]`; `MERKLE_DEPTH = 4` is a default, not a cap
+- ✅ `depthForWidth` / `widthForDepth` — 16 ↔ 4, 32 ↔ 5
+- ✅ `VALUE_SCALE = 1000` — numerics scale ×1000 into Uint64
+- ✅ String fields sit after all numeric fields
+- ✅ `fieldKeyHex` = blake2b-256 of the field name
+- ✅ `padToWidth` throws on overflow
+
+Still to confirm by running the stack:
+
+- [ ] A 32-slot custom panel needs no contract change beyond naming `attestation-vault-32`
+- [ ] Proving time and DUST cost at width 32 versus width 16 — part of the Phase 0 cost measurement
+- [ ] `contentSaltSeed` persistence, and a tested restore path
+
+Note that `@odatano/dpp-sdk@0.2.0` was published to npm **without a corresponding commit in the
+GitHub repository**, which still shows only 0.1.0. Verify against the installed package, not the
+repo.

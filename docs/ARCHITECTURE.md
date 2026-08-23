@@ -123,7 +123,8 @@ attributable and rollbacks detectable. That is a real claim; the stronger one wo
 |---|---|
 | **No in-circuit signature verification on mainnet.** Compact 0.31.x / ledger 8 has none. `jubjubSchnorrVerify` exists only on the ledger-9 RC line (0.33+), undocumented and deployed nowhere public. | Phase 2 sensor signatures cannot be verified in-circuit today. Spec the hardware **curve-agile** — Ed25519 is *not* a safe default; Schnorr-over-Jubjub is the likely landing point. |
 | **NIGHTGATE hard-gates mainnet off** (`allowMainnetSubmission: false`). | Preprod is the target. Plan no mainnet demo. |
-| **16 provable slots, at capacity.** | See [FIELDS.md](FIELDS.md). The binding constraint. |
+| **32 provable slots** via `attestation-vault-32` (NIGHTGATE 0.19.0). Width is effectively permanent — cross-root proofs relate same-width documents only. | 26 in use, 6 reserved. See [FIELDS.md](FIELDS.md). No longer the binding constraint, but the width choice is one-way. |
+| **Sponsor throughput scales with wallet count**, not balance — one dust spend in flight per wallet. | Treasury is a pool. See [BUILD-SCOPE.md](BUILD-SCOPE.md). |
 | **`setNetworkId()` is process-global.** | One network per process. No multi-network single deployment. |
 | **NIGHTGATE is 0.x, shipping breaking changes roughly weekly.** A whole attestation lane was removed at 0.16.0; salting at 0.16.0 broke every older client. | **Pin exact versions.** Never use `^` on `@odatano/*`. Upgrade deliberately, with a re-anchor plan. |
 | **Bus factor of one** across the entire ODATANO org. | Apache-2.0 makes a fork legally trivial. Keep a vendored copy of the exact version in use, and do not accrete dependencies on unreleased behaviour. |

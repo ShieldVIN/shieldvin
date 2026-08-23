@@ -109,12 +109,34 @@ Per-organisation wallets keep the dealer's name on the record while never showin
 **Claim honestly:** custodial attestation is tamper-evident and attributable, **not** non-repudiable.
 Pair every attestation with an authenticated intent record. See [BUILD-SCOPE.md](BUILD-SCOPE.md).
 
-### D13 — Every transaction sponsored from a ShieldVIN treasury · 2026-08-22
-No customer ever holds DUST or NIGHT. A designated treasury session pays all fees via NIGHTGATE's
-`sponsorSessionId` / `NIGHTGATE_FEE_SPONSOR_SESSION`.
+### D13 — Every transaction sponsored from a ShieldVIN treasury pool · 2026-08-22, amended 2026-08-23
+No customer ever holds DUST or NIGHT. A **pool** of treasury sponsor sessions pays all fees.
+
+**Amendment (2026-08-23):** this originally said "a designated treasury session", singular. That was
+wrong. Since NIGHTGATE 0.17.2 `NIGHTGATE_FEE_SPONSOR_SESSION` is a lease pool, because *"a dust
+wallet carries ONE spend in flight, so sponsoring throughput scales with the NUMBER of sponsor
+wallets."* Peak concurrent anchoring is bounded by wallet count, each needing its own registered
+NIGHT UTxO. **Treasury sizing is a count of wallets, not a balance.**
 
 **Consequence:** we pay per transaction, so per-organisation rate limiting is a cost control, not
 just an abuse control. Treasury NIGHT is free on preprod and a real operating cost on mainnet.
+Batching (up to 8 calls per transaction, one fee) is the primary lever on that cost.
+
+### D15 — Target `attestation-vault-32`: 32 slots, depth 5 · 2026-08-23
+The vehicle document family uses the 32-slot vault lineage introduced in NIGHTGATE 0.19.0, with 26
+fields in use and 6 reserved.
+
+**Why:** cross-root proofs relate documents of the same width only, so *"a document family picks a
+width and keeps it."* With nothing yet anchored the choice is free; after launch it is a migration
+onto a different contract lineage. The previous 16-slot panel was full on day one with twelve
+credible fields cut, several plausibly mandatory once 2026/1738 applies in 2028.
+
+**Costs accepted:** the lineage is new (shipped 2026-08-22), prover keys scale linearly so proving is
+heavier, and the keys need a separate `npx nightgate-fetch-keys attestation-vault-32` step because
+they are not packed into npm. Width 32 versus 16 proving cost is measured in Phase 0.
+
+**Ordering constraint:** reserved slots are typed by position — four numeric before the strings, two
+string after — because numerics must precede all strings and reordering changes every root.
 
 ### D14 — All payments fiat; billing gates the action, not the chain · 2026-08-22
 One-off, subscription or annual, in fiat. No crypto payment path. Entitlement is checked in `srv/`
@@ -152,7 +174,18 @@ Superseded by D4.
 
 | # | Question | Blocks | Owner |
 |---|---|---|---|
-| Q1 | Will ODATANO consider Merkle depth 5 (32 slots)? | Field panel headroom — see [FIELDS.md](FIELDS.md) | ODATANO maintainer |
-| Q2 | Does a ≤16-slot custom panel need any `attestation-vault` change? | Phase 0 scope | Verify against installed package |
 | Q3 | Which Buildathon wave to target? | Phase 0 sizing | Us |
 | Q4 | Is SAP CAP acceptable as a permanent dependency? | Everything downstream | Us — inherited from D1, worth being deliberate about |
+| Q5 | Proving cost at width 32 versus 16 | Whether D15 holds under real cost | Phase 0 measurement |
+| Q6 | Fiat provider — merchant of record or direct? | Billing build | Deferred to Phase 1, turns on EU VAT |
+
+### Resolved
+
+**Q1 — "Will ODATANO consider Merkle depth 5 (32 slots)?" — YES, shipped 2026-08-22.**
+NIGHTGATE 0.19.0 introduced `attestation-vault-32`, and `@odatano/dpp-sdk@0.2.0` exposes
+`VAULT_SLOT_WIDTHS = [8, 16, 32]`. Asked on the 21st, answered by a release on the 22nd — not on our
+account. See [D15](#settled).
+
+**Q2 — "Does a custom panel need an `attestation-vault` change?" — reframed, not needed.**
+A registered contract now carries a `slotWidth` and the surface sizes itself from it. We select a
+lineage by name (`compiledArtifactRef: 'attestation-vault-32'`) rather than modifying a contract.

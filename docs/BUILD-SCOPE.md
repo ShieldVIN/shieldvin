@@ -51,10 +51,37 @@ a false odometer reading and the record says *we* claimed it. That transfers lia
 cannot verify onto the party least able to verify it, and it destroys the traceability that Phases
 0–1 exist to provide.
 
-**Model B, as built.** ShieldVIN custodies one wallet session per organisation. A designated treasury
-session pays every fee via NIGHTGATE's `sponsorSessionId`, enabled by
-`NIGHTGATE_FEE_SPONSOR_SESSION` (operator-designated, cross-user; unset means same-user only). The
-dealer authenticates with an email and a password, and their name lands on the record.
+**Model B, as built.** ShieldVIN custodies one wallet session per organisation. A treasury **pool**
+pays every fee via NIGHTGATE's `sponsorSessionId`. The dealer authenticates with an email and a
+password, and their name lands on the record.
+
+### The treasury is a pool, not a wallet
+
+Since NIGHTGATE 0.17.2, `NIGHTGATE_FEE_SPONSOR_SESSION` is a **lease pool** of sponsor sessions, and
+the reason matters:
+
+> A dust wallet carries ONE spend in flight (concurrent balances race its notes into `1010`
+> rejects), so sponsoring throughput scales with the NUMBER of sponsor wallets.
+
+Each sponsored job leases one wallet for its duration; callers queue on the pool
+(`NIGHTGATE_SPONSOR_LEASE_WAIT_MS`, default 120s); a sponsor failing retryably is benched
+(`NIGHTGATE_SPONSOR_COOLDOWN_MS`) while the job tries the next. Omitting `sponsorSessionId` — or
+passing the reserved pool sentinel — uses the pool. Pinning an explicit session is a security
+boundary and stays exact.
+
+**Consequence for capacity planning:** peak concurrent anchoring is bounded by the number of sponsor
+wallets, each needing its own registered NIGHT UTxO for dust generation. Treasury sizing is a count
+of wallets, not a balance.
+
+### Batching is the primary cost lever
+
+NIGHTGATE 0.19.0's txbuilder takes `buildSponsorable({ calls: [...] })` — up to **8 circuit calls in
+one transaction, one fee, one sponsoring**, with a pre-proving causality check so a violating batch
+fails locally and spends nothing.
+
+Because we pay every fee, this is not a performance optimisation but a unit-economics one. Any
+operation issuing multiple claims should batch. Measure batched versus unbatched cost as part of
+Phase 0.
 
 **Built to accept Model C.** `srv/lib/sponsor.ts` puts the signing source behind an interface with
 two implementations: custodial now, external signer later. The treasury pays either way. An
@@ -121,7 +148,7 @@ srv/
   producer-service.{cds,ts}   write side — create, anchor, prove
   demo-service.{cds,ts}       scripted scenarios
   lib/
-    fields.ts                 the 16-slot provable registry
+    fields.ts                 the 32-slot provable registry (26 used, 6 reserved)
     vehicle-payload.ts        canonicalisation
     vehicle-anchor.ts         Merkle tree + anchoring
     tier.ts                   redaction rules
@@ -152,7 +179,10 @@ module for the same reason.
 |---|---|---|
 | Runtime | Node ≥22, TypeScript | Required by NIGHTGATE |
 | Framework | `@sap/cds` ^10 | NIGHTGATE is a CAP plugin |
-| Chain | `@odatano/nightgate`, **exact version** | 0.x with frequent breaking changes |
+| Chain | `@odatano/nightgate` **0.19.0**, exact | 0.x with frequent breaking changes |
+| DPP core | `@odatano/dpp-sdk` **0.2.0**, exact | Width-aware Merkle helpers |
+| Local signing | `@odatano/nightgate-tx` **0.3.0**, exact | For the Model C path and batches |
+| Vault | `attestation-vault-32` — 32 slots, depth 5 | See [FIELDS.md](FIELDS.md) |
 | Database | SQLite (dev) → Postgres (prod) | NIGHTPASS's pattern |
 | Unit tests | `node --test` + `tsx` | Matches ODATANO — deliberately not vitest |
 | E2E | Playwright | Matches ODATANO |
@@ -174,14 +204,20 @@ position when you are not the author.
 Ordered by dependency.
 
 1. **Verify the [FIELDS.md](FIELDS.md) checklist** against installed packages — gates everything else
-2. Scaffold CAP + NIGHTGATE plugin, config modelled on NIGHTPASS's `cds.requires` block
-3. `vehicle-schema.cds` + the 16-slot registry
-4. Canonicalisation → anchor, one vehicle, end to end on preprod
-5. **Treasury and sponsor wiring** — confirm attribution lands on the organisation, not on us
-6. **Measure DUST cost per anchor and per proof** — gates all pricing
-7. Odometer monotonicity proof, end to end
-8. `app/scan` — QR to verdict, mobile, no login
-9. Seed data and a demo scenario
+2. Scaffold CAP + NIGHTGATE 0.19.0, config modelled on NIGHTPASS's `cds.requires` block, registering
+   `attestation-vault-32`
+3. `npx nightgate-fetch-keys attestation-vault-32` — 32-slot prover keys are not packed in npm and
+   are part of the artifact generation digest
+4. `vehicle-schema.cds` + the 32-slot registry
+5. Canonicalisation → anchor, one vehicle, end to end on preprod
+6. **Treasury pool and sponsor wiring** — at least two sponsor wallets, each with a registered NIGHT
+   UTxO, to exercise the lease pool rather than a single-wallet happy path. Confirm attribution lands
+   on the organisation, not on us
+7. **Measure DUST cost** per anchor and per proof, **batched versus unbatched**, and at width 32
+   versus 16 — gates all pricing
+8. Odometer monotonicity proof, end to end
+9. `app/scan` — QR to verdict, mobile, no login
+10. Seed data and a demo scenario
 
 **Not in Phase 0:** billing, hardware, tiered disclosure UI, the console beyond a rough form.
 
