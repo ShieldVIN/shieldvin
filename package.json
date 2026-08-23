@@ -1,0 +1,25 @@
+{
+  "name": "@shieldvin/passport",
+  "version": "0.0.0",
+  "description": "ShieldVIN — a Digital Circularity Vehicle Passport (Reg. (EU) 2026/1738) on Midnight, built on @odatano/nightgate",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShieldVIN/shieldvin"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "comment": "Pre-scaffold. CAP config (cds.requires) arrives in Phase 0 step 2. @odatano/* versions are pinned EXACTLY on purpose — see docs/DECISIONS.md D10.",
+  "dependencies": {
+    "@odatano/dpp-sdk": "0.2.0"
+  },
+  "devDependencies": {
+    "@noble/hashes": "^1.8.0"
+  },
+  "scripts": {
+    "test:sdk": "node test/sdk-assumptions.mjs"
+  }
+}

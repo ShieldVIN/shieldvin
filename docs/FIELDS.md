@@ -126,21 +126,46 @@ redeploy** — which bites at deployment rather than in development, since we de
 
 ## Verification status
 
-Confirmed by reading the published `@odatano/dpp-sdk@0.2.0` type definitions directly:
+**Verified by execution against the installed `@odatano/dpp-sdk@0.2.0` — 24/24 on 2026-08-23.**
+Run it yourself:
 
-- ✅ `VAULT_SLOT_WIDTHS = [8, 16, 32]`; `MERKLE_DEPTH = 4` is a default, not a cap
-- ✅ `depthForWidth` / `widthForDepth` — 16 ↔ 4, 32 ↔ 5
-- ✅ `VALUE_SCALE = 1000` — numerics scale ×1000 into Uint64
-- ✅ String fields sit after all numeric fields
-- ✅ `fieldKeyHex` = blake2b-256 of the field name
-- ✅ `padToWidth` throws on overflow
+```bash
+npm run test:sdk        # test/sdk-assumptions.mjs
+```
 
-Still to confirm by running the stack:
+Re-run after **any** `@odatano/*` version bump. ODATANO shipped 0.17.2 → 0.19.0 in four days, so
+treat a passing run as valid only for the version it ran against.
+
+| Claim | Status |
+|---|---|
+| `VAULT_SLOT_WIDTHS = [8, 16, 32]` | ✅ executed |
+| `MERKLE_DEPTH = 4` is a default, not a cap | ✅ executed |
+| `depthForWidth` / `widthForDepth` — 16 ↔ 4, 32 ↔ 5 | ✅ executed |
+| `depthForWidth` rejects non-powers-of-two | ✅ executed |
+| `VALUE_SCALE = 1000`, numerics ×1000 into Uint64 | ✅ executed |
+| Numeric fields precede all string fields | ✅ executed |
+| `fieldKeyHex` = blake2b-256 of the field name | ✅ executed |
+| `padToWidth` throws on overflow rather than truncating | ✅ executed |
+| Depth-5 tree: 6 levels, 5-sibling paths, all 32 proofs verify | ✅ executed |
+| A proof for one slot does not verify another (soundness) | ✅ executed |
+
+### Two things execution revealed that reading did not
+
+**The SDK itself supports up to 1024 slots.** `depthForWidth` rejects bad input with *"slot width
+must be a power of two in 2..1024"*. So 32 is not an SDK limit — it is the widest **vault contract
+lineage NIGHTGATE ships**, bounded by wasm proving memory (their note: the ceiling is hit at 64). If
+a future panel genuinely needed 64, the blockers are the contract and prover memory, not this
+library.
+
+**Overflow messages are specific** — *"33 entries do not fit a 32-slot tree"* — so a registry that
+outgrows its width fails loudly and legibly rather than silently dropping fields.
+
+### Still to confirm by running the full stack
 
 - [ ] A 32-slot custom panel needs no contract change beyond naming `attestation-vault-32`
-- [ ] Proving time and DUST cost at width 32 versus width 16 — part of the Phase 0 cost measurement
+- [ ] Proving time, memory and DUST cost at width 32 versus 16 — Phase 0 cost measurement (Q5)
 - [ ] `contentSaltSeed` persistence, and a tested restore path
 
 Note that `@odatano/dpp-sdk@0.2.0` was published to npm **without a corresponding commit in the
 GitHub repository**, which still shows only 0.1.0. Verify against the installed package, not the
-repo.
+repo — which is exactly what `test:sdk` does.
