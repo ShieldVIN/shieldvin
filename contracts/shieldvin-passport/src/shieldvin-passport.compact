@@ -1,0 +1,104 @@
+// ShieldVIN — Digital Circularity Vehicle Passport
+// Regulation (EU) 2026/1738, Article 46
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// The odometer reading is NEVER written to the ledger. It lives in private
+// state (a witness); the ledger holds only a commitment to it. Monotonicity
+// and threshold claims are proven in-circuit against that commitment, so a
+// verifier learns whether a claim holds without learning the reading.
+
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------- public ledger
+
+// vinHash -> content root anchoring the canonical passport payload
+export ledger passports: Map<Bytes<32>, Bytes<32>>;
+
+// vinHash -> commitment to the most recent odometer reading
+export ledger odometerCommitment: Map<Bytes<32>, Bytes<32>>;
+
+// vinHash -> registering authority, so an attestation is attributable
+export ledger registrar: Map<Bytes<32>, Bytes<32>>;
+
+// Monotonically increasing count of readings recorded across all vehicles
+export ledger readingCount: Counter;
+
+// ---------------------------------------------------------------- private state
+
+// The odometer reading being recorded. Never disclosed.
+witness newReading(): Uint<64>;
+
+// The previous reading and its salt, so the caller can open the stored
+// commitment in-circuit without revealing either.
+witness previousReading(): Uint<64>;
+witness previousSalt(): Bytes<32>;
+
+// Fresh salt for the new commitment.
+witness newSalt(): Bytes<32>;
+
+// ---------------------------------------------------------------- circuits
+
+// Register a vehicle passport. The content root commits to the canonical
+// payload held off-chain; only its hash is public.
+export circuit registerPassport(
+  vinHash: Bytes<32>,
+  contentRoot: Bytes<32>,
+  registrarId: Bytes<32>
+): [] {
+  assert(!passports.member(disclose(vinHash)), "passport already registered");
+  passports.insert(disclose(vinHash), disclose(contentRoot));
+  registrar.insert(disclose(vinHash), disclose(registrarId));
+}
+
+// Record the first odometer reading for a vehicle.
+export circuit initialiseOdometer(vinHash: Bytes<32>): [] {
+  assert(passports.member(disclose(vinHash)), "unknown passport");
+  assert(!odometerCommitment.member(disclose(vinHash)), "odometer already initialised");
+  const reading = newReading();
+  odometerCommitment.insert(disclose(vinHash), persistentCommit<Uint<64>>(reading, newSalt()));
+  readingCount.increment(1);
+}
+
+// Record a subsequent reading, proving in-circuit that it is not lower than
+// the previous one. Neither reading is disclosed.
+export circuit recordReading(vinHash: Bytes<32>): [] {
+  assert(passports.member(disclose(vinHash)), "unknown passport");
+  assert(odometerCommitment.member(disclose(vinHash)), "odometer not initialised");
+
+  const prev = previousReading();
+  const prevSalt = previousSalt();
+
+  // The caller must genuinely know the previous reading: its commitment has
+  // to reproduce what the ledger already holds.
+  assert(
+    persistentCommit<Uint<64>>(prev, prevSalt) == odometerCommitment.lookup(disclose(vinHash)),
+    "previous reading does not open the stored commitment"
+  );
+
+  const current = newReading();
+
+  // The anti-rollback claim. Proven over hidden values.
+  assert(current >= prev, "odometer reading decreased");
+
+  odometerCommitment.insert(disclose(vinHash), persistentCommit<Uint<64>>(current, newSalt()));
+  readingCount.increment(1);
+}
+
+// Prove the current reading is at or below a public bound, without revealing
+// it. Used for "under 150,000 km" style claims.
+export circuit proveOdometerBelow(vinHash: Bytes<32>, bound: Uint<64>): [] {
+  assert(odometerCommitment.member(disclose(vinHash)), "odometer not initialised");
+
+  const reading = previousReading();
+  const salt = previousSalt();
+
+  assert(
+    persistentCommit<Uint<64>>(reading, salt) == odometerCommitment.lookup(disclose(vinHash)),
+    "reading does not open the stored commitment"
+  );
+
+  assert(reading <= bound, "odometer above the claimed bound");
+}

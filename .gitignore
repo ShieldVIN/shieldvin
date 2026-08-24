@@ -23,9 +23,14 @@ id_ed25519
 private-state-db/
 .midnight/
 zk-artifacts/
-managed/
 *.sqlite
 *.db
+
+# Compiled Compact output: contract/, compiler/ and zkir/ ARE committed, so
+# judges and consumers can inspect the build without a Compact toolchain —
+# NIGHTGATE's own convention. PLONK prover/verifier keys are large and fully
+# regenerable, so those stay out.
+managed/**/keys/
 
 # ── Salt seeds ────────────────────────────────────────────────────────────────
 # These are proof openings. Publishing one undoes leaf salting; losing one makes
