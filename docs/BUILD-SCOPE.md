@@ -184,7 +184,8 @@ module for the same reason.
 | Local signing | `@odatano/nightgate-tx` **0.3.0**, exact | For the Model C path and batches |
 | Vault | `attestation-vault-32` — 32 slots, depth 5 | See [FIELDS.md](FIELDS.md) |
 | Database | SQLite (dev) → Postgres (prod) | NIGHTPASS's pattern |
-| Unit tests | `node --test` + `tsx` | Matches ODATANO — deliberately not vitest |
+| Contract tests | **vitest** | Midnight's own convention — see D17 |
+| App unit tests | `node --test` + `tsx` | Matches ODATANO |
 | E2E | Playwright | Matches ODATANO |
 | All UI | Plain HTML / CSS / JS | See below |
 | Network | Preprod | Mainnet submission is gated off in NIGHTGATE |
@@ -195,7 +196,12 @@ and a framework that reads as enterprise software works against that — includi
 independent dealer who is our beachhead.
 
 **On version pinning:** ODATANO uses caret ranges on their own packages. We pin exact. Different risk
-position when you are not the author.
+position when you are not the author. `@midnight-ntwrk/compact-runtime` is pinned to **0.16.0**
+because it has to equal the `runtime-version` the compiler stamps into the contract — a caret range
+would silently allow a mismatch.
+
+**On two test runners:** contract tests and application tests exercise different things and follow
+different conventions. See [DECISIONS.md](DECISIONS.md) D17.
 
 ---
 

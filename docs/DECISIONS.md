@@ -163,6 +163,28 @@ host `compact` resolves to the Windows NTFS utility — **always compile in WSL2
 [NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) is. That dependency is stated plainly in the
 README rather than left to be discovered.
 
+### D17 — vitest for contract tests, `node --test` for the app layer · 2026-08-25
+Two test runners in one repository, split by what they test. Contract tests run on **vitest**;
+application unit tests, when they exist, run on **`node --test` + `tsx`**.
+
+**Why:** D-era BUILD-SCOPE recorded `node --test` "deliberately not vitest", to match ODATANO. That
+reasoning still holds for the CAP service layer, which is where we integrate most closely with their
+tooling and where a contributor moving between the two codebases should find the same conventions.
+
+It does not hold for contract tests. Those exercise compiled Compact circuits through
+`@midnight-ntwrk/compact-runtime`, which is a Midnight concern rather than a CAP one, and Midnight's
+own ecosystem tests contracts with vitest — `example-bboard` does, and the `midnight-cq` tooling
+assumes it. A reviewer reading our contract tests is a Midnight reviewer, and they should find the
+shape they expect.
+
+**Cost, stated plainly:** two runners in one repo is worse than one, and `npm test` has to chain
+them. That is accepted in exchange for each half matching the convention of the ecosystem it belongs
+to.
+
+**Also pinned here:** `@midnight-ntwrk/compact-runtime` at **exactly 0.16.0**, because it must equal
+the `runtime-version` the compiler stamps into `contract-info.json`. A caret range would allow a
+silent mismatch between the runtime the tests use and the one the contract was built for.
+
 ---
 
 ## Reversed
