@@ -185,6 +185,31 @@ to.
 the `runtime-version` the compiler stamps into `contract-info.json`. A caret range would allow a
 silent mismatch between the runtime the tests use and the one the contract was built for.
 
+### D18 — One field-generic contract; the integrity rule lives on the ledger · 2026-08-26
+`shieldvin-passport` no longer has odometer-specific circuits. It holds a commitment per
+`(vehicle, field)` slot, and `initialiseField` fixes that field's **integrity rule** at creation:
+`neverFalls` or `neverRises`.
+
+**Why generic:** a passport is 32 fields. Four odometer circuits plus four near-identical write-off
+circuits plus four for accidents is not a design, it is copy-paste — and it would have made the
+contract the weakest thing in the repository rather than the strongest.
+
+**Why the rule is stored rather than passed:** the two rules run in opposite directions. An
+odometer, an accident count, a keeper count and a write-off category may never fall; a battery's
+state of health may never *rise*, because packs degrade and a pack reporting better health than last
+year was swapped or misreported. If the rule were a call argument, a caller would simply pass the
+one that suits them. On the ledger and written once, it cannot be renegotiated — and recreating a
+field to change it is refused.
+
+**Consequence:** the odometer story is unchanged, it is now field `odometerKm` under `neverFalls`.
+`proveFieldAtMost` with a bound of zero expresses "never had a reported accident" and "never written
+off"; `proveFieldAtLeast` expresses "battery still above 90%". Both mutation-checked: removing
+either guard fails exactly the tests it exists for and nothing else.
+
+**Also fixed here:** `.gitignore` excluded prover keys with `managed/**/keys/`, which contains a
+slash and so anchors to the repository root — it never matched the real path under `contracts/`.
+14 MB of keys were one `git add -A` away from being committed. Now `**/managed/**/keys/`.
+
 ---
 
 ## Reversed

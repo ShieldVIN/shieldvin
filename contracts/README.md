@@ -6,7 +6,7 @@ ShieldVIN's own Compact contracts. Layout follows
 
 | Contract | Circuits | Purpose |
 |---|---|---|
-| `shieldvin-passport` | `registerPassport`, `initialiseOdometer`, `recordReading`, `proveOdometerBelow` | The vehicle passport: registration, and odometer readings held as private state |
+| `shieldvin-passport` | `registerPassport`, `initialiseField`, `recordField`, `proveFieldAtMost`, `proveFieldAtLeast` | The vehicle passport: registration, and any panel field held as private state under its own integrity rule |
 
 ## Building
 
@@ -27,13 +27,19 @@ The ledger-9 line (compiler 0.33+) is not deployed to any public network.
 
 The odometer reading never reaches the ledger. Only `persistentCommit(reading, salt)` is stored.
 
-`recordReading` requires the caller to open the *existing* commitment in-circuit — proving they know
-the previous reading — then asserts the new reading is not lower, and replaces the commitment. Both
-readings stay witnesses throughout, so the chain records that a monotonicity check passed without
+`recordField` requires the caller to open the *existing* commitment in-circuit — proving they know
+the current value — then asserts the change respects the field's rule, and replaces the commitment.
+Both values stay witnesses throughout, so the chain records that an integrity check passed without
 recording what passed it.
 
-`proveOdometerBelow` does the same for a public bound: it proves the hidden reading sits at or below
-a threshold without disclosing it.
+**The rule is per field and fixed at creation.** An odometer, an accident count, a keeper count and
+a write-off category may never fall. A battery's state of health may never rise. Storing the rule on
+the ledger rather than accepting it per call is what stops a caller choosing the flattering rule at
+the moment they need it; recreating a field to change its rule is refused.
+
+`proveFieldAtMost` and `proveFieldAtLeast` do the same for a public bound: they prove the hidden
+value sits at or below, or at or above, a threshold without disclosing it. *"Never had a reported
+accident"* is simply `proveFieldAtMost` with a bound of zero.
 
 ## What this does and does not prove
 

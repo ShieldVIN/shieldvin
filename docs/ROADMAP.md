@@ -24,9 +24,13 @@ commitments reach the ledger. **Compile in WSL2** — Compact has no native Wind
 | Circuit | Does | Private state |
 |---|---|---|
 | `registerPassport` | Anchor a vehicle's content root | — |
-| `recordReading` | Store a reading commitment, prove it is not lower than the last | The reading itself |
-| `proveThreshold` | Prove a reading is above or below a bound | The reading |
-| `verifyForRole` | Disclose only what a role is entitled to | Role secret |
+| `initialiseField` | Create a panel field and fix its integrity rule for good | The opening value |
+| `recordField` | Write a new value, proving the caller knows the current one and that the change respects the field's rule | Both values |
+| `proveFieldAtMost` | Prove a hidden value is at or below a bound | The value |
+| `proveFieldAtLeast` | Prove a hidden value is at or above a bound | The value |
+
+Role-scoped disclosure is Phase 1, in the service layer and NIGHTGATE's on-chain grants — not a
+circuit here.
 
 - [ ] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages — **first
       task, gates everything else**
@@ -83,7 +87,7 @@ and because in-circuit signature verification is not available on any public net
 
 ## Phase 3 — Interoperability
 
-- [ ] Battery passport join via slot 12 — the regulation's interoperability clause, working
+- [ ] Battery passport join via slots 17 and 29 — the regulation's interoperability clause, working
 - [ ] NIGHTPASS composition demo
 - [ ] EU DPP Registry enrolment path
 - [ ] Dealer workflow — the [D7](DECISIONS.md#settled) beachhead

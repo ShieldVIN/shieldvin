@@ -37,12 +37,56 @@
       }
     },
     {
-      "name": "initialiseOdometer",
+      "name": "initialiseField",
       "pure": false,
       "proof": true,
       "arguments": [
         {
           "name": "vinHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "fieldKey",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "rule",
+          "type": {
+            "type-name": "Enum",
+            "name": "Rule",
+            "elements": [
+              "neverFalls",
+              "neverRises"
+            ]
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "recordField",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "vinHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "fieldKey",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -56,7 +100,7 @@
       }
     },
     {
-      "name": "recordReading",
+      "name": "proveFieldAtMost",
       "pure": false,
       "proof": true,
       "arguments": [
@@ -65,6 +109,20 @@
           "type": {
             "type-name": "Bytes",
             "length": 32
+          }
+        },
+        {
+          "name": "fieldKey",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "bound",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
           }
         }
       ],
@@ -75,12 +133,19 @@
       }
     },
     {
-      "name": "proveOdometerBelow",
+      "name": "proveFieldAtLeast",
       "pure": false,
       "proof": true,
       "arguments": [
         {
           "name": "vinHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "fieldKey",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -103,7 +168,7 @@
   ],
   "witnesses": [
     {
-      "name": "newReading",
+      "name": "newValue",
       "arguments": [
       ],
       "result type": {
@@ -112,7 +177,7 @@
       }
     },
     {
-      "name": "previousReading",
+      "name": "previousValue",
       "arguments": [
       ],
       "result type": {
@@ -157,7 +222,7 @@
       }
     },
     {
-      "name": "odometerCommitment",
+      "name": "registrar",
       "index": 1,
       "exported": true,
       "storage": "Map",
@@ -171,7 +236,7 @@
       }
     },
     {
-      "name": "registrar",
+      "name": "fieldCommitment",
       "index": 2,
       "exported": true,
       "storage": "Map",
@@ -185,8 +250,26 @@
       }
     },
     {
-      "name": "readingCount",
+      "name": "fieldRule",
       "index": 3,
+      "exported": true,
+      "storage": "Map",
+      "key": {
+        "type-name": "Bytes",
+        "length": 32
+      },
+      "value": {
+        "type-name": "Enum",
+        "name": "Rule",
+        "elements": [
+          "neverFalls",
+          "neverRises"
+        ]
+      }
+    },
+    {
+      "name": "updateCount",
+      "index": 4,
       "exported": true,
       "storage": "Counter"
     }

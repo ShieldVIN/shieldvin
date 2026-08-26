@@ -36,17 +36,21 @@ as a request or a PR.
 
 ## What we get, and what we must build
 
-NIGHTGATE ships the `attestation-vault` contract **precompiled**, so ShieldVIN needs no Compact
-toolchain. This matters more than it sounds: Compact has no native Windows binary, so a toolchain
-dependency would force every contributor into WSL2 on day one.
+NIGHTGATE ships the `attestation-vault` contract **precompiled**, and an earlier revision of this
+document recorded "no Compact toolchain required" as a benefit of that. **[D16](DECISIONS.md#settled)
+reversed it.** The passport's distinguishing logic is ours and lives in
+[`contracts/shieldvin-passport`](../contracts/shieldvin-passport), so Compact is on the critical
+path. Compiled artifacts are committed, so only contributors *changing* the contract need the
+toolchain — but they need WSL2, macOS or Linux, because Compact has no native Windows binary.
 
-**Provided:** document anchoring, salted-Merkle field proofs, six predicate kinds, three-level
-on-chain disclosure grants, async job orchestration, wallet and proving infrastructure, OData V4
-query semantics over all of it, and transaction fee sponsoring.
+**Provided by NIGHTGATE:** document anchoring, salted-Merkle field proofs, six predicate kinds,
+three-level on-chain disclosure grants, async job orchestration, wallet and proving infrastructure,
+OData V4 query semantics over all of it, and transaction fee sponsoring.
 
-**Ours to build:** the vehicle domain model, the provable-field registry, tier redaction rules and
-their query guard, both UIs, document storage, the auth strategy, and all HTTP security middleware.
-NIGHTGATE deliberately installs no global middleware — CORS, CSP and HSTS are the host's problem.
+**Ours to build:** the passport contract itself, the vehicle domain model, the provable-field
+registry, tier redaction rules and their query guard, both UIs, document storage, the auth strategy,
+and all HTTP security middleware. NIGHTGATE deliberately installs no global middleware — CORS, CSP
+and HSTS are the host's problem.
 
 ## Disclosure tiers
 

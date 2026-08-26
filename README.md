@@ -44,15 +44,22 @@ to check what they are told.
 One canonical vehicle record, anchored once on Midnight. From then on, each party is shown exactly
 what they are entitled to and provably nothing more.
 
-The odometer is the sharpest case, and it is what the contract in this repository implements:
+The contract in this repository holds a commitment **per field**, each under an integrity rule
+fixed when the field is created:
 
 | The question | What the chain learns |
 |---|---|
 | Register this vehicle's passport | A VIN hash, a content root, and who vouched for it |
-| Record a new odometer reading | That a reading was recorded, and that it was **not lower than the last one** |
+| Record a new odometer reading | That it was **not lower than the last one** |
+| Record a new battery health reading | That it was **not higher than the last one** |
 | Is the odometer under 150,000 km? | **Yes** or the transaction fails |
+| Has it ever been written off? | **No** or the transaction fails |
 
-At no point does the odometer reading itself reach the ledger. Neither does the salt that hides it.
+Those two rules run in opposite directions, and that is the point. An odometer, an accident count
+and a keeper count may never fall. A battery's state of health may never *rise* - packs degrade, so
+a pack reporting better health than last year was swapped or misreported.
+
+At no point does a field value itself reach the ledger. Neither does the salt that hides it.
 The chain stores a commitment; the claims are proven against that commitment inside a ZK circuit.
 That is [tested directly](#how-privacy-is-achieved), not asserted.
 
@@ -77,11 +84,11 @@ npm install
 npm test
 ```
 
-Expected: **37 contract tests and 24 SDK assertions, all passing**, in about a second.
+Expected: **56 contract tests and 24 SDK assertions, all passing**, in about a second.
 
 ```
  Test Files  1 passed (1)
-      Tests  37 passed (37)
+      Tests  56 passed (56)
 
 ================ 24 passed, 0 failed ================
 ```
@@ -89,7 +96,7 @@ Expected: **37 contract tests and 24 SDK assertions, all passing**, in about a s
 | Command | What it does |
 |---|---|
 | `npm test` | Everything below, in one run |
-| `npm run test:contract` | The 37 contract tests, against the compiled circuits |
+| `npm run test:contract` | The 56 contract tests, against the compiled circuits |
 | `npm run test:watch` | The same, re-running on change |
 | `npm run test:sdk` | 24 assertions pinning our assumptions about `@odatano/dpp-sdk` |
 | `npm run compile` | Recompile the Compact contract — **WSL2, macOS or Linux only**, see below |
@@ -120,26 +127,26 @@ cat contracts/shieldvin-passport/src/managed/shieldvin-passport/compiler/contrac
 ```
 
 > `"compiler-version": "0.31.1"`, `"language-version": "0.23.0"`, `"runtime-version": "0.16.0"` —
-> the stable ledger-8 line. Four circuits, all with `"proof": true`.
+> the stable ledger-8 line. Five circuits, all with `"proof": true`.
 
 **2. The tests exercise the real circuits.** `test/passport-simulator.mjs` loads the *compiled*
 contract and runs it through `@midnight-ntwrk/compact-runtime` at the pinned matching version
 (`0.16.0`). An assertion that fires in these tests is the same assertion that would reject the
 transaction on chain.
 
-**3. The tests would catch a regression.** Passing tests prove nothing on their own, so this was
-checked by mutation: deleting the single line
+**3. The tests would catch a regression.** Passing tests prove nothing on their own, so both
+integrity rules were checked by mutation. Deleting either guard from `recordField` and recompiling
+fails exactly the tests that guard exists for, and nothing else:
 
-```compact
-assert(current >= prev, "odometer reading decreased");
-```
+| Line deleted | Tests that fail |
+|---|---|
+| `assert(rule != Rule.neverFalls \|\| current >= prev, "value decreased");` | **7** — odometer rollback, erasing an accident, clearing a write-off, reducing keepers |
+| `assert(rule != Rule.neverRises \|\| current <= prev, "value increased");` | **3** — a battery reporting better health than last year |
 
-and recompiling makes **exactly four tests fail** — the four anti-rollback tests — and nothing else.
-You can reproduce that; it is a one-line edit to
+You can reproduce either; both are one-line edits to
 [`shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
 
-**4. Read the contract itself.** It is 104 lines and commented for a reader who does not know
-Compact: [`contracts/shieldvin-passport/src/shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
+**4. Read the contract itself.** It is commented for a reader who does not know Compact: [`contracts/shieldvin-passport/src/shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
 
 **5. The honest limits are written down, not buried.** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 § *The trust gap* states plainly what this does not prove. See [below](#what-this-does-not-prove).
@@ -153,9 +160,14 @@ Compact: [`contracts/shieldvin-passport/src/shieldvin-passport.compact`](contrac
 | Ledger field | Type | Holds |
 |---|---|---|
 | `passports` | `Map<Bytes<32>, Bytes<32>>` | VIN hash → content root of the canonical record |
-| `odometerCommitment` | `Map<Bytes<32>, Bytes<32>>` | VIN hash → commitment to the latest reading |
 | `registrar` | `Map<Bytes<32>, Bytes<32>>` | VIN hash → registering authority, so a claim is attributable |
-| `readingCount` | `Counter` | How many readings exist across all vehicles |
+| `fieldCommitment` | `Map<Bytes<32>, Bytes<32>>` | slot → commitment to that field's current value |
+| `fieldRule` | `Map<Bytes<32>, Rule>` | slot → the integrity rule, written once at creation |
+| `updateCount` | `Counter` | How many field updates exist across all vehicles |
+
+A **slot** is `persistentHash(["shieldvin:field:v1", vinHash, fieldKey])` — domain-separated, so a
+slot key cannot collide with any other hash the contract stores, and an observer who does not
+already know both the vehicle and the field cannot tell which slot holds what.
 
 ### Private state
 
@@ -163,36 +175,47 @@ Four witnesses, none of which ever reach the ledger:
 
 | Witness | Type | Why it is private |
 |---|---|---|
-| `newReading` | `Uint<64>` | The reading being recorded |
-| `previousReading` | `Uint<64>` | The last reading, needed to open the stored commitment |
+| `newValue` | `Uint<64>` | The value being written |
+| `previousValue` | `Uint<64>` | The current value, needed to open the stored commitment |
 | `previousSalt` | `Bytes<32>` | The opening for that commitment |
-| `newSalt` | `Bytes<32>` | A fresh opening, so equal readings do not produce equal commitments |
+| `newSalt` | `Bytes<32>` | A fresh opening, so equal values do not produce equal commitments |
 
 ### Circuits
 
 | Circuit | Public arguments | Proves |
 |---|---|---|
 | `registerPassport` | VIN hash, content root, registrar id | This vehicle is registered once, by a named registrar |
-| `initialiseOdometer` | VIN hash | A first reading exists — without publishing it |
-| `recordReading` | VIN hash | The caller **knows the previous reading**, and the new one is **not lower** |
-| `proveOdometerBelow` | VIN hash, bound | The hidden reading is **at or below a public bound** |
+| `initialiseField` | VIN hash, field key, rule | A field exists under a rule fixed for good — without publishing its value |
+| `recordField` | VIN hash, field key | The caller **knows the current value**, and the change **respects the field's rule** |
+| `proveFieldAtMost` | VIN hash, field key, bound | The hidden value is **at or below a public bound** |
+| `proveFieldAtLeast` | VIN hash, field key, bound | The hidden value is **at or above a public bound** |
+
+The rule lives on the ledger rather than in the call, so a caller cannot pick the flattering rule at
+the moment they need it. Recreating a field to change its rule is refused.
+
+Threshold proofs carry the claims a buyer actually asks for: *"never had a reported accident"* is
+`proveFieldAtMost(accidentCount, 0)`, *"never written off"* is
+`proveFieldAtMost(writeOffCategory, 0)`, and *"battery still above 90%"* is
+`proveFieldAtLeast(batteryStateOfHealthPct, 90_000)`.
 
 ## How privacy is achieved
 
-`recordReading` is the interesting one, so it is worth stating what it actually does.
+`recordField` is the interesting one, so it is worth stating what it actually does.
 
-The ledger holds `persistentCommit(reading, salt)` — never the reading. To record a new one the
-caller must, **inside the circuit**:
+The ledger holds `persistentCommit(value, salt)` — never the value. To write a new one the caller
+must, **inside the circuit**:
 
-1. supply the previous reading and its salt as witnesses;
+1. supply the current value and its salt as witnesses;
 2. recompute the commitment and prove it equals what the ledger already stores — which is only
-   possible if they genuinely know the previous reading;
-3. prove the new reading is greater than or equal to it;
-4. replace the commitment with one over the new reading and a fresh salt.
+   possible if they genuinely know the current value;
+3. read the field's rule **from the ledger** and prove the new value respects it — never below for
+   an odometer, never above for a battery;
+4. replace the commitment with one over the new value and a fresh salt.
 
-Both readings are witnesses throughout. The chain records **that a monotonicity check passed**,
-without recording **what passed it**. `proveOdometerBelow` does the same against a public threshold,
-so a dealer can answer *"under 150,000 km?"* with a proof rather than a promise.
+Both values are witnesses throughout. The chain records **that an integrity check passed**, without
+recording **what passed it**. `proveFieldAtMost` and `proveFieldAtLeast` do the same against a
+public bound, so a dealer can answer *"under 150,000 km?"* or *"battery above 90%?"* with a proof
+rather than a promise.
 
 This is tested rather than claimed. `test/passport.test.mjs` includes a group named
 *what the public ledger never learns*, which walks every value on the ledger after a full service
@@ -221,7 +244,7 @@ full in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | Component | Status |
 |---|---|
 | Compact contract — 4 circuits | **Done.** Compiles clean, artifacts committed |
-| Contract test suite | **Done.** 37 tests, mutation-checked |
+| Contract test suite | **Done.** 56 tests, both rules mutation-checked |
 | SDK assumption guard | **Done.** 24 assertions against `@odatano/dpp-sdk` 0.2.0 |
 | Provable-field registry — 32 slots | **Designed** ([FIELDS.md](docs/FIELDS.md)), not yet wired |
 | Deployment to Midnight preprod | **Not yet.** See [DECISIONS.md](docs/DECISIONS.md) D16 |
@@ -237,7 +260,7 @@ contracts/shieldvin-passport/
 docs/                                design, decisions, regulatory basis
 test/
   passport-simulator.mjs             harness: compiled circuits + a local ledger
-  passport.test.mjs                  37 contract tests
+  passport.test.mjs                  56 contract tests
   sdk-assumptions.mjs                24 assertions pinning @odatano/dpp-sdk behaviour
 ```
 

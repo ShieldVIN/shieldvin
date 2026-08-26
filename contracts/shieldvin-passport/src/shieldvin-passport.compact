@@ -3,46 +3,78 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-// The odometer reading is NEVER written to the ledger. It lives in private
-// state (a witness); the ledger holds only a commitment to it. Monotonicity
-// and threshold claims are proven in-circuit against that commitment, so a
-// verifier learns whether a claim holds without learning the reading.
+// A vehicle passport is not one number. This contract holds a COMMITMENT per
+// (vehicle, field): the odometer, the accident count, the number of keepers,
+// the write-off category, the battery's state of health. No field value ever
+// reaches the ledger — only a commitment to it, and proofs about it.
+//
+// EACH FIELD CARRIES ITS OWN INTEGRITY RULE, and the rules run in opposite
+// directions. An odometer, an accident count and a keeper count may never
+// fall. A battery's state of health may never rise: packs degrade, so a pack
+// reporting better health than last year was swapped or misreported, and that
+// is exactly the fraud worth catching.
+//
+// The rule is fixed when the field is created and cannot be changed
+// afterwards. It is stored on the ledger rather than passed in per call, so a
+// caller cannot choose the flattering rule at the moment they need it.
 
 pragma language_version >= 0.20;
 
 import CompactStandardLibrary;
+
+// ---------------------------------------------------------------- integrity rules
+
+// Which way a field is allowed to move over its lifetime.
+export enum Rule {
+  neverFalls,   // odometer, accidents, keepers, services, write-off category
+  neverRises    // battery state of health
+}
 
 // ---------------------------------------------------------------- public ledger
 
 // vinHash -> content root anchoring the canonical passport payload
 export ledger passports: Map<Bytes<32>, Bytes<32>>;
 
-// vinHash -> commitment to the most recent odometer reading
-export ledger odometerCommitment: Map<Bytes<32>, Bytes<32>>;
-
-// vinHash -> registering authority, so an attestation is attributable
+// vinHash -> registering authority, so every claim is attributable
 export ledger registrar: Map<Bytes<32>, Bytes<32>>;
 
-// Monotonically increasing count of readings recorded across all vehicles
-export ledger readingCount: Counter;
+// slot(vinHash, fieldKey) -> commitment to that field's current value
+export ledger fieldCommitment: Map<Bytes<32>, Bytes<32>>;
+
+// slot(vinHash, fieldKey) -> the integrity rule, written once at creation
+export ledger fieldRule: Map<Bytes<32>, Rule>;
+
+// How many field updates have been recorded across every vehicle
+export ledger updateCount: Counter;
 
 // ---------------------------------------------------------------- private state
 
-// The odometer reading being recorded. Never disclosed.
-witness newReading(): Uint<64>;
+// The value being written. Never disclosed.
+witness newValue(): Uint<64>;
 
-// The previous reading and its salt, so the caller can open the stored
+// The current value and its salt, so the caller can open the stored
 // commitment in-circuit without revealing either.
-witness previousReading(): Uint<64>;
+witness previousValue(): Uint<64>;
 witness previousSalt(): Bytes<32>;
 
-// Fresh salt for the new commitment.
+// Fresh salt for the new commitment, so two vehicles holding the same value
+// do not produce the same commitment.
 witness newSalt(): Bytes<32>;
+
+// ---------------------------------------------------------------- helpers
+
+// Where a vehicle's field lives on the ledger. Domain-separated so a slot key
+// can never collide with any other hash this contract stores.
+circuit slotOf(vinHash: Bytes<32>, fieldKey: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>(
+    [pad(32, "shieldvin:field:v1"), vinHash, fieldKey]
+  );
+}
 
 // ---------------------------------------------------------------- circuits
 
 // Register a vehicle passport. The content root commits to the canonical
-// payload held off-chain; only its hash is public.
+// 32-field payload held off-chain; only its hash is public.
 export circuit registerPassport(
   vinHash: Bytes<32>,
   contentRoot: Bytes<32>,
@@ -53,52 +85,94 @@ export circuit registerPassport(
   registrar.insert(disclose(vinHash), disclose(registrarId));
 }
 
-// Record the first odometer reading for a vehicle.
-export circuit initialiseOdometer(vinHash: Bytes<32>): [] {
+// Create a field and fix its integrity rule for good. The opening value is a
+// witness, so the field exists on chain without its value being published.
+export circuit initialiseField(
+  vinHash: Bytes<32>,
+  fieldKey: Bytes<32>,
+  rule: Rule
+): [] {
   assert(passports.member(disclose(vinHash)), "unknown passport");
-  assert(!odometerCommitment.member(disclose(vinHash)), "odometer already initialised");
-  const reading = newReading();
-  odometerCommitment.insert(disclose(vinHash), persistentCommit<Uint<64>>(reading, newSalt()));
-  readingCount.increment(1);
+
+  const slot = slotOf(disclose(vinHash), disclose(fieldKey));
+  assert(!fieldCommitment.member(slot), "field already initialised");
+
+  const value = newValue();
+  fieldCommitment.insert(slot, persistentCommit<Uint<64>>(value, newSalt()));
+  fieldRule.insert(slot, disclose(rule));
+  updateCount.increment(1);
 }
 
-// Record a subsequent reading, proving in-circuit that it is not lower than
-// the previous one. Neither reading is disclosed.
-export circuit recordReading(vinHash: Bytes<32>): [] {
+// Write a new value for a field, proving in-circuit that the caller knows the
+// current one and that the change respects the rule fixed at creation.
+// Neither value is disclosed.
+export circuit recordField(vinHash: Bytes<32>, fieldKey: Bytes<32>): [] {
   assert(passports.member(disclose(vinHash)), "unknown passport");
-  assert(odometerCommitment.member(disclose(vinHash)), "odometer not initialised");
 
-  const prev = previousReading();
+  const slot = slotOf(disclose(vinHash), disclose(fieldKey));
+  assert(fieldCommitment.member(slot), "field not initialised");
+
+  const prev = previousValue();
   const prevSalt = previousSalt();
 
-  // The caller must genuinely know the previous reading: its commitment has
-  // to reproduce what the ledger already holds.
+  // The caller must genuinely know the current value: its commitment has to
+  // reproduce what the ledger already holds.
   assert(
-    persistentCommit<Uint<64>>(prev, prevSalt) == odometerCommitment.lookup(disclose(vinHash)),
-    "previous reading does not open the stored commitment"
+    persistentCommit<Uint<64>>(prev, prevSalt) == fieldCommitment.lookup(slot),
+    "previous value does not open the stored commitment"
   );
 
-  const current = newReading();
+  const current = newValue();
+  const rule = fieldRule.lookup(slot);
 
-  // The anti-rollback claim. Proven over hidden values.
-  assert(current >= prev, "odometer reading decreased");
+  // Both guards are evaluated every time; each is vacuous under the other
+  // rule. Written this way rather than as a branch so that the failure a
+  // caller sees names which direction they violated.
+  assert(rule != Rule.neverFalls || current >= prev, "value decreased");
+  assert(rule != Rule.neverRises || current <= prev, "value increased");
 
-  odometerCommitment.insert(disclose(vinHash), persistentCommit<Uint<64>>(current, newSalt()));
-  readingCount.increment(1);
+  fieldCommitment.insert(slot, persistentCommit<Uint<64>>(current, newSalt()));
+  updateCount.increment(1);
 }
 
-// Prove the current reading is at or below a public bound, without revealing
-// it. Used for "under 150,000 km" style claims.
-export circuit proveOdometerBelow(vinHash: Bytes<32>, bound: Uint<64>): [] {
-  assert(odometerCommitment.member(disclose(vinHash)), "odometer not initialised");
+// Prove the hidden value is at or below a public bound.
+// "Under 150 000 km." "Never had a reported accident" is this with bound 0.
+export circuit proveFieldAtMost(
+  vinHash: Bytes<32>,
+  fieldKey: Bytes<32>,
+  bound: Uint<64>
+): [] {
+  const slot = slotOf(disclose(vinHash), disclose(fieldKey));
+  assert(fieldCommitment.member(slot), "field not initialised");
 
-  const reading = previousReading();
+  const value = previousValue();
   const salt = previousSalt();
 
   assert(
-    persistentCommit<Uint<64>>(reading, salt) == odometerCommitment.lookup(disclose(vinHash)),
-    "reading does not open the stored commitment"
+    persistentCommit<Uint<64>>(value, salt) == fieldCommitment.lookup(slot),
+    "value does not open the stored commitment"
   );
 
-  assert(reading <= bound, "odometer above the claimed bound");
+  assert(value <= disclose(bound), "value above the claimed bound");
+}
+
+// Prove the hidden value is at or above a public bound.
+// "Battery state of health still above 90%."
+export circuit proveFieldAtLeast(
+  vinHash: Bytes<32>,
+  fieldKey: Bytes<32>,
+  bound: Uint<64>
+): [] {
+  const slot = slotOf(disclose(vinHash), disclose(fieldKey));
+  assert(fieldCommitment.member(slot), "field not initialised");
+
+  const value = previousValue();
+  const salt = previousSalt();
+
+  assert(
+    persistentCommit<Uint<64>>(value, salt) == fieldCommitment.lookup(slot),
+    "value does not open the stored commitment"
+  );
+
+  assert(value >= disclose(bound), "value below the claimed bound");
 }
