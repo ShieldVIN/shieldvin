@@ -32,8 +32,12 @@ This is the legal basis for ShieldVIN. It establishes the **Digital Circularity 
 The clause that shapes the architecture is the interoperability requirement: the passport must be
 *aligned, interoperable and, where possible, integrated with other vehicle related environmental
 passports established under Union law*. That is a direct invitation to dock with the battery
-passport below, and it is why field slot 12 (`batteryStateOfHealthPct`) exists — see
-[FIELDS.md](FIELDS.md).
+passport below — and note the verb is **interoperate**, not absorb.
+
+ShieldVIN reads that as a **reference**, not a copy: slot 29 `batteryPassportId` points at an EV's
+battery passport, and the battery's own claims stay in that passport where they are authoritative.
+Restating them here would create two records that can disagree. Whether the panel should also mirror
+`batteryStateOfHealthPct` is an open question — see [FIELDS.md](FIELDS.md).
 
 ---
 

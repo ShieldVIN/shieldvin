@@ -25,7 +25,8 @@ The ledger-9 line (compiler 0.33+) is not deployed to any public network.
 
 ## The private-state model
 
-The odometer reading never reaches the ledger. Only `persistentCommit(reading, salt)` is stored.
+No field value ever reaches the ledger. Only `persistentCommit(value, salt)` is stored, one per
+(vehicle, field) slot.
 
 `recordField` requires the caller to open the *existing* commitment in-circuit — proving they know
 the current value — then asserts the change respects the field's rule, and replaces the commitment.

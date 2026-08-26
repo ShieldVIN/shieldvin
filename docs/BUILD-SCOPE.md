@@ -24,7 +24,8 @@ Everything below is downstream of these. They are settled; see
 A buyer standing in a forecourt with a phone:
 
 **Scan a QR code → see a verdict.** No login, no app, no wallet, no explanation of zero-knowledge
-proofs. A page that says *Odometer: never rolled back ✓* — and, if they tap, *how do you know that?*
+proofs. A page that says *Never written off ✓ · No reported accidents ✓ · One keeper ✓* — and, if
+they tap, *how do you know that?*
 
 Three rules follow, and they bind every consumer-facing surface:
 
@@ -47,7 +48,7 @@ says asserted a fact.
 | C | The organisation, locally | The organisation | Supported later |
 
 **Why A is rejected.** If ShieldVIN signs everything, ShieldVIN asserts everything. A dealer supplies
-a false odometer reading and the record says *we* claimed it. That transfers liability for data we
+a false accident count and the record says *we* claimed it. That transfers liability for data we
 cannot verify onto the party least able to verify it, and it destroys the traceability that Phases
 0–1 exist to provide.
 
@@ -221,7 +222,7 @@ Ordered by dependency.
    on the organisation, not on us
 7. **Measure DUST cost** per anchor and per proof, **batched versus unbatched**, and at width 32
    versus 16 — gates all pricing
-8. Odometer monotonicity proof, end to end
+8. Predicates end to end — write-off status and accident count first, then a monotonic field
 9. `app/scan` — QR to verdict, mobile, no login
 10. Seed data and a demo scenario
 

@@ -59,7 +59,7 @@ NIGHTGATE's three levels map onto vehicle stakeholders cleanly:
 | Level | Tier | Audience | Sees |
 |---|---|---|---|
 | 0 | `public` | Buyer scanning a listing | Make, model, year, category, type approval, environmental declarations |
-| 1 | `trade` | Dealer, recycler, insurer, lender | + odometer, accident count, owner count, service count, battery health |
+| 1 | `trade` | Dealer, recycler, insurer, lender | + write-off category, accident count, owner count, service count, mileage |
 | 2 | `authority` | DMV, police, notified body, ELV facility | + VIN, supplier identities, full lineage, dismantling data |
 
 Two enforcement layers, and the second is not optional. Redaction after a database read is
@@ -75,14 +75,17 @@ identities are `sha256(did)` — a pseudonym, never PII.
 
 | Claim | Mechanism | Why it lands |
 |---|---|---|
-| Odometer has never decreased | `documentComparison` across anchor versions | The fraud everyone recognises, proven without revealing a single reading |
-| Never written off | `fieldPredicate` — `accidentCount ≤ 0` | A clean-history claim that discloses nothing about incidents |
-| Recycled content meets threshold | `fieldPredicate` — `recycledPlasticPct ≥ N` | Compliance proof that does not leak supplier economics |
-| Battery health above bound | `fieldPredicate` on slot 12 | The join to the battery passport |
+| Never written off | `proveFieldAtMost` — `writeOffCategory ≤ 0` | The costliest lie in the used market, and the one a buyer cannot check today |
+| Never had a reported accident | `proveFieldAtMost` — `accidentCount ≤ 0` | A clean-history claim that discloses nothing about incidents |
+| One keeper from new | `proveFieldAtMost` — `ownerCount ≤ 1` | Provenance, without naming anybody |
+| Mileage has never decreased | `recordField` under `neverFalls` | The fraud everyone recognises, proven without revealing a reading |
+| Nothing changed but the service fields | `documentComparison` across anchor versions | The general detector: catches the frauds nobody thought to ask about |
+| Recycled content meets threshold | `proveFieldAtMost` / `AtLeast` on slots 8–11 | Compliance proof that does not leak supplier economics |
 
-The odometer case is the one to build first. It is the clearest possible demonstration that ZK is
-doing real work: a monotonicity claim across an entire ownership chain, where every reading stays
-hidden and the answer is still verifiable by anyone.
+**Build the write-off and accident claims first.** They are one circuit call each, they are what a
+buyer actually asks, and they demonstrate the whole mechanism — a claim answered against an anchored
+record with nothing disclosed. The mileage case is the same machinery on a field people already have
+intuitions about, which makes it the better *explanation* but not the better first build.
 
 A false claim **aborts during local proving, before submission** — it never reaches the chain. A
 successful transaction *is* the proof.
@@ -103,8 +106,9 @@ So:
 For batteries this is tolerable — a manufacturer declaring its own carbon footprint is the assumed
 model, and the regulation is built around accountable self-declaration.
 
-**For odometer readings and VIN integrity it is the entire problem.** A garage that anchors a rolled-
-back odometer produces proofs that are cryptographically perfect and factually false. Anchoring
+**For self-declared history and VIN integrity it is the entire problem.** A garage that anchors a
+false accident count, or a rolled-back reading, produces proofs that are cryptographically perfect
+and factually false. Anchoring
 makes the lie *immutable and attributable*; it does not make it detectable.
 
 Three honest responses, and we intend all three:
@@ -118,7 +122,7 @@ Three honest responses, and we intend all three:
    original three-chip work earns its place, and it is precisely the gap NIGHTGATE documents and
    does not attempt to fill.
 
-Nothing in Phase 0 or Phase 1 should be described as preventing odometer fraud. It makes fraud
+Nothing in Phase 0 or Phase 1 should be described as preventing fraud. It makes fraud
 attributable and rollbacks detectable. That is a real claim; the stronger one would be false.
 
 ## Hard constraints

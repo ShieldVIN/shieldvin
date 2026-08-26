@@ -35,9 +35,9 @@ is commercially sensitive to a dealer and personally identifying to an owner. Pu
 solves the first and destroys the second. Keeping it private solves the second and leaves the first
 where it is today: trust the seller.
 
-The reason it is worth solving privately is everything downstream of it — odometer fraud, title
-washing, undisclosed accident history, and the ordinary asymmetry where a used-car buyer has no way
-to check what they are told.
+The reason it is worth solving privately is everything downstream of it — title washing,
+undisclosed accident history, fabricated service records, mileage fraud, and the ordinary asymmetry
+where a used-car buyer has no way to check what they are told.
 
 ## What ShieldVIN does
 
@@ -66,8 +66,8 @@ That is [tested directly](#how-privacy-is-achieved), not asserted.
 
 ### Nobody touches a wallet
 
-A buyer scans a QR code and sees a verdict — *odometer: never rolled back* — with no app, no
-account, and no login. A dealer signs in with an email and a password. Neither ever holds a key, a
+A buyer scans a QR code and sees a verdict — *never written off · no reported accidents · one
+keeper* — with no app, no account, and no login. A dealer signs in with an email and a password. Neither ever holds a key, a
 token, or any cryptocurrency.
 
 Every transaction fee is sponsored. Every customer payment is ordinary fiat — card, direct debit or

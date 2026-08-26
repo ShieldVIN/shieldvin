@@ -12,9 +12,9 @@ entering mid-stream.
 
 ## Phase 0 — A working vehicle passport
 
-**Done when:** a vehicle passport can be registered on Midnight preprod, an odometer reading recorded
-as private state, and monotonicity and threshold claims proved in-circuit without the reading ever
-being disclosed — reachable end-to-end from a browser.
+**Done when:** a vehicle passport can be registered on Midnight preprod, panel fields recorded as
+private state, and threshold and integrity claims proved in-circuit without any value ever being
+disclosed — reachable end-to-end from a browser.
 
 The centrepiece is `contracts/shieldvin_passport.compact` (D16). Readings are witnesses; only
 commitments reach the ledger. **Compile in WSL2** — Compact has no native Windows binary.
@@ -44,7 +44,7 @@ circuit here.
       lands on the organisation rather than on us
 - [ ] **Measure DUST cost** per anchor and per proof, batched versus unbatched, width 32 versus 16 —
       gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md)
-- [ ] Odometer monotonicity predicate, end to end
+- [ ] Predicates end to end — write-off status and accident count first, then a monotonic field
 - [ ] `app/scan` — QR to verdict, mobile, no login
 - [ ] `contentSaltSeed` persistence **with a tested restore path**
 - [ ] Seed data and a demo scenario
@@ -55,8 +55,9 @@ form, Cardano, mainnet.
 Sponsoring and cost measurement come **before** polished UI. If the unit economics do not work, the
 UI is wasted effort.
 
-The odometer proof is the whole point of this phase. One predicate working end to end demonstrates
-more than six half-wired ones.
+One predicate working end to end demonstrates more than six half-wired ones. Start with the claims
+a buyer actually asks — never written off, no reported accidents — because they are a single circuit
+call each and they exercise the whole path: canonicalise, anchor, prove, submit, verify.
 
 ## Phase 1 — Tiered disclosure and a real audience
 
