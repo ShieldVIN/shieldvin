@@ -4,19 +4,25 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // A vehicle passport is not one number. This contract holds a COMMITMENT per
-// (vehicle, field): the odometer, the accident count, the number of keepers,
-// the write-off category, the battery's state of health. No field value ever
-// reaches the ledger — only a commitment to it, and proofs about it.
+// (vehicle, field): the write-off category, the accident count, the number of
+// keepers, the service and inspection record, the odometer. No field value
+// ever reaches the ledger — only a commitment to it, and proofs about it.
 //
-// EACH FIELD CARRIES ITS OWN INTEGRITY RULE, and the rules run in opposite
-// directions. An odometer, an accident count and a keeper count may never
-// fall. A battery's state of health may never rise: packs degrade, so a pack
-// reporting better health than last year was swapped or misreported, and that
-// is exactly the fraud worth catching.
+// EACH FIELD CARRIES ITS OWN INTEGRITY RULE, fixed when the field is created
+// and unchangeable afterwards. The rule is stored on the ledger rather than
+// passed in per call, so a caller cannot choose the flattering rule at the
+// moment they need it, and recreating a field to change it is refused.
 //
-// The rule is fixed when the field is created and cannot be changed
-// afterwards. It is stored on the ledger rather than passed in per call, so a
-// caller cannot choose the flattering rule at the moment they need it.
+// TWO DIRECTIONS EXIST because a rule that could only ever point one way would
+// not be a rule — `initialiseField` would not need the argument, and nothing
+// would be fixed at creation. Every field in the current panel only ever
+// rises: mileage, accidents, keepers, services, write-off category. A field
+// that may only fall is supported so that adding one later is a data change
+// rather than a contract change.
+//
+// SCOPE. This is the VEHICLE's record. An electric car's battery is a separate
+// regime with its own passport; the panel carries a reference to that passport
+// and does not restate its claims.
 
 pragma language_version >= 0.20;
 
@@ -26,8 +32,8 @@ import CompactStandardLibrary;
 
 // Which way a field is allowed to move over its lifetime.
 export enum Rule {
-  neverFalls,   // odometer, accidents, keepers, services, write-off category
-  neverRises    // battery state of health
+  neverFalls,   // every field in the current panel
+  neverRises    // reserved: no panel field uses this yet, by design
 }
 
 // ---------------------------------------------------------------- public ledger
@@ -157,7 +163,7 @@ export circuit proveFieldAtMost(
 }
 
 // Prove the hidden value is at or above a public bound.
-// "Battery state of health still above 90%."
+// The mirror of proveFieldAtMost: a floor rather than a ceiling.
 export circuit proveFieldAtLeast(
   vinHash: Bytes<32>,
   fieldKey: Bytes<32>,

@@ -12,7 +12,7 @@
  *   DISCLOSURE    does any field value ever reach the public ledger?
  *
  * Values are scaled x1000, matching `VALUE_SCALE` in `@odatano/dpp-sdk`, so a
- * battery at 96.4% is 96_400 here exactly as it would be in the field panel.
+ * a value of 96.4% is 96_400 here exactly as it would be in the field panel.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -30,7 +30,10 @@ const ODO = fieldKey('odometerKm');
 const ACCIDENTS = fieldKey('accidentCount');
 const OWNERS = fieldKey('ownerCount');
 const WRITE_OFF = fieldKey('writeOffCategory');
-const BATTERY = fieldKey('batteryStateOfHealthPct');
+// Every field the panel uses today only rises. This one stands in for a field
+// that may only fall — see FIELDS in the simulator for why the contract keeps
+// that direction available.
+const DECLINING = fieldKey('reservedNumeric0');
 
 const S1 = bytes32(0xd1);
 const S2 = bytes32(0xd2);
@@ -54,7 +57,7 @@ function registered(vin = VIN_A, root = ROOT) {
     sim.initialiseField(vin, ACCIDENTS, Rule.neverFalls, 0n, S1);
     sim.initialiseField(vin, OWNERS, Rule.neverFalls, 1n, S1);
     sim.initialiseField(vin, WRITE_OFF, Rule.neverFalls, 0n, S1);
-    sim.initialiseField(vin, BATTERY, Rule.neverRises, PCT(100), S1);
+    sim.initialiseField(vin, DECLINING, Rule.neverRises, PCT(100), S1);
 }
 
 // ---------------------------------------------------------------- registration
@@ -131,11 +134,11 @@ describe('initialiseField', () => {
     });
 
     it('REFUSES to recreate a field under a friendlier rule', () => {
-        // The attack this blocks: create the battery under neverRises, then
-        // recreate it as neverFalls so degradation can be reported upward.
+        // The attack this blocks: create a field under one rule, then recreate
+        // it under the friendlier one so the value can move the forbidden way.
         registered();
 
-        expect(() => sim.initialiseField(VIN_A, BATTERY, Rule.neverFalls, PCT(100), S2))
+        expect(() => sim.initialiseField(VIN_A, DECLINING, Rule.neverFalls, PCT(100), S2))
             .toThrow(rejects('field already initialised'));
         expect(sim.ledger.fieldRule.lookup([...sim.ledger.fieldRule].find(
             ([, r]) => r === Rule.neverRises
@@ -235,51 +238,52 @@ describe('recordField — a field that may never fall', () => {
 
 // ------------------------------------------------------ fields that never rise
 
-describe('recordField — a battery that may never rise', () => {
+describe('recordField — a field that may never rise', () => {
     beforeEach(() => { registered(); });
 
     it('accepts degradation', () => {
-        const l = sim.recordField(VIN_A, BATTERY, PCT(96.4), S2);
+        const l = sim.recordField(VIN_A, DECLINING, PCT(96.4), S2);
 
         expect(l.updateCount).toBe(6n);
     });
 
     it('accepts an unchanged reading', () => {
-        expect(() => sim.recordField(VIN_A, BATTERY, PCT(100), S2)).not.toThrow();
+        expect(() => sim.recordField(VIN_A, DECLINING, PCT(100), S2)).not.toThrow();
     });
 
-    it('REJECTS a battery that reports better health than last year', () => {
-        // A pack cannot heal. An increase means a swap or a false declaration,
-        // and it is the single largest value component of a used EV.
-        sim.recordField(VIN_A, BATTERY, PCT(96.4), S2);
+    it('REJECTS a value that climbed back up', () => {
+        // The mirror of the rollback case. A field created under neverRises has
+        // declared that it only ever falls, and the circuit holds it to that
+        // for the life of the passport.
+        sim.recordField(VIN_A, DECLINING, PCT(96.4), S2);
 
-        expect(() => sim.recordField(VIN_A, BATTERY, PCT(99), S3))
+        expect(() => sim.recordField(VIN_A, DECLINING, PCT(99), S3))
             .toThrow(rejects('value increased'));
     });
 
     it('rejects an increase of a tenth of a percent', () => {
-        sim.recordField(VIN_A, BATTERY, PCT(96.4), S2);
+        sim.recordField(VIN_A, DECLINING, PCT(96.4), S2);
 
-        expect(() => sim.recordField(VIN_A, BATTERY, PCT(96.5), S3))
+        expect(() => sim.recordField(VIN_A, DECLINING, PCT(96.5), S3))
             .toThrow(rejects('value increased'));
     });
 
-    it('accepts a long degradation history', () => {
-        sim.recordField(VIN_A, BATTERY, PCT(96.4), S2);
-        sim.recordField(VIN_A, BATTERY, PCT(94.1), S3);
-        const l = sim.recordField(VIN_A, BATTERY, PCT(91.8), bytes32(0xd4));
+    it('accepts a long declining history', () => {
+        sim.recordField(VIN_A, DECLINING, PCT(96.4), S2);
+        sim.recordField(VIN_A, DECLINING, PCT(94.1), S3);
+        const l = sim.recordField(VIN_A, DECLINING, PCT(91.8), bytes32(0xd4));
 
         expect(l.updateCount).toBe(8n);
     });
 
-    it('applies the opposite rule to the odometer on the SAME vehicle', () => {
+    it('applies the opposite rule to another field on the SAME vehicle', () => {
         // The point of storing the rule per field: one vehicle, two directions,
-        // and neither can borrow the other's rule.
+        // and neither field can borrow the other's rule.
         expect(() => sim.recordField(VIN_A, ODO, 5n, S2))
             .toThrow(rejects('value decreased'));
         expect(() => {
-            sim.recordField(VIN_A, BATTERY, PCT(96), S2);
-            sim.recordField(VIN_A, BATTERY, PCT(97), S3);
+            sim.recordField(VIN_A, DECLINING, PCT(96), S2);
+            sim.recordField(VIN_A, DECLINING, PCT(97), S3);
         }).toThrow(rejects('value increased'));
     });
 });
@@ -392,37 +396,37 @@ describe('proveFieldAtMost', () => {
 describe('proveFieldAtLeast', () => {
     beforeEach(() => {
         registered();
-        sim.recordField(VIN_A, BATTERY, PCT(96.4), S2);
+        sim.recordField(VIN_A, DECLINING, PCT(96.4), S2);
     });
 
-    it('proves battery health is above a floor', () => {
-        expect(() => sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(90))).not.toThrow();
+    it('proves a value is above a floor', () => {
+        expect(() => sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(90))).not.toThrow();
     });
 
     it('accepts a value exactly on the floor', () => {
-        expect(() => sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(96.4))).not.toThrow();
+        expect(() => sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(96.4))).not.toThrow();
     });
 
     it('REJECTS a floor the value falls short of', () => {
-        expect(() => sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(98)))
+        expect(() => sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(98)))
             .toThrow(rejects('value below the claimed bound'));
     });
 
-    it('fails the claim once the pack has degraded past it', () => {
-        sim.recordField(VIN_A, BATTERY, PCT(88), S3);
+    it('fails the claim once the value has fallen past it', () => {
+        sim.recordField(VIN_A, DECLINING, PCT(88), S3);
 
-        expect(() => sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(90)))
+        expect(() => sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(90)))
             .toThrow(rejects('value below the claimed bound'));
     });
 
     it('cannot be satisfied with the right value and the wrong salt', () => {
-        expect(() => sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(90), { value: PCT(96.4), salt: WRONG_SALT }))
+        expect(() => sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(90), { value: PCT(96.4), salt: WRONG_SALT }))
             .toThrow(rejects('value does not open the stored commitment'));
     });
 
     it('changes nothing', () => {
         const before = sim.ledger.updateCount;
-        sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(90));
+        sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(90));
 
         expect(sim.ledger.updateCount).toBe(before);
     });
@@ -454,9 +458,9 @@ describe('what the public ledger never learns', () => {
         for (const [i, value] of HISTORY.slice(1).entries()) {
             sim.recordField(VIN_A, ODO, value, salts[i]);
         }
-        sim.recordField(VIN_A, BATTERY, PCT(96.4), bytes32(0xd5));
+        sim.recordField(VIN_A, DECLINING, PCT(96.4), bytes32(0xd5));
         sim.proveFieldAtMost(VIN_A, ODO, 300_000n);
-        sim.proveFieldAtLeast(VIN_A, BATTERY, PCT(90));
+        sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(90));
 
         const { words, blobs } = sim.ledgerValues();
         for (const value of [...HISTORY, PCT(96.4), PCT(100)]) {
@@ -480,11 +484,11 @@ describe('what the public ledger never learns', () => {
     it('does not reveal WHICH field a slot holds', () => {
         // The slot key is a domain-separated hash of the VIN and the field
         // label. An observer who does not already know both cannot tell the
-        // odometer's slot from the battery's.
+        // odometer's slot from the write-off category's.
         registered();
         const { blobs } = sim.ledgerValues();
 
-        for (const label of [ODO, ACCIDENTS, OWNERS, WRITE_OFF, BATTERY]) {
+        for (const label of [ODO, ACCIDENTS, OWNERS, WRITE_OFF, DECLINING]) {
             expect(blobs).not.toContain(hex(label));
         }
     });
@@ -524,7 +528,7 @@ describe('what the public ledger never learns', () => {
         other.initialiseField(VIN_A, ACCIDENTS, Rule.neverFalls, 7n, S1);
         other.initialiseField(VIN_A, OWNERS, Rule.neverFalls, 9n, S1);
         other.initialiseField(VIN_A, WRITE_OFF, Rule.neverFalls, 2n, S1);
-        other.initialiseField(VIN_A, BATTERY, Rule.neverRises, PCT(41), S1);
+        other.initialiseField(VIN_A, DECLINING, Rule.neverRises, PCT(41), S1);
 
         // A pristine one-owner car and a written-off wreck, indistinguishable.
         expect(other.ledger.updateCount).toBe(mine);

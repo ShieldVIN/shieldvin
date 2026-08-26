@@ -50,14 +50,15 @@ fixed when the field is created:
 | The question | What the chain learns |
 |---|---|
 | Register this vehicle's passport | A VIN hash, a content root, and who vouched for it |
-| Record a new odometer reading | That it was **not lower than the last one** |
-| Record a new battery health reading | That it was **not higher than the last one** |
-| Is the odometer under 150,000 km? | **Yes** or the transaction fails |
 | Has it ever been written off? | **No** or the transaction fails |
+| Has it ever had a reported accident? | **No** or the transaction fails |
+| Record a service, an inspection, a reading | That the field moved **only the way that field may move** |
+| Is the mileage under 150,000 km? | **Yes** or the transaction fails |
 
-Those two rules run in opposite directions, and that is the point. An odometer, an accident count
-and a keeper count may never fall. A battery's state of health may never *rise* - packs degrade, so
-a pack reporting better health than last year was swapped or misreported.
+Every field is held the same way, and each declares its own integrity rule when it is created.
+Mileage, accidents, keepers, services and write-off category may never fall. The opposite direction
+exists too — a rule that could only ever point one way would not be a rule at all, and nothing would
+be fixed at creation.
 
 At no point does a field value itself reach the ledger. Neither does the salt that hides it.
 The chain stores a commitment; the claims are proven against that commitment inside a ZK circuit.
@@ -141,7 +142,7 @@ fails exactly the tests that guard exists for, and nothing else:
 | Line deleted | Tests that fail |
 |---|---|
 | `assert(rule != Rule.neverFalls \|\| current >= prev, "value decreased");` | **7** — odometer rollback, erasing an accident, clearing a write-off, reducing keepers |
-| `assert(rule != Rule.neverRises \|\| current <= prev, "value increased");` | **3** — a battery reporting better health than last year |
+| `assert(rule != Rule.neverRises \|\| current <= prev, "value increased");` | **3** — a declining field climbing back up |
 
 You can reproduce either; both are one-line edits to
 [`shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
@@ -193,10 +194,11 @@ Four witnesses, none of which ever reach the ledger:
 The rule lives on the ledger rather than in the call, so a caller cannot pick the flattering rule at
 the moment they need it. Recreating a field to change its rule is refused.
 
-Threshold proofs carry the claims a buyer actually asks for: *"never had a reported accident"* is
-`proveFieldAtMost(accidentCount, 0)`, *"never written off"* is
-`proveFieldAtMost(writeOffCategory, 0)`, and *"battery still above 90%"* is
-`proveFieldAtLeast(batteryStateOfHealthPct, 90_000)`.
+Threshold proofs carry the claims a buyer actually asks for: *"never written off"* is
+`proveFieldAtMost(writeOffCategory, 0)`, *"never had a reported accident"* is
+`proveFieldAtMost(accidentCount, 0)`, and *"one owner from new"* is
+`proveFieldAtMost(ownerCount, 1)`. `proveFieldAtLeast` is the mirror, for a floor rather than a
+ceiling.
 
 ## How privacy is achieved
 
@@ -208,13 +210,12 @@ must, **inside the circuit**:
 1. supply the current value and its salt as witnesses;
 2. recompute the commitment and prove it equals what the ledger already stores — which is only
    possible if they genuinely know the current value;
-3. read the field's rule **from the ledger** and prove the new value respects it — never below for
-   an odometer, never above for a battery;
+3. read the field's rule **from the ledger** and prove the new value respects it;
 4. replace the commitment with one over the new value and a fresh salt.
 
 Both values are witnesses throughout. The chain records **that an integrity check passed**, without
 recording **what passed it**. `proveFieldAtMost` and `proveFieldAtLeast` do the same against a
-public bound, so a dealer can answer *"under 150,000 km?"* or *"battery above 90%?"* with a proof
+public bound, so a dealer can answer *"never written off?"* or *"under 150,000 km?"* with a proof
 rather than a promise.
 
 This is tested rather than claimed. `test/passport.test.mjs` includes a group named

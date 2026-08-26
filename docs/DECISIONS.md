@@ -194,17 +194,26 @@ silent mismatch between the runtime the tests use and the one the contract was b
 circuits plus four for accidents is not a design, it is copy-paste — and it would have made the
 contract the weakest thing in the repository rather than the strongest.
 
-**Why the rule is stored rather than passed:** the two rules run in opposite directions. An
-odometer, an accident count, a keeper count and a write-off category may never fall; a battery's
-state of health may never *rise*, because packs degrade and a pack reporting better health than last
-year was swapped or misreported. If the rule were a call argument, a caller would simply pass the
-one that suits them. On the ledger and written once, it cannot be renegotiated — and recreating a
-field to change it is refused.
+**Why the rule is stored rather than passed:** if the rule were a call argument, a caller would
+simply pass the one that suits them. On the ledger and written once, it cannot be renegotiated, and
+recreating a field to change it is refused.
 
-**Consequence:** the odometer story is unchanged, it is now field `odometerKm` under `neverFalls`.
-`proveFieldAtMost` with a bound of zero expresses "never had a reported accident" and "never written
-off"; `proveFieldAtLeast` expresses "battery still above 90%". Both mutation-checked: removing
-either guard fails exactly the tests it exists for and nothing else.
+**Why two directions when the panel only uses one:** every field the panel carries today may never
+fall — mileage, accidents, keepers, services, write-off category. A rule that could only ever point
+one way would not be a rule: `initialiseField` would not need the argument and nothing would be
+fixed at creation. Keeping both directions means a field that only declines can be added as a data
+change rather than a contract change, and the tests prove that support is real rather than
+aspirational.
+
+**Consequence:** `proveFieldAtMost` with a bound of zero expresses "never written off" and "never
+had a reported accident"; the odometer is simply field `odometerKm` under `neverFalls`, one field
+among the panel rather than the subject of the contract. Both guards mutation-checked: removing
+either fails exactly the tests it exists for and nothing else.
+
+**Scope note:** this is the VEHICLE's record. An EV's battery is a separate regime with its own
+passport, and [NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) covers that ground. The panel
+carries a reference to a battery passport and does not restate its claims — see the open question on
+slot 17 in [FIELDS.md](FIELDS.md).
 
 **Also fixed here:** `.gitignore` excluded prover keys with `managed/**/keys/`, which contains a
 slash and so anchors to the repository root — it never matched the real path under `contracts/`.

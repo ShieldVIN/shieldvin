@@ -61,7 +61,7 @@ the exact string. Public label is `fieldKeyHex(name)` = blake2b-256 of the field
 | 14 | `recyclabilityPct` | 3R | Inherited from Directive 2005/64/EC |
 | 15 | `recoverabilityPct` | 3R | Inherited from Directive 2005/64/EC |
 | 16 | `dismantlingTimeMinutes` | Art 46 | Design-for-dismantling evidence |
-| 17 | `batteryStateOfHealthPct` | Interop | **The join to the battery passport** |
+| 17 | `batteryStateOfHealthPct` | **UNDER REVIEW** | See *Where our passport ends* below — this may not be ours to hold |
 
 ### Reserved numeric — slots 18–21
 
@@ -95,12 +95,33 @@ Six reserved slots is roughly 19% headroom, split by type so either kind of fiel
 without reordering. Anything beyond that needs a genuine re-anchor round, which the SDK's own
 guidance says to do **in one batch, never field by field**.
 
-## Interop is now two slots, not one
+## Where our passport ends — OPEN QUESTION (2026-08-26)
 
-Slots 17 and 29 together are the regulation's interoperability clause made concrete: state of health
-carries the *claim*, passport id carries the *link*. That pairing is what makes a
-[NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) composition demo real rather than rhetorical —
-same stack, same hashing, same disclosure vocabulary.
+ShieldVIN covers the **vehicle's** record. An EV's battery is a separate regime with its own
+passport, mandatory from February 2027 under
+[Reg (EU) 2023/1542](https://eur-lex.europa.eu/eli/reg/2023/1542/oj), and
+[NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) covers that ground.
+
+**Slot 29 `batteryPassportId` is clearly ours to hold** — it is the reference out, populated only
+when the vehicle is electric. That reference *is* the regulation's interoperability clause made
+concrete, and it is what makes a NIGHTPASS composition demo real rather than rhetorical.
+
+**Slots 17 and 27 are the open question.** `batteryStateOfHealthPct` is a claim about the battery,
+not about the vehicle, and asserting it here would be restating someone else's record — with all the
+divergence risk that implies once the two disagree. `batteryChemistry` has the same smell, though it
+is descriptive rather than a claim.
+
+Three options, to settle before the panel is anchored at scale:
+
+1. **Drop 17 (and possibly 27) back to the reserve.** Cleanest scope line: we hold the link, the
+   battery passport holds the battery. Costs nothing today — both slots are already anchored as
+   salted-but-absent leaves for combustion vehicles.
+2. **Hold them under delegation**, where a battery passport explicitly authorises this vehicle
+   passport to mirror a field. Needs a delegation mechanism that does not exist yet.
+3. **Keep them as a convenience mirror**, clearly marked as derived and non-authoritative.
+
+Option 1 is the current lean. Note the panel came from ODATANO's tested layout, so this is a change
+to discuss with them rather than to make unilaterally — the width is shared vocabulary.
 
 ---
 

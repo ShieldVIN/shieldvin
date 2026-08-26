@@ -53,13 +53,20 @@ export const bytes32 = (fill) => new Uint8Array(32).fill(fill);
 export const fieldKey = (name) =>
     blake2b(new TextEncoder().encode(name), { dkLen: 32 });
 
-/** The five fields these tests exercise, with the rule each one is created under. */
+/**
+ * The fields these tests exercise, with the rule each is created under.
+ *
+ * Every field the panel actually uses today only ever rises. `reservedNumeric0`
+ * stands in for a field that may only fall — the contract supports the
+ * direction so that adding such a field later is a data change rather than a
+ * contract change, and the tests have to prove that support is real.
+ */
 export const FIELDS = {
-    odometerKm:              Rule.neverFalls,
-    accidentCount:           Rule.neverFalls,
-    ownerCount:              Rule.neverFalls,
-    writeOffCategory:        Rule.neverFalls,
-    batteryStateOfHealthPct: Rule.neverRises
+    odometerKm:       Rule.neverFalls,
+    accidentCount:    Rule.neverFalls,
+    ownerCount:       Rule.neverFalls,
+    writeOffCategory: Rule.neverFalls,
+    reservedNumeric0: Rule.neverRises
 };
 
 /**

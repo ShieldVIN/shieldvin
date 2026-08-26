@@ -32,10 +32,13 @@ the current value — then asserts the change respects the field's rule, and rep
 Both values stay witnesses throughout, so the chain records that an integrity check passed without
 recording what passed it.
 
-**The rule is per field and fixed at creation.** An odometer, an accident count, a keeper count and
-a write-off category may never fall. A battery's state of health may never rise. Storing the rule on
-the ledger rather than accepting it per call is what stops a caller choosing the flattering rule at
-the moment they need it; recreating a field to change its rule is refused.
+**The rule is per field and fixed at creation.** Every field the panel uses today may never fall:
+mileage, accident count, keeper count, service count, write-off category. The opposite direction is
+supported so that adding a field which only declines is a data change rather than a contract change
+— and because a rule that could only ever point one way would not be fixing anything at creation.
+
+Storing the rule on the ledger rather than accepting it per call is what stops a caller choosing the
+flattering rule at the moment they need it; recreating a field to change it is refused.
 
 `proveFieldAtMost` and `proveFieldAtLeast` do the same for a public bound: they prove the hidden
 value sits at or below, or at or above, a threshold without disclosing it. *"Never had a reported
