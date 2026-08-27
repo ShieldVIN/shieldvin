@@ -12,7 +12,9 @@
 > exist today — please read it rather than inferring from the docs, which describe the design in
 > full including parts still ahead of us.
 
-## Contents
+#<img src="app/scan/brand-banner.png" alt="ShieldVIN - proving a vehicle history" width="100%">
+
+# Contents
 
 - [The problem](#the-problem) · [What ShieldVIN does](#what-shieldvin-does)
 - [Quick start](#quick-start) · [Evaluating this repository](#evaluating-this-repository)
