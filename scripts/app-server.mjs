@@ -115,15 +115,29 @@ async function handleIntake(req, res) {
 
 // ---------------------------------------------------------------- server
 
-createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
     const { pathname } = new URL(req.url, 'http://x');
     if (pathname === '/api/health') return json(res, 200, { ok: true });
     if (pathname === '/api/ledger' && req.method === 'GET') return json(res, 200, ledgerPayload());
     if (pathname === '/api/intake' && req.method === 'POST') return handleIntake(req, res);
     if (pathname.startsWith('/api/')) return json(res, 404, { error: 'unknown endpoint' });
     return serveStatic(res, pathname);
-}).listen(PORT, () => {
-    console.log(`ShieldVIN app  http://localhost:${PORT}`);
+});
+
+// A busy port greets nobody with a stack trace: walk forward a few ports -
+// the previous run, or another tool, may still be holding the default.
+let port = PORT;
+server.on('error', (e) => {
+    if (e.code === 'EADDRINUSE' && port < PORT + 10) {
+        console.log(`port ${port} is in use, trying ${port + 1}…`);
+        server.listen(++port);
+    } else {
+        console.error(e.message);
+        process.exit(1);
+    }
+});
+server.listen(port, () => {
+    console.log(`ShieldVIN app  http://localhost:${port}`);
     console.log(`  verification  /          console  /console/          proofs  /proofs/`);
     console.log(`  circuits: compiled shieldvin-passport, in-process; ledger resets on restart`);
 });
