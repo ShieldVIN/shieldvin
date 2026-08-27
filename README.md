@@ -270,18 +270,26 @@ test/
 | | |
 |---|---|
 | [Midnight Network](https://midnight.network) | Zero-knowledge blockchain; ledger 8, Compact 0.31.1 |
-| [NIGHTGATE](https://github.com/ODATANO/NIGHTGATE) | OData V4 gateway to Midnight — anchoring, ZK predicates, disclosure grants, fee sponsoring |
-| [`@odatano/dpp-sdk`](https://github.com/ODATANO) | Salted-Merkle field registry primitives |
-| [SAP CAP](https://cap.cloud.sap/) | Application framework — CDS domain model, OData services |
+| [`@odatano/dpp-sdk`](https://github.com/ODATANO) | Salted-Merkle field panel — key derivation, value scaling, tree construction |
+| [`@odatano/nightgate-tx`](https://github.com/ODATANO/NIGHTGATE) | Local transaction building and proving; sponsored submission |
 
-ShieldVIN is a **consumer application** of NIGHTGATE, in the same relation to it as
-[NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) is for battery passports. We do not fork it. The
-contract in this repository is our own, and is the part we are asking to be judged on; NIGHTGATE
-supplies the chain integration around it.
+**Where the line falls.** ShieldVIN's Compact contract is its own work — five circuits, its own
+ledger, its own integrity rules. It is not a fork, and it does not extend NIGHTGATE's
+`attestation-vault`. The 32-slot field panel is ours too: the slot layout is a vehicle-domain
+design, built on `@odatano/dpp-sdk` for key derivation, value scaling and Merkle construction.
 
-Thanks to **[ODATANO](https://github.com/ODATANO)** for the stack, for review, and for the
-[reference integration](https://github.com/maxalexweber1/ShieldVIN-NIGHTGATE-DEMO) that shows a
-vehicle passport anchored end-to-end on Midnight preprod through NIGHTGATE.
+ShieldVIN builds on ODATANO in three ways. The field panel uses `@odatano/dpp-sdk`.
+`@odatano/nightgate-tx` builds and proves transactions locally against our own key. And ODATANO's
+hosted NIGHTGATE sponsors our preprod transaction fees under a metered grant — every transaction
+is built, proven and signed on our side; **NIGHTGATE pays and submits, and never sees a witness.**
+
+ShieldVIN does not use NIGHTGATE's CAP service, its OData layer, its `attestation-vault` contract,
+or its disclosure grants. Those are on the roadmap, not in this submission — see
+[D20](docs/DECISIONS.md#settled).
+
+Thanks to **[ODATANO](https://github.com/ODATANO)** for the SDK, for the sponsoring grant, for
+review, and for the [reference integration](https://github.com/maxalexweber1/ShieldVIN-NIGHTGATE-DEMO)
+that implements this panel end-to-end on Midnight preprod.
 
 ## Documentation
 

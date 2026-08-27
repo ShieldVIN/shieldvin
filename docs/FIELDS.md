@@ -61,9 +61,8 @@ the exact string. Public label is `fieldKeyHex(name)` = blake2b-256 of the field
 | 14 | `recyclabilityPct` | 3R | Inherited from Directive 2005/64/EC |
 | 15 | `recoverabilityPct` | 3R | Inherited from Directive 2005/64/EC |
 | 16 | `dismantlingTimeMinutes` | Art 46 | Design-for-dismantling evidence |
-| 17 | `batteryStateOfHealthPct` | **UNDER REVIEW** | See *Where our passport ends* below — this may not be ours to hold |
 
-### Reserved numeric — slots 18–21
+### Reserved numeric — slots 17–21
 
 Deliberately empty. Absent leaves are still salted and still anchored, so occupying one later costs
 a re-anchor but no reordering.
@@ -95,7 +94,7 @@ Six reserved slots is roughly 19% headroom, split by type so either kind of fiel
 without reordering. Anything beyond that needs a genuine re-anchor round, which the SDK's own
 guidance says to do **in one batch, never field by field**.
 
-## Where our passport ends — OPEN QUESTION (2026-08-26)
+## Where our passport ends — SETTLED (2026-08-27)
 
 ShieldVIN covers the **vehicle's** record. An EV's battery is a separate regime with its own
 passport, mandatory from February 2027 under
@@ -106,22 +105,21 @@ passport, mandatory from February 2027 under
 when the vehicle is electric. That reference *is* the regulation's interoperability clause made
 concrete, and it is what makes a NIGHTPASS composition demo real rather than rhetorical.
 
-**Slots 17 and 27 are the open question.** `batteryStateOfHealthPct` is a claim about the battery,
-not about the vehicle, and asserting it here would be restating someone else's record — with all the
-divergence risk that implies once the two disagree. `batteryChemistry` has the same smell, though it
-is descriptive rather than a claim.
+**Slot 17 `batteryStateOfHealthPct` returns to the reserve.** State of health is a claim about
+the battery, not about the vehicle. Holding it here would restate someone else's record, and the two
+would eventually disagree — at which point a verifier has two answers and no way to choose. The
+battery passport is authoritative for the battery; we hold the link and stop.
 
-Three options, to settle before the panel is anchored at scale:
+**Slot 27 `batteryChemistry` stays.** It is descriptive rather than a claim, so it carries no
+divergence risk of the same kind.
 
-1. **Drop 17 (and possibly 27) back to the reserve.** Cleanest scope line: we hold the link, the
-   battery passport holds the battery. Costs nothing today — both slots are already anchored as
-   salted-but-absent leaves for combustion vehicles.
-2. **Hold them under delegation**, where a battery passport explicitly authorises this vehicle
-   passport to mirror a field. Needs a delegation mechanism that does not exist yet.
-3. **Keep them as a convenience mirror**, clearly marked as derived and non-authoritative.
+Raised with ODATANO on 2026-08-27 and agreed. Their wording: *"state of health is the battery
+passport's claim; a mirror here is a second record that will diverge"*, while slot 29 *"is the link:
+an EV carries the battery passport id from our side, a verifier follows it into the battery passport
+and checks there instead of trusting a copy."*
 
-Option 1 is the current lean. Note the panel came from ODATANO's tested layout, so this is a change
-to discuss with them rather than to make unilaterally — the width is shared vocabulary.
+The change costs nothing today: nothing is anchored yet, and absent slots are salted empty leaves
+either way.
 
 ---
 

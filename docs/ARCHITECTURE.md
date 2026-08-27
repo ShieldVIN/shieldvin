@@ -7,8 +7,17 @@ may claim.
 
 ## Shape
 
-ShieldVIN is a **SAP CAP application** that installs `@odatano/nightgate` as a plugin. NIGHTGATE
-supplies the chain integration; ShieldVIN supplies the vehicle domain and the user-facing surfaces.
+> **What Wave 1 actually ships is smaller than the diagram below.** Per
+> [D20](DECISIONS.md#settled), the 2 September submission deploys and calls `shieldvin-passport`
+> through **`@odatano/nightgate-tx`**, with ODATANO's hosted NIGHTGATE sponsoring the preprod fees.
+> Transactions are built, proven and signed locally; NIGHTGATE pays and submits and never sees a
+> witness. There is no CAP application — the `@odatano/nightgate` *plugin* below is Wave 2 work.
+> The target architecture is unchanged; this note exists so nobody reads the diagram as a
+> description of what is running today.
+
+The target: ShieldVIN is a **SAP CAP application** that installs `@odatano/nightgate` as a plugin.
+NIGHTGATE supplies the chain integration; ShieldVIN supplies the vehicle domain and the user-facing
+surfaces.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -43,7 +52,8 @@ reversed it.** The passport's distinguishing logic is ours and lives in
 path. Compiled artifacts are committed, so only contributors *changing* the contract need the
 toolchain — but they need WSL2, macOS or Linux, because Compact has no native Windows binary.
 
-**Provided by NIGHTGATE:** document anchoring, salted-Merkle field proofs, six predicate kinds,
+**Provided by NIGHTGATE (Wave 2 onward — see [D20](DECISIONS.md#settled)):** document anchoring,
+salted-Merkle field proofs, six predicate kinds,
 three-level on-chain disclosure grants, async job orchestration, wallet and proving infrastructure,
 OData V4 query semantics over all of it, and transaction fee sponsoring.
 

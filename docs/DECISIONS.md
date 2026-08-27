@@ -262,6 +262,47 @@ index, or key derivation once the page can run `compact-runtime`.
 pointing `proveFieldAtLeast` at the `atMost` domain tag fails exactly the one test that separates a
 ceiling from a floor.
 
+### D20 — `@odatano/nightgate-tx` with sponsored fees; no CAP for Wave 1 · 2026-08-27
+
+ShieldVIN deploys and calls `shieldvin-passport` through **`@odatano/nightgate-tx` 0.4.0**, with
+ODATANO's hosted NIGHTGATE sponsoring the preprod fees. No SAP CAP application, no Postgres, no
+proof server, and no wallet of our own to fund. [D16](#settled) is **deferred, not reversed**.
+
+**Corrected 2026-08-27, same day.** This decision was first recorded on the premise that using
+NIGHTGATE meant standing up SAP CAP, because `@odatano/nightgate` declares
+`peerDependencies: { '@sap/cds': '>=10 <11' }`. That is the *CAP plugin*. There is a second package,
+`@odatano/nightgate-tx`, described as *"drive a hosted NIGHTGATE and build transactions locally with
+your own key"* — no CAP, no database, wasm proving in process. Our own `nightgate-demo` clone
+already depended on it. The original plan (midnight-js plus a faucet-funded wallet) was more work
+than this for a weaker result, and is kept only as the fallback below.
+
+**Why:** Wave 1 closes **2 September 2026**. This path needs no infrastructure, and sponsored
+deploys shipped in NIGHTGATE 0.21.0 on 25 August, so the deploy is ours to run rather than something
+we wait on ODATANO to do for us. Agent grants never used to include deploys; grant `shieldvin-w1`
+carries `allowDeploy: true`, `maxDeploys: 2`, 200 sponsored jobs per UTC day.
+
+**The privacy model is untouched, and this is the reason the dependency is acceptable.** Every
+transaction is built, proven and **signed locally**; NIGHTGATE receives transaction bytes with the
+fee unpaid, pays, and submits. It never holds a witness. Calls into our contract *cannot* run on
+their server — `recordField` and `proveField*` need witnesses the server has no material for.
+[D13](#settled) holds: no end user touches a wallet, and deployment is a one-off admin act.
+
+**Fallback, at the cost of one step:** because the transaction is signed before it leaves us, a
+sponsor outage is survivable by submitting it ourselves from a funded wallet. That is a change to
+the final step, not a rebuild — which is what makes the dependency on `api.nightgate.dev`
+tolerable after the 503 incident on 25 August.
+
+**Attribution consequence.** Wave 1 genuinely builds on ODATANO in three ways: the field panel's
+derivation (`dpp-sdk`), local transaction building (`nightgate-tx`), and sponsored fees. The README
+states all three, including that NIGHTGATE pays and submits but never sees a witness. Under-claiming
+this would fail `w1-audit-fork`, which exists to state the relationship before a judge finds it.
+What we must *not* claim is NIGHTGATE's CAP service, OData layer, `attestation-vault` contract, or
+disclosure grants — none of which are in this submission.
+
+**Watch:** `maxDeploys: 2` means one redeploy in reserve, and `registerPassport` is insert-once per
+`vinHash`, so a redeploy starts from an empty ledger. Do not spend a deploy on a contract that is
+not final.
+
 ## Reversed
 
 Recorded so they are not accidentally reinstated.
