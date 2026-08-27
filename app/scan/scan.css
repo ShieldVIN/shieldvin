@@ -6,39 +6,43 @@
  * and a page that must work on a forecourt should not depend on a font CDN).
  */
 
+/* ShieldVIN brand: royal blue #004AAD, periwinkle #8B95FF, cream #EDE4D8 -
+   sampled from the logo and banner. Montserrat carries the name. */
 :root {
-  --bg:        #F4F6F5;
-  --card:      #FFFFFF;
-  --ink:       #17201D;
-  --ink-2:     #46524E;
-  --muted:     #71807B;
-  --line:      #DCE2E0;
-  --brand:     #0F5257;
+  --bg:        #EDE4D8;
+  --card:      #FBF7F0;
+  --ink:       #16264A;
+  --ink-2:     #44536F;
+  --muted:     #77809A;
+  --line:      #DBD1C0;
+  --brand:     #004AAD;
+  --accent:    #8B95FF;
   --ok:        #1E6B33;
-  --ok-bg:     #E4F0E6;
+  --ok-bg:     #E2EDDD;
   --warn:      #8A5A0B;
-  --warn-bg:   #F5EAD3;
-  --none:      #5A6663;
-  --none-bg:   #EBEEED;
+  --warn-bg:   #F3E6C9;
+  --none:      #6B6F66;
+  --none-bg:   #E4DECF;
   --bad:       #8C2F26;
-  --bad-bg:    #F4E1DE;
+  --bad-bg:    #F2DCD3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg:        #101413;
-    --card:      #1A211F;
-    --ink:       #E9EEEC;
-    --ink-2:     #BAC6C2;
-    --muted:     #859390;
-    --line:      #2B3532;
-    --brand:     #58B7BC;
+    --bg:        #0E1730;
+    --card:      #172142;
+    --ink:       #EDE4D8;
+    --ink-2:     #C6C9DC;
+    --muted:     #8D95B3;
+    --line:      #2B3660;
+    --brand:     #7D9BFF;
+    --accent:    #8B95FF;
     --ok:        #7CC489;
     --ok-bg:     #1B2E20;
     --warn:      #DCA94D;
     --warn-bg:   #2F2513;
-    --none:      #96A29E;
-    --none-bg:   #232B29;
+    --none:      #9AA0B5;
+    --none-bg:   #212A4A;
     --bad:       #DE8A80;
     --bad-bg:    #331B18;
   }
@@ -64,8 +68,12 @@ body {
   background: var(--card);
 }
 .brand { display: flex; align-items: center; gap: 9px; color: var(--brand); }
-.mark { width: 26px; height: 26px; }
-.brand-name { font-weight: 700; font-size: 17px; letter-spacing: -.01em; color: var(--ink); }
+.mark { width: 30px; height: 30px; display: block; }
+.brand-name {
+  font-family: "Montserrat", system-ui, sans-serif;
+  font-weight: 600; font-size: 16px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--brand);
+}
 .surface-nav { display: flex; gap: 14px; }
 .surface-nav a { color: var(--brand); text-decoration: none; font-size: 14px; }
 .surface-nav a:hover { text-decoration: underline; }
@@ -114,7 +122,7 @@ body {
   padding: 14px 16px; cursor: pointer; list-style: none;
 }
 .verdict summary::-webkit-details-marker { display: none; }
-.verdict summary:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.verdict summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 .badge {
   flex: none; width: 34px; height: 34px; border-radius: 50%;
