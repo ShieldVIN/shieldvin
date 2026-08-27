@@ -2,6 +2,14 @@ import type * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
 
 export enum Rule { neverFalls = 0, neverRises = 1 }
 
+export type Claim = { slot: Uint8Array;
+                      vinHash: Uint8Array;
+                      fieldKey: Uint8Array;
+                      commitment: Uint8Array;
+                      bound: bigint;
+                      atMost: boolean
+                    };
+
 export type Witnesses<PS> = {
   newValue(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
   previousValue(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
@@ -106,6 +114,13 @@ export type Ledger = {
     member(key_0: Uint8Array): boolean;
     lookup(key_0: Uint8Array): Rule;
     [Symbol.iterator](): Iterator<[Uint8Array, Rule]>
+  };
+  claims: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): Claim;
+    [Symbol.iterator](): Iterator<[Uint8Array, Claim]>
   };
   readonly updateCount: bigint;
 }

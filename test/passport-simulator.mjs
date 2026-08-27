@@ -234,6 +234,7 @@ export class PassportSimulator {
         walk(l.registrar);
         walk(l.fieldCommitment);
         walk(l.fieldRule);
+        walk(l.claims);
         walk(l.updateCount);
         return { words, blobs };
     }

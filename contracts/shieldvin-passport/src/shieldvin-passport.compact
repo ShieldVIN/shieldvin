@@ -23,6 +23,12 @@
 // SCOPE. This is the VEHICLE's record. An electric car's battery is a separate
 // regime with its own passport; the panel carries a reference to that passport
 // and does not restate its claims.
+//
+// A PROVEN CLAIM IS RECORDED, the value behind it is not. A proof circuit that
+// only asserted would leave nothing for a verifier to read afterwards: the
+// transaction's success is the proof, but nothing would index it by vehicle.
+// So a successful proof writes a Claim — which vehicle, which field, which
+// direction, which bound — and never the value that satisfied it.
 
 pragma language_version >= 0.20;
 
@@ -34,6 +40,31 @@ import CompactStandardLibrary;
 export enum Rule {
   neverFalls,   // every field in the current panel
   neverRises    // reserved: no panel field uses this yet, by design
+}
+
+// ---------------------------------------------------------------- claims
+
+// What a verifier reads after the fact.
+//
+// Everything here is already public: the bound and the field are call
+// arguments, and the commitment is on the ledger. The VALUE that satisfied the
+// claim is absent, which is the whole point.
+//
+// `commitment` is what the claim was proven against, so a claim cannot outlive
+// the value it was made about. Record a new value for the field and the
+// commitment moves on; a verifier comparing this against the current
+// fieldCommitment sees the claim is stale rather than mistaking it for current.
+//
+// `slot` is carried so a verifier can find the current commitment by direct
+// lookup. Deriving it needs persistentHash, which a plain browser page has no
+// way to compute — see D19.
+export struct Claim {
+  slot: Bytes<32>,
+  vinHash: Bytes<32>,
+  fieldKey: Bytes<32>,
+  commitment: Bytes<32>,
+  bound: Uint<64>,
+  atMost: Boolean
 }
 
 // ---------------------------------------------------------------- public ledger
@@ -49,6 +80,10 @@ export ledger fieldCommitment: Map<Bytes<32>, Bytes<32>>;
 
 // slot(vinHash, fieldKey) -> the integrity rule, written once at creation
 export ledger fieldRule: Map<Bytes<32>, Rule>;
+
+// claimKey -> the claim that was proven. Re-proving the same claim against the
+// same value is idempotent: it writes the same key twice.
+export ledger claims: Map<Bytes<32>, Claim>;
 
 // How many field updates have been recorded across every vehicle
 export ledger updateCount: Counter;
@@ -74,6 +109,20 @@ witness newSalt(): Bytes<32>;
 circuit slotOf(vinHash: Bytes<32>, fieldKey: Bytes<32>): Bytes<32> {
   return persistentHash<Vector<3, Bytes<32>>>(
     [pad(32, "shieldvin:field:v1"), vinHash, fieldKey]
+  );
+}
+
+// A claim's public name. Binds the direction, the slot, the bound AND the
+// commitment, so proving "at most 0" and "at least 0" are different claims,
+// and neither survives the value being updated.
+circuit claimKey(
+  tag: Bytes<32>,
+  slot: Bytes<32>,
+  bound: Uint<64>,
+  commitment: Bytes<32>
+): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>(
+    [tag, slot, bound as Bytes<32>, commitment]
   );
 }
 
@@ -153,13 +202,28 @@ export circuit proveFieldAtMost(
 
   const value = previousValue();
   const salt = previousSalt();
+  const commitment = fieldCommitment.lookup(slot);
 
   assert(
-    persistentCommit<Uint<64>>(value, salt) == fieldCommitment.lookup(slot),
+    persistentCommit<Uint<64>>(value, salt) == commitment,
     "value does not open the stored commitment"
   );
 
   assert(value <= disclose(bound), "value above the claimed bound");
+
+  // Only reached when the claim holds: a failed proof aborts above and writes
+  // nothing.
+  claims.insert(
+    claimKey(pad(32, "shieldvin:claim:atmost:v1"), slot, disclose(bound), commitment),
+    Claim {
+      slot: slot,
+      vinHash: disclose(vinHash),
+      fieldKey: disclose(fieldKey),
+      commitment: commitment,
+      bound: disclose(bound),
+      atMost: true
+    }
+  );
 }
 
 // Prove the hidden value is at or above a public bound.
@@ -174,11 +238,24 @@ export circuit proveFieldAtLeast(
 
   const value = previousValue();
   const salt = previousSalt();
+  const commitment = fieldCommitment.lookup(slot);
 
   assert(
-    persistentCommit<Uint<64>>(value, salt) == fieldCommitment.lookup(slot),
+    persistentCommit<Uint<64>>(value, salt) == commitment,
     "value does not open the stored commitment"
   );
 
   assert(value >= disclose(bound), "value below the claimed bound");
+
+  claims.insert(
+    claimKey(pad(32, "shieldvin:claim:atleast:v1"), slot, disclose(bound), commitment),
+    Claim {
+      slot: slot,
+      vinHash: disclose(vinHash),
+      fieldKey: disclose(fieldKey),
+      commitment: commitment,
+      bound: disclose(bound),
+      atMost: false
+    }
+  );
 }

@@ -221,6 +221,47 @@ slash and so anchors to the repository root — it never matched the real path u
 
 ---
 
+### D19 — A proven claim is recorded on the ledger; the value behind it is not · 2026-08-27
+
+`proveFieldAtMost` and `proveFieldAtLeast` write a `Claim` to a `claims` ledger on success. The
+claim carries the slot, the VIN hash, the field key, the bound, the direction, and the commitment
+the proof opened. It never carries the value.
+
+**Why:** as first written, both circuits only asserted and returned `[]`. The transaction's success
+was the proof — but nothing on the ledger recorded it, so nothing indexed a proof by vehicle. A
+scan-to-verdict page had no state to read and could only report that a passport exists. The
+alternatives were verification by transaction hash (which needs the hashes handed to the verifier,
+or a crawl of every transaction to the contract) and shipping only what the ledger already held
+(which is not a verdict). Recording the claim makes the answer an O(1) read.
+
+**Why the commitment is part of the claim:** a claim recorded permanently would otherwise become a
+lie. Prove "at most 300 000 km", then record 310 000 — the old claim still sits on the ledger.
+Binding the claim to the commitment it was proven against means a verifier comparing it with the
+current `fieldCommitment` for the same slot sees a superseded claim for what it is, without being
+told. The claim key includes the commitment too, so re-proving after an update writes a new claim
+rather than overwriting the old one.
+
+**What this discloses, deliberately:** the field key. Before this, only `slot = hash(domain, vinHash,
+fieldKey)` was public, so an observer could not tell the odometer's slot from the write-off
+category's. A claim names its field, because a verdict a verifier cannot read is not a verdict.
+Fields nobody has claimed about stay unnamed. The VIN hash was already public — `passports` is
+keyed by it. **The value remains private in every case**, and the test suite pins both halves: one
+test asserts the field is published, the next asserts the reading is not.
+
+**Why the claim carries `slot` and not just the hashes to derive it:** the scan page is plain
+HTML/CSS/JS with no build step ([D11](#settled)), so it cannot run `persistentHash` to compute a
+claim key or a slot. Everything it needs to render a verdict — and to check the claim is current
+— has to be readable straight off the claim. That is a real constraint on the struct's shape, not
+redundancy.
+
+**Cost:** one map insert per proof. Enumerating `claims` to answer "what has this vehicle proven?"
+is linear, which is fine at demo scale and is the thing to revisit when it is not — an off-chain
+index, or key derivation once the page can run `compact-runtime`.
+
+**Mutation-checked.** Removing the claim write from `proveFieldAtMost` fails 9 tests and no others;
+pointing `proveFieldAtLeast` at the `atMost` domain tag fails exactly the one test that separates a
+ceiling from a floor.
+
 ## Reversed
 
 Recorded so they are not accidentally reinstated.

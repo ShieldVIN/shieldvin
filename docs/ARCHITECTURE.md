@@ -90,6 +90,12 @@ intuitions about, which makes it the better *explanation* but not the better fir
 A false claim **aborts during local proving, before submission** — it never reaches the chain. A
 successful transaction *is* the proof.
 
+A successful proof also **records the claim**: which vehicle, which field, which direction, which
+bound, and the commitment it was proven against. That is what gives a verifier something to read
+afterwards rather than requiring them to be handed a transaction hash — see
+[D19](DECISIONS.md#settled). The claim names its field, deliberately; it never carries the value.
+Binding it to the commitment is what stops a claim outliving the value it was made about.
+
 ## The trust gap
 
 **This is the most important section in this document, and the easiest to gloss over.**

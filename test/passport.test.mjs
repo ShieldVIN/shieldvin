@@ -434,6 +434,142 @@ describe('proveFieldAtLeast', () => {
 
 // ------------------------------------------------------ the disclosure claim
 
+describe('claims — what a verifier can read afterwards', () => {
+    // A proof circuit that only asserted would leave nothing behind: the
+    // transaction's success IS the proof, but nothing would index it by
+    // vehicle, so a scan-to-verdict page would have no state to read.
+
+    /** The single claim on the ledger, when exactly one is expected. */
+    const onlyClaim = () => {
+        const l = sim.ledger;
+        expect(l.claims.size()).toBe(1n);
+        for (const [, claim] of l.claims) { return claim; }
+        throw new Error('unreachable: size() said 1');
+    };
+
+    it('records a claim when the proof succeeds', () => {
+        registered();
+        sim.proveFieldAtMost(VIN_A, WRITE_OFF, 0n);
+
+        const claim = onlyClaim();
+        expect(hex(claim.vinHash)).toBe(hex(VIN_A));
+        expect(hex(claim.fieldKey)).toBe(hex(WRITE_OFF));
+        expect(claim.bound).toBe(0n);
+        expect(claim.atMost).toBe(true);
+    });
+
+    it('records nothing when the proof fails', () => {
+        // The transaction aborts, so the ledger write never happens. A claims
+        // ledger that could be written by a failed proof would be worse than
+        // no claims ledger at all.
+        registered();
+        sim.recordField(VIN_A, ACCIDENTS, 2n, S2);
+
+        expect(() => sim.proveFieldAtMost(VIN_A, ACCIDENTS, 0n))
+            .toThrow(rejects('value above the claimed bound'));
+        expect(sim.ledger.claims.size()).toBe(0n);
+    });
+
+    it('binds the claim to the value it was proven against', () => {
+        // The commitment in the claim is the version of the field the proof
+        // opened. A verifier compares it against the CURRENT commitment for
+        // the same slot; equal means live, different means superseded.
+        registered();
+        sim.proveFieldAtMost(VIN_A, ODO, 300_000n);
+
+        const claim = onlyClaim();
+        const l = sim.ledger;
+        expect(hex(l.fieldCommitment.lookup(claim.slot))).toBe(hex(claim.commitment));
+    });
+
+    it('a later reading leaves the old claim standing but no longer current', () => {
+        // This is the property that stops a claim quietly becoming a lie. The
+        // odometer passes 300 000; the old "at most 300 000" is still on the
+        // ledger, but it no longer describes the current value, and a verifier
+        // can see that without being told.
+        registered();
+        sim.proveFieldAtMost(VIN_A, ODO, 300_000n);
+        const claim = onlyClaim();
+
+        sim.recordField(VIN_A, ODO, 310_000n, S2);
+
+        const l = sim.ledger;
+        expect(l.claims.size()).toBe(1n);                      // still there
+        expect(hex(l.fieldCommitment.lookup(claim.slot)))
+            .not.toBe(hex(claim.commitment));                  // no longer current
+    });
+
+    it('re-proving the same claim about the same value is idempotent', () => {
+        registered();
+        sim.proveFieldAtMost(VIN_A, WRITE_OFF, 0n);
+        sim.proveFieldAtMost(VIN_A, WRITE_OFF, 0n);
+
+        expect(sim.ledger.claims.size()).toBe(1n);
+    });
+
+    it('separates a ceiling from a floor at the same bound', () => {
+        // "at most 0" and "at least 0" are different claims about the same
+        // field. Domain separation in the claim key is what keeps them apart;
+        // without it one would silently overwrite the other.
+        registered();
+        sim.proveFieldAtMost(VIN_A, ACCIDENTS, 0n);
+        sim.proveFieldAtLeast(VIN_A, ACCIDENTS, 0n);
+
+        const l = sim.ledger;
+        expect(l.claims.size()).toBe(2n);
+        const directions = [];
+        for (const [, c] of l.claims) { directions.push(c.atMost); }
+        expect(directions.sort()).toEqual([false, true]);
+    });
+
+    it('separates two bounds on the same field', () => {
+        registered();
+        sim.proveFieldAtMost(VIN_A, ODO, 300_000n);
+        sim.proveFieldAtMost(VIN_A, ODO, 400_000n);
+
+        expect(sim.ledger.claims.size()).toBe(2n);
+    });
+
+    it('separates the same claim about two different vehicles', () => {
+        registered(VIN_A, ROOT);
+        registered(VIN_B, ROOT_B);
+        sim.proveFieldAtMost(VIN_A, WRITE_OFF, 0n);
+        sim.proveFieldAtMost(VIN_B, WRITE_OFF, 0n);
+
+        const l = sim.ledger;
+        expect(l.claims.size()).toBe(2n);
+        const vins = [];
+        for (const [, c] of l.claims) { vins.push(hex(c.vinHash)); }
+        expect(vins.sort()).toEqual([hex(VIN_A), hex(VIN_B)].sort());
+    });
+
+    it('records a floor claim from proveFieldAtLeast', () => {
+        registered();
+        sim.proveFieldAtLeast(VIN_A, DECLINING, PCT(90));
+
+        const claim = onlyClaim();
+        expect(hex(claim.fieldKey)).toBe(hex(DECLINING));
+        expect(claim.bound).toBe(PCT(90));
+        expect(claim.atMost).toBe(false);
+    });
+
+    it('carries everything a verifier needs without computing a hash', () => {
+        // The scan page is plain JS with no build step, so it cannot run
+        // persistentHash to derive a key. Every field it needs to render a
+        // verdict has to be readable straight off the claim. See D19.
+        registered();
+        sim.proveFieldAtMost(VIN_A, WRITE_OFF, 0n);
+
+        const claim = onlyClaim();
+        for (const part of ['slot', 'vinHash', 'fieldKey', 'commitment']) {
+            expect(claim[part]).toBeInstanceOf(Uint8Array);
+            expect(claim[part]).toHaveLength(32);
+        }
+        expect(typeof claim.bound).toBe('bigint');
+        expect(typeof claim.atMost).toBe('boolean');
+    });
+});
+
 describe('what the public ledger never learns', () => {
     // The claim ShieldVIN makes to a regulator is that a vehicle's history is
     // attributable without being published. That is one property, and it is
@@ -481,7 +617,7 @@ describe('what the public ledger never learns', () => {
         }
     });
 
-    it('does not reveal WHICH field a slot holds', () => {
+    it('does not reveal WHICH field a slot holds, until a claim names it', () => {
         // The slot key is a domain-separated hash of the VIN and the field
         // label. An observer who does not already know both cannot tell the
         // odometer's slot from the write-off category's.
@@ -491,6 +627,32 @@ describe('what the public ledger never learns', () => {
         for (const label of [ODO, ACCIDENTS, OWNERS, WRITE_OFF, DECLINING]) {
             expect(blobs).not.toContain(hex(label));
         }
+    });
+
+    it('a proven claim publishes which field it is about, by design', () => {
+        // This is a DISCLOSURE, and it is deliberate: a verdict a verifier
+        // cannot read is not a verdict. Proving "never written off" has to say
+        // that it is the write-off category being claimed about.
+        //
+        // What it does NOT publish is the value. That distinction is the whole
+        // design, so it is pinned here rather than left to the prose.
+        registered();
+        sim.proveFieldAtMost(VIN_A, WRITE_OFF, 0n);
+
+        const { words, blobs } = sim.ledgerValues();
+        expect(blobs).toContain(hex(WRITE_OFF));   // the field, deliberately
+        expect(blobs).toContain(hex(VIN_A));       // already public via passports
+
+        // The other fields stay unnamed: only what was claimed about surfaces.
+        for (const label of [ODO, ACCIDENTS, OWNERS, DECLINING]) {
+            expect(blobs).not.toContain(hex(label));
+        }
+        // 0 is both the bound and the value here, so it cannot be used to
+        // separate them. A field whose value differs from its bound can.
+        sim.proveFieldAtMost(VIN_A, ODO, 300_000n);
+        const after = sim.ledgerValues();
+        expect(after.words).toContain(300_000n);   // the bound is public
+        expect(after.words).not.toContain(12n);    // the reading is not
     });
 
     it('the collector would actually catch a leak', () => {
