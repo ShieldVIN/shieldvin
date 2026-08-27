@@ -48,7 +48,8 @@ export const PANEL = {
     vinHash: [22, 'str'], vehicleCategory: [23, 'str'],
     euTypeApprovalNumber: [24, 'str'], manufacturerBPN: [25, 'str'],
     fuelType: [26, 'str'], batteryChemistry: [27, 'str'],
-    emissionsClass: [28, 'str'], batteryPassportId: [29, 'str']
+    emissionsClass: [28, 'str'], batteryPassportId: [29, 'str'],
+    passportOrigin: [30, 'str']   // 'new' | 'retrofit' - provisional, see FIELDS.md
 };
 
 const VALUE_SCALE = 1000;   // matches @odatano/dpp-sdk VALUE_SCALE

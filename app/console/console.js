@@ -98,15 +98,27 @@ syncEv();
 // names, so an evaluator watches the same form they could have typed into.
 const demoSelect = document.getElementById('demo-select');
 const demoBlurb = document.getElementById('demo-blurb');
-DEMO_VEHICLES.forEach((v, i) => {
-    const opt = document.createElement('option');
-    opt.value = String(i);
-    opt.textContent = v.name;
-    demoSelect.append(opt);
-});
+{
+    // Grouped the way the regulation splits the world: passports issued with
+    // the vehicle, and passports added to the fleet that already exists.
+    const groups = {
+        new: document.createElement('optgroup'),
+        retrofit: document.createElement('optgroup')
+    };
+    groups.new.label = 'New vehicles — first placing on the market';
+    groups.retrofit.label = 'Existing fleet — retrofit passports';
+    DEMO_VEHICLES.forEach((v, i) => {
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = v.name;
+        (groups[v.origin] ?? groups.retrofit).append(opt);
+    });
+    demoSelect.append(groups.new, groups.retrofit);
+}
 
 function fillForm(v) {
     const f = form.elements;
+    f.passportOrigin.value = v.origin ?? 'retrofit';
     f.vin.value = v.vin;
     f.registrar.value = v.registrar;
     f.label.value = v.label ?? '';
@@ -182,6 +194,7 @@ function buildIntake() {
     // salted, so absence discloses nothing either.
     const panel = {};
     const put = (name, value) => { if (value !== '' && value !== undefined) panel[name] = value; };
+    put('passportOrigin', f.passportOrigin.value);
     put('vehicleCategory', f.vehicleCategory.value);
     put('fuelType', f.fuelType.value);
     put('emissionsClass', f.emissionsClass.value);

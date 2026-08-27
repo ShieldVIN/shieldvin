@@ -104,3 +104,11 @@ a.primary, a.ghost { text-decoration: none; display: inline-block; }
 }
 .demo-pick { border-style: dashed; }
 #demo-select { width: 100%; }
+
+/* ---- passport type ---- */
+.origin-pick { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px 12px; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.origin-pick legend { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 0 6px; }
+.radio { flex-direction: row !important; gap: 10px !important; align-items: flex-start; cursor: pointer; }
+.radio input { width: 16px; height: 16px; accent-color: var(--brand); margin-top: 3px; }
+.radio span { font-weight: 400; }
+.radio small { display: block; color: var(--muted); }

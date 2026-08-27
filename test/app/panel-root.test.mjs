@@ -18,16 +18,16 @@ const PANEL_A = {
     batteryPassportId: 'BPID-EU-000184-2027', firstRegistrationDate: 20_240
 };
 
-test('the panel covers the FIELDS.md layout: 25 fields, reserve untouched', () => {
+test('the panel covers the FIELDS.md layout: 26 fields, reserve untouched', () => {
     const slots = Object.values(PANEL).map(([slot]) => slot);
     assert.equal(new Set(slots).size, slots.length, 'no slot is assigned twice');
     for (const slot of slots) {
-        assert.ok((slot >= 0 && slot <= 16) || (slot >= 22 && slot <= 29),
-            `slot ${slot} must not sit in the reserve (17-21, 30-31)`);
+        assert.ok((slot >= 0 && slot <= 16) || (slot >= 22 && slot <= 30),
+            `slot ${slot} must not sit in the reserve (17-21, 31)`);
     }
     // The regulation-facing fields the console asks about are all addressable.
     for (const name of ['fuelType', 'vehicleCategory', 'emissionsClass',
-        'batteryPassportId', 'recycledPlasticPct', 'co2FootprintKgCO2e']) {
+        'batteryPassportId', 'recycledPlasticPct', 'co2FootprintKgCO2e', 'passportOrigin']) {
         assert.ok(name in PANEL, `${name} missing from the panel`);
     }
 });

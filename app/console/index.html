@@ -63,6 +63,18 @@
 
     <section class="panel">
       <h2>Vehicle</h2>
+      <fieldset class="origin-pick">
+        <legend>Passport type</legend>
+        <label class="radio"><input type="radio" name="passportOrigin" value="new" checked>
+          <span><b>New vehicle</b>
+          <small>Issued at first placing on the market — the mandatory path from
+          September 2032.</small></span></label>
+        <label class="radio"><input type="radio" name="passportOrigin" value="retrofit">
+          <span><b>Existing vehicle — retrofit</b>
+          <small>Produced before the regulation applies; the passport is added to the existing
+          fleet. The fields are the same today — the record simply says which path it came
+          through, anchored like every other declaration.</small></span></label>
+      </fieldset>
       <label>VIN
         <input name="vin" required minlength="11" maxlength="17" spellcheck="false"
                placeholder="WVWZZZ1JZXW000001">

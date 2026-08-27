@@ -79,8 +79,9 @@ a re-anchor but no reordering.
 | 27 | `batteryChemistry` | Interop | Mirrors the battery passport's own field |
 | 28 | `emissionsClass` | Art 46 | Euro standard |
 | 29 | `batteryPassportId` | Interop | **The explicit link to a battery passport** |
+| 30 | `passportOrigin` | Art 46 | `new` — issued at first placing on the market; `retrofit` — added to a vehicle produced before the regulation applies. Provisional occupancy 2026-08-27; the two paths share fields today, and this is how a record says which it took |
 
-### Reserved string — slots 30–31
+### Reserved string — slot 31
 
 ---
 
