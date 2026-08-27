@@ -333,6 +333,7 @@ that implements this panel end-to-end on Midnight preprod.
 
 | Document | What it covers |
 |---|---|
+| [DEMO.md](docs/DEMO.md) | The ninety-second walkthrough — doubles as the video script |
 | [REGULATION.md](docs/REGULATION.md) | Primary legal sources, with direct EUR-Lex links |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, the trust model, and its honest limits |
 | [BUILD-SCOPE.md](docs/BUILD-SCOPE.md) | Structure, stack, sponsoring and billing models |
