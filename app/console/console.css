@@ -84,3 +84,8 @@ a.primary, a.ghost { text-decoration: none; display: inline-block; }
   margin: 0; padding: 12px; background: var(--bg); border: 1px solid var(--line);
   border-radius: 8px; font-size: 12px; overflow-x: auto;
 }
+
+.ev-only { border-left: 3px solid var(--brand); padding-left: 12px; }
+.env-details summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.env-details[open] summary { margin-bottom: 10px; }
+.rule-note a { color: var(--brand); }

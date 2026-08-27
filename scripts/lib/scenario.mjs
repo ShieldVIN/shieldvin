@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { PassportSimulator, Rule, fieldKey, bytes32, hex } from '../../test/passport-simulator.mjs';
+import { buildTree, padToWidth } from '@odatano/dpp-sdk/merkle';
+import { blake2b } from '@noble/hashes/blake2';
 
 export { PassportSimulator, Rule, fieldKey, bytes32, hex };
 
@@ -27,18 +29,67 @@ export const K = Object.fromEntries(Object.keys(FIELDS).map((n) => [n, fieldKey(
 export const vinHash = (vin) => fieldKey(vin);
 
 /**
- * The content root for a registration.
- *
- * Interim canonicalisation: blake2b of the sorted-key JSON of the initial
- * fields. When anchoring is wired through @odatano/dpp-sdk, this becomes the
- * 32-slot panel tree root — the registration call does not change shape,
- * which is why the placeholder is acceptable for now.
+ * The full 32-slot panel, exactly as docs/FIELDS.md lays it out. Slots 0-4
+ * are the live rule-bearing fields; 5-16 numeric declarations; 22-29 strings;
+ * 17-21 and 30-31 reserved. The regulation-facing majority of the passport -
+ * vehicle category, fuel type (EV / hybrid / diesel / petrol), emissions
+ * class, the battery passport link, the Art 29 recycled-content declarations
+ * - lives HERE, anchored under the content root, not in the live fields.
  */
-export const contentRoot = (vin, fields) => {
-    const canonical = JSON.stringify(
-        { vin, fields: Object.fromEntries(Object.entries(fields).sort()) }
-    );
-    return fieldKey(`shieldvin:root:v0:${canonical}`);
+export const PANEL = {
+    odometerKm: [0, 'num'], accidentCount: [1, 'num'], ownerCount: [2, 'num'],
+    serviceCount: [3, 'num'], writeOffCategory: [4, 'num'],
+    firstRegistrationDate: [5, 'num'], lastInspectionDate: [6, 'num'],
+    co2FootprintKgCO2e: [7, 'num'], recycledPlasticPct: [8, 'num'],
+    recycledPlasticFromELVPct: [9, 'num'], recycledSteelPct: [10, 'num'],
+    recycledAluminiumPct: [11, 'num'], criticalRawMaterialPct: [12, 'num'],
+    reusabilityPct: [13, 'num'], recyclabilityPct: [14, 'num'],
+    recoverabilityPct: [15, 'num'], dismantlingTimeMinutes: [16, 'num'],
+    vinHash: [22, 'str'], vehicleCategory: [23, 'str'],
+    euTypeApprovalNumber: [24, 'str'], manufacturerBPN: [25, 'str'],
+    fuelType: [26, 'str'], batteryChemistry: [27, 'str'],
+    emissionsClass: [28, 'str'], batteryPassportId: [29, 'str']
+};
+
+const VALUE_SCALE = 1000;   // matches @odatano/dpp-sdk VALUE_SCALE
+const b2b = (data) => blake2b(data, { dkLen: 32 });
+const utf8 = (s) => new TextEncoder().encode(s);
+const nodeHash = (l, r) => b2b(Uint8Array.from([...l, ...r]));
+
+/**
+ * The content root: the real depth-5 tree over the 32-slot panel, built with
+ * @odatano/dpp-sdk's own machinery.
+ *
+ * Leaf rule (shieldvin:leaf:v0): blake2b( tag || slotSalt || fieldKey ||
+ * valueDigest ), where numerics digest their x1000-scaled decimal and strings
+ * their exact bytes. EVERY slot is salted, occupied or not, so an observer of
+ * two roots cannot tell which slots are filled - absence is as private as
+ * presence (FIELDS.md: "absent leaves are still salted and still anchored").
+ *
+ * DEMO-ONLY SALTS: derived from the VIN so a scenario reproduces exactly.
+ * Real operation derives them from a managed contentSaltSeed whose loss makes
+ * the root permanently unprovable - BUILD-SCOPE carries that risk by name.
+ */
+export const contentRoot = (vin, fields, panel = {}) => {
+    const values = { ...panel, ...fields, vinHash: hex(vinHash(vin)) };
+    const leaves = [];
+    for (let slot = 0; slot < 32; slot++) {
+        const name = Object.keys(PANEL).find((n) => PANEL[n][0] === slot);
+        const slotSalt = b2b(utf8(`shieldvin:leafsalt:v0:${vin}:${slot}`));
+        let valueDigest = b2b(utf8(''));                       // absent / reserved
+        if (name && values[name] !== undefined && values[name] !== '') {
+            const kind = PANEL[name][1];
+            valueDigest = kind === 'num'
+                ? b2b(utf8(String(BigInt(Math.round(Number(values[name]) * VALUE_SCALE)))))
+                : b2b(utf8(String(values[name])));
+        }
+        leaves.push(b2b(Uint8Array.from([
+            ...utf8('shieldvin:leaf:v0'), ...slotSalt,
+            ...(name ? fieldKey(name) : new Uint8Array(32)), ...valueDigest
+        ])));
+    }
+    const tree = buildTree(padToWidth(leaves, 32, () => b2b(utf8('shieldvin:pad'))), nodeHash);
+    return Uint8Array.from(Buffer.from(tree.rootHex, 'hex'));
 };
 
 export const registrarId = (name) => fieldKey(`shieldvin:registrar:${name}`);
@@ -77,7 +128,12 @@ export function applyIntake(sim, intake, salt) {
     };
 
     attempt('registerPassport', () =>
-        sim.registerPassport(vin, contentRoot(intake.vin, intake.fields), registrarId(intake.registrar)));
+        sim.registerPassport(vin,
+            contentRoot(intake.vin, intake.fields, intake.panel ?? {}),
+            registrarId(intake.registrar)));
+    if (intake.panel && Object.keys(intake.panel).length) {
+        applied.push(`anchor panel: ${Object.keys(intake.panel).length} declaration fields in the content root (values stay private)`);
+    }
 
     for (const [name, value] of Object.entries(intake.fields)) {
         if (!(name in FIELDS)) { refused.push({ step: `initialiseField ${name}`, reason: 'unknown field' }); continue; }
@@ -115,6 +171,12 @@ export function buildDemoVehicles(sim, salt) {
         vin: 'WVWZZZ1JZXW000001',
         registrar: 'demo-authority',
         fields: { odometerKm: 18_430, accidentCount: 0, ownerCount: 1, writeOffCategory: 0, serviceCount: 1 },
+        panel: {
+            vehicleCategory: 'M1', fuelType: 'bev', emissionsClass: 'n/a',
+            batteryPassportId: 'BPID-EU-000184-2027', batteryChemistry: 'NMC811',
+            firstRegistrationDate: 20_240, co2FootprintKgCO2e: 8_400,
+            recycledPlasticPct: 26.5, recycledSteelPct: 31.0
+        },
         updates: [
             { odometerKm: 44_210, serviceCount: 2 },
             { odometerKm: 61_890, serviceCount: 3 },
@@ -127,6 +189,7 @@ export function buildDemoVehicles(sim, salt) {
         vin: 'WAUZZZ8V5KA000002',
         registrar: 'demo-authority',
         fields: { odometerKm: 96_500, accidentCount: 2, ownerCount: 3, writeOffCategory: 1 },
+        panel: { vehicleCategory: 'M1', fuelType: 'diesel', emissionsClass: 'Euro 5', firstRegistrationDate: 15_910 },
         updates: [{ odometerKm: 112_040 }],
         prove: { mileageUnder: 200_000 }
     }, salt);

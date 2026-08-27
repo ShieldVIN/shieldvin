@@ -60,6 +60,75 @@
     </section>
 
     <section class="panel">
+      <h2>Identity &amp; compliance</h2>
+      <div class="grid2">
+        <label>Vehicle category
+          <select name="vehicleCategory">
+            <option value="M1" selected>M1 — passenger car</option>
+            <option value="M2">M2 — minibus</option>
+            <option value="M3">M3 — bus / coach</option>
+            <option value="N1">N1 — van (≤3.5t)</option>
+            <option value="N2">N2 — truck (≤12t)</option>
+            <option value="N3">N3 — truck (&gt;12t)</option>
+            <option value="L">L — two/three-wheeler</option>
+          </select>
+        </label>
+        <label>Powertrain / fuel
+          <select name="fuelType" id="fuelType">
+            <option value="petrol" selected>Petrol</option>
+            <option value="diesel">Diesel</option>
+            <option value="hev">Hybrid (HEV)</option>
+            <option value="phev">Plug-in hybrid (PHEV)</option>
+            <option value="bev">Battery electric (BEV)</option>
+            <option value="h2">Hydrogen</option>
+          </select>
+        </label>
+        <label>First registration date
+          <input name="firstRegistrationDate" type="date">
+        </label>
+        <label>Emissions class
+          <select name="emissionsClass">
+            <option value="">—</option>
+            <option value="Euro 5">Euro 5</option>
+            <option value="Euro 6">Euro 6</option>
+            <option value="Euro 6e">Euro 6e</option>
+            <option value="Euro 7">Euro 7</option>
+            <option value="n/a">n/a (zero-emission)</option>
+          </select>
+        </label>
+        <label>EU type approval number <span class="opt">optional</span>
+          <input name="euTypeApprovalNumber" spellcheck="false" placeholder="e1*2018/858*00123*01">
+        </label>
+      </div>
+      <div class="grid2 ev-only" id="ev-only" hidden>
+        <label>Battery passport ID
+          <input name="batteryPassportId" spellcheck="false" placeholder="BPID-EU-000184-2027">
+          <small>The link to the battery's own passport (Reg (EU) 2023/1542) — a reference,
+            never a copy of its claims.</small>
+        </label>
+        <label>Battery chemistry <span class="opt">optional</span>
+          <input name="batteryChemistry" spellcheck="false" placeholder="NMC811">
+        </label>
+      </div>
+      <details class="env-details">
+        <summary>Environmental declarations (Art 46 / Art 29) — optional</summary>
+        <div class="grid2">
+          <label>CO₂ footprint (kg CO₂e)
+            <input name="co2FootprintKgCO2e" type="number" min="0" step="1"></label>
+          <label>Recycled plastic %
+            <input name="recycledPlasticPct" type="number" min="0" max="100" step="0.1"></label>
+          <label>Recycled steel %
+            <input name="recycledSteelPct" type="number" min="0" max="100" step="0.1"></label>
+          <label>Recycled aluminium %
+            <input name="recycledAluminiumPct" type="number" min="0" max="100" step="0.1"></label>
+        </div>
+      </details>
+      <p class="rule-note">These anchor into the passport's <b>content root</b> — the 32-slot
+        panel from <a href="https://github.com/ShieldVIN/shieldvin/blob/main/docs/FIELDS.md">FIELDS.md</a>.
+        The values stay private; the root commits to them, and disclosure is a separate, later act.</p>
+    </section>
+
+    <section class="panel">
       <h2>Record at registration</h2>
       <div class="grid2">
         <label>Mileage (km)
@@ -69,7 +138,9 @@
           <input name="accidentCount" type="number" min="0" step="1" value="0" required>
         </label>
         <label>Keepers
-          <input name="ownerCount" type="number" min="1" step="1" value="1" required>
+          <input name="ownerCount" type="number" min="0" step="1" value="1" required>
+          <small>0 = new, never registered — the passport carries a keeper count, and "new
+            versus second-hand" is exactly what it answers.</small>
         </label>
         <label>Write-off category
           <select name="writeOffCategory">

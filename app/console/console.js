@@ -81,6 +81,15 @@ function checkMonotonic() {
 }
 form.elements.odometerKm.addEventListener('input', checkMonotonic);
 
+// The battery passport link is only meaningful when there is a battery whose
+// regime it points into - a reference for EVs and plug-in hybrids, absent
+// otherwise. Absence is anchored salted, so an observer cannot tell.
+const evOnly = document.getElementById('ev-only');
+const fuelSel = document.getElementById('fuelType');
+const syncEv = () => { evOnly.hidden = !['bev', 'phev'].includes(fuelSel.value); };
+fuelSel.addEventListener('change', syncEv);
+syncEv();
+
 // ---------------------------------------------------------------- intake
 
 function buildIntake() {
@@ -104,6 +113,29 @@ function buildIntake() {
         }
     };
     if (f.label.value.trim()) intake.label = f.label.value.trim();
+
+    // The regulation-facing declarations: anchored under the content root,
+    // values private. Empty inputs are simply absent - and absent slots are
+    // salted, so absence discloses nothing either.
+    const panel = {};
+    const put = (name, value) => { if (value !== '' && value !== undefined) panel[name] = value; };
+    put('vehicleCategory', f.vehicleCategory.value);
+    put('fuelType', f.fuelType.value);
+    put('emissionsClass', f.emissionsClass.value);
+    put('euTypeApprovalNumber', f.euTypeApprovalNumber.value.trim());
+    if (!evOnly.hidden) {
+        put('batteryPassportId', f.batteryPassportId.value.trim());
+        put('batteryChemistry', f.batteryChemistry.value.trim());
+    }
+    if (f.firstRegistrationDate.value) {
+        // epoch days, as FIELDS.md specifies for date slots
+        panel.firstRegistrationDate = Math.floor(
+            new Date(f.firstRegistrationDate.value + 'T00:00:00Z').getTime() / 86_400_000);
+    }
+    for (const n of ['co2FootprintKgCO2e', 'recycledPlasticPct', 'recycledSteelPct', 'recycledAluminiumPct']) {
+        if (f[n].value !== '') panel[n] = Number(f[n].value);
+    }
+    if (Object.keys(panel).length) intake.panel = panel;
     return intake;
 }
 
