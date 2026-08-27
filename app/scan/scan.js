@@ -158,7 +158,7 @@ function showPassport(view, vinHex) {
     if (!view.found) {
         showError('No passport for this code',
             'The ledger holds no passport under this VIN hash. Either the code is not a ' +
-            'ShieldVIN code, or this vehicle was never registered.');
+            'VINPassport code, or this vehicle was never registered.');
         return;
     }
     showPassport(view, vin.toLowerCase());

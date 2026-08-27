@@ -1,12 +1,12 @@
 # Contracts
 
-ShieldVIN's own Compact contracts. Layout follows
+VINPassport's own Compact contracts. Layout follows
 [NIGHTGATE's convention](https://github.com/ODATANO/NIGHTGATE/tree/main/contracts) —
 `<name>/src/<name>.compact` with compiled output under `src/managed/<name>/`.
 
 | Contract | Circuits | Purpose |
 |---|---|---|
-| `shieldvin-passport` | `registerPassport`, `initialiseField`, `recordField`, `proveFieldAtMost`, `proveFieldAtLeast` | The vehicle passport: registration, and any panel field held as private state under its own integrity rule |
+| `vinpassport` | `registerPassport`, `initialiseField`, `recordField`, `proveFieldAtMost`, `proveFieldAtLeast` | The vehicle passport: registration, and any panel field held as private state under its own integrity rule |
 
 ## Building
 
@@ -14,8 +14,8 @@ ShieldVIN's own Compact contracts. Layout follows
 NTFS compression utility.** Always build in WSL2, macOS, or Linux.
 
 ```bash
-compact compile contracts/shieldvin-passport/src/shieldvin-passport.compact \
-                contracts/shieldvin-passport/src/managed/shieldvin-passport
+compact compile contracts/vinpassport/src/vinpassport.compact \
+                contracts/vinpassport/src/managed/vinpassport
 ```
 
 Add `--skip-zk` for a fast syntax and type check that skips PLONK key generation.

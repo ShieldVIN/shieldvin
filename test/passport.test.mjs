@@ -1,5 +1,5 @@
 /**
- * Contract tests for `shieldvin-passport`.
+ * Contract tests for `vinpassport`.
  *
  * These run the COMPILED circuits against a local ledger, so an assertion that
  * fires here is the same assertion that would reject the transaction on chain.
@@ -571,7 +571,7 @@ describe('claims — what a verifier can read afterwards', () => {
 });
 
 describe('what the public ledger never learns', () => {
-    // The claim ShieldVIN makes to a regulator is that a vehicle's history is
+    // The claim VINPassport makes to a regulator is that a vehicle's history is
     // attributable without being published. That is one property, and it is
     // worth testing directly rather than inferring it from the API shape.
 

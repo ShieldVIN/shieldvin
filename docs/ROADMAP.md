@@ -16,7 +16,7 @@ entering mid-stream.
 private state, and threshold and integrity claims proved in-circuit without any value ever being
 disclosed — reachable end-to-end from a browser.
 
-The centrepiece is `contracts/shieldvin_passport.compact` (D16). Readings are witnesses; only
+The centrepiece is `contracts/vinpassport_passport.compact` (D16). Readings are witnesses; only
 commitments reach the ledger. **Compile in WSL2** — Compact has no native Windows binary.
 
 ### Contract surface

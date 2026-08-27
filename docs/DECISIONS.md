@@ -10,7 +10,7 @@ Dates are when the decision was taken.
 ## Settled
 
 ### D1 — Build on NIGHTGATE; do not fork it · 2026-08-21
-ShieldVIN is a consumer application of `@odatano/nightgate`, in the same relation to it as NIGHTPASS.
+VINPassport is a consumer application of `@odatano/nightgate`, in the same relation to it as NIGHTPASS.
 General needs go upstream as requests or PRs; vehicle-specific work stays here.
 
 **Why:** NIGHTGATE already solves anchoring, ZK predicates, disclosure grants and wallet
@@ -30,7 +30,7 @@ The Digital Circularity Vehicle Passport (Article 46 of
 1 Sep 2032; the regulation entered into force 13 Aug 2026 and applies from 1 Sep 2028. Full
 citations and primary sources: [REGULATION.md](REGULATION.md).
 
-**Why:** it converts ShieldVIN from a product nobody is obliged to buy into an implementation of an
+**Why:** it converts VINPassport from a product nobody is obliged to buy into an implementation of an
 obligation everyone in scope must meet. It also resolves a real structural problem in the earlier
 positioning, where the paying customer (OEMs) was not the customer whose pain justified the product
 (used-car buyers). Compliance collapses that gap.
@@ -74,7 +74,7 @@ Dealers are reachable, carry liability today, and 2026/1738 pushes ELV and circu
 them well before the 2032 passport deadline.
 
 ### D8 — One repository · 2026-08-21
-A single `shieldvin` repo, not the eight-repo split of the previous build.
+A single `vinpassport` repo, not the eight-repo split of the previous build.
 
 **Why:** the seven-portal split was a significant part of why v1 stalled — cross-repo dependency
 management consumed effort that should have gone into the product. Split later only when something
@@ -99,17 +99,17 @@ public ones; we go plain throughout, because our operator *is* a small dealer ra
 shop. Also avoids a framework learning curve on a small team.
 
 ### D12 — Custodial per-organisation wallets, built to accept external signers · 2026-08-22
-ShieldVIN custodies one wallet session per organisation. `srv/lib/sponsor.ts` puts the signing source
+VINPassport custodies one wallet session per organisation. `srv/lib/sponsor.ts` puts the signing source
 behind an interface so self-custody drops in later without a rewrite.
 
-**Why:** attribution is the entire value of Phases 0–1. If ShieldVIN signed everything, ShieldVIN
+**Why:** attribution is the entire value of Phases 0–1. If VINPassport signed everything, VINPassport
 would be asserting facts it cannot verify — transferring liability in exactly the wrong direction.
 Per-organisation wallets keep the dealer's name on the record while never showing them a key.
 
 **Claim honestly:** custodial attestation is tamper-evident and attributable, **not** non-repudiable.
 Pair every attestation with an authenticated intent record. See [BUILD-SCOPE.md](BUILD-SCOPE.md).
 
-### D13 — Every transaction sponsored from a ShieldVIN treasury pool · 2026-08-22, amended 2026-08-23
+### D13 — Every transaction sponsored from a VINPassport treasury pool · 2026-08-22, amended 2026-08-23
 No customer ever holds DUST or NIGHT. A **pool** of treasury sponsor sessions pays all fees.
 
 **Amendment (2026-08-23):** this originally said "a designated treasury session", singular. That was
@@ -145,8 +145,8 @@ before NIGHTGATE is called; the contract never learns an invoice exists.
 **Deferred:** no billing in Phase 0 and no provider chosen. Plans cannot be priced until DUST cost
 per anchor and per proof is measured — which is why that measurement is a Phase 0 task.
 
-### D16 — ShieldVIN writes its own Compact contract; NIGHTGATE deploys and calls it · 2026-08-23
-The vehicle passport logic lives in a ShieldVIN Compact contract with genuine private-state
+### D16 — VINPassport writes its own Compact contract; NIGHTGATE deploys and calls it · 2026-08-23
+The vehicle passport logic lives in a VINPassport Compact contract with genuine private-state
 management. NIGHTGATE registers it via `cds.requires.nightgate.contracts.<ref>` and supplies
 deployment, invocation and fee sponsoring.
 
@@ -159,7 +159,7 @@ values never disclosed — is ours, and it belongs in a contract we wrote and ca
 host `compact` resolves to the Windows NTFS utility — **always compile in WSL2**. Toolchain verified
 2026-08-23: CLI 0.5.2, compiler 0.31.1 (language 0.23, ledger 8), smoke compile passing.
 
-**Attribution:** ShieldVIN is a consumer application built *on* NIGHTGATE, in the same relation
+**Attribution:** VINPassport is a consumer application built *on* NIGHTGATE, in the same relation
 [NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) is. That dependency is stated plainly in the
 README rather than left to be discovered.
 
@@ -186,7 +186,7 @@ the `runtime-version` the compiler stamps into `contract-info.json`. A caret ran
 silent mismatch between the runtime the tests use and the one the contract was built for.
 
 ### D18 — One field-generic contract; the integrity rule lives on the ledger · 2026-08-26
-`shieldvin-passport` no longer has odometer-specific circuits. It holds a commitment per
+`vinpassport` no longer has odometer-specific circuits. It holds a commitment per
 `(vehicle, field)` slot, and `initialiseField` fixes that field's **integrity rule** at creation:
 `neverFalls` or `neverRises`.
 
@@ -264,7 +264,7 @@ ceiling from a floor.
 
 ### D20 — `@odatano/nightgate-tx` with sponsored fees; no CAP for Wave 1 · 2026-08-27
 
-ShieldVIN deploys and calls `shieldvin-passport` through **`@odatano/nightgate-tx` 0.4.0**, with
+VINPassport deploys and calls `vinpassport` through **`@odatano/nightgate-tx` 0.4.0**, with
 ODATANO's hosted NIGHTGATE sponsoring the preprod fees. No SAP CAP application, no Postgres, no
 proof server, and no wallet of our own to fund. [D16](#settled) is **deferred, not reversed**.
 
@@ -323,6 +323,23 @@ buyers verify statically.
 process, exactly as they would inside a wallet. What `/api/ledger` exports is commitments and
 claims — the same shape the chain would show, produced by the same export code as the committed
 demo state (`scripts/lib/scenario.mjs`, shared so the two cannot drift).
+
+### D22 — The project is VINPassport; ShieldVIN is retired · 2026-08-27
+
+The name ShieldVIN collided with an existing registered company, found before any
+mainnet deploy and before the Wave 1 submission. The project, the GitHub organisation
+(`VINPassport`), the repository (`VINPassport/VINPassport`), the npm scope
+(`@vinpassport/passport`), and the contract (`contracts/vinpassport`) are all renamed.
+
+Because nothing had been deployed to preprod, the rename reached the protocol layer at
+zero cost: every domain-separation tag moved from `shieldvin:*` to `vinpassport:*`
+(`vinpassport:field:v1`, `vinpassport:claim:atmost:v1`, `vinpassport:claim:atleast:v1`,
+`vinpassport:leaf:v0`, `vinpassport:leafsalt:v0`), which changes the circuits and
+therefore the eventual contract address. After a deploy this would have meant a second
+grant slot and a migration; on 2026-08-27 it meant a recompile and a green test run.
+
+One identifier deliberately keeps the old name: ODATANO's agent grant is `shieldvin-w1`.
+That string is their record key, not our brand, and renaming it is not ours to do.
 
 ## Reversed
 

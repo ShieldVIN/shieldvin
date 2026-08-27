@@ -115,28 +115,28 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('registerPassport',
                                      'argument 1 (as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 133 char 1',
+                                     'vinpassport.compact line 133 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(vinHash_0.buffer instanceof ArrayBuffer && vinHash_0.BYTES_PER_ELEMENT === 1 && vinHash_0.length === 32)) {
           __compactRuntime.typeError('registerPassport',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 133 char 1',
+                                     'vinpassport.compact line 133 char 1',
                                      'Bytes<32>',
                                      vinHash_0)
         }
         if (!(contentRoot_0.buffer instanceof ArrayBuffer && contentRoot_0.BYTES_PER_ELEMENT === 1 && contentRoot_0.length === 32)) {
           __compactRuntime.typeError('registerPassport',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 133 char 1',
+                                     'vinpassport.compact line 133 char 1',
                                      'Bytes<32>',
                                      contentRoot_0)
         }
         if (!(registrarId_0.buffer instanceof ArrayBuffer && registrarId_0.BYTES_PER_ELEMENT === 1 && registrarId_0.length === 32)) {
           __compactRuntime.typeError('registerPassport',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 133 char 1',
+                                     'vinpassport.compact line 133 char 1',
                                      'Bytes<32>',
                                      registrarId_0)
         }
@@ -169,28 +169,28 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('initialiseField',
                                      'argument 1 (as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 145 char 1',
+                                     'vinpassport.compact line 145 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(vinHash_0.buffer instanceof ArrayBuffer && vinHash_0.BYTES_PER_ELEMENT === 1 && vinHash_0.length === 32)) {
           __compactRuntime.typeError('initialiseField',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 145 char 1',
+                                     'vinpassport.compact line 145 char 1',
                                      'Bytes<32>',
                                      vinHash_0)
         }
         if (!(fieldKey_0.buffer instanceof ArrayBuffer && fieldKey_0.BYTES_PER_ELEMENT === 1 && fieldKey_0.length === 32)) {
           __compactRuntime.typeError('initialiseField',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 145 char 1',
+                                     'vinpassport.compact line 145 char 1',
                                      'Bytes<32>',
                                      fieldKey_0)
         }
         if (!(typeof(rule_0) === 'number' && rule_0 >= 0 && rule_0 <= 1)) {
           __compactRuntime.typeError('initialiseField',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 145 char 1',
+                                     'vinpassport.compact line 145 char 1',
                                      'Enum<Rule, neverFalls, neverRises>',
                                      rule_0)
         }
@@ -222,21 +222,21 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('recordField',
                                      'argument 1 (as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 164 char 1',
+                                     'vinpassport.compact line 164 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(vinHash_0.buffer instanceof ArrayBuffer && vinHash_0.BYTES_PER_ELEMENT === 1 && vinHash_0.length === 32)) {
           __compactRuntime.typeError('recordField',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 164 char 1',
+                                     'vinpassport.compact line 164 char 1',
                                      'Bytes<32>',
                                      vinHash_0)
         }
         if (!(fieldKey_0.buffer instanceof ArrayBuffer && fieldKey_0.BYTES_PER_ELEMENT === 1 && fieldKey_0.length === 32)) {
           __compactRuntime.typeError('recordField',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 164 char 1',
+                                     'vinpassport.compact line 164 char 1',
                                      'Bytes<32>',
                                      fieldKey_0)
         }
@@ -268,28 +268,28 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('proveFieldAtMost',
                                      'argument 1 (as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 195 char 1',
+                                     'vinpassport.compact line 195 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(vinHash_0.buffer instanceof ArrayBuffer && vinHash_0.BYTES_PER_ELEMENT === 1 && vinHash_0.length === 32)) {
           __compactRuntime.typeError('proveFieldAtMost',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 195 char 1',
+                                     'vinpassport.compact line 195 char 1',
                                      'Bytes<32>',
                                      vinHash_0)
         }
         if (!(fieldKey_0.buffer instanceof ArrayBuffer && fieldKey_0.BYTES_PER_ELEMENT === 1 && fieldKey_0.length === 32)) {
           __compactRuntime.typeError('proveFieldAtMost',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 195 char 1',
+                                     'vinpassport.compact line 195 char 1',
                                      'Bytes<32>',
                                      fieldKey_0)
         }
         if (!(typeof(bound_0) === 'bigint' && bound_0 >= 0n && bound_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('proveFieldAtMost',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 195 char 1',
+                                     'vinpassport.compact line 195 char 1',
                                      'Uint<0..18446744073709551616>',
                                      bound_0)
         }
@@ -322,28 +322,28 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('proveFieldAtLeast',
                                      'argument 1 (as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 231 char 1',
+                                     'vinpassport.compact line 231 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(vinHash_0.buffer instanceof ArrayBuffer && vinHash_0.BYTES_PER_ELEMENT === 1 && vinHash_0.length === 32)) {
           __compactRuntime.typeError('proveFieldAtLeast',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 231 char 1',
+                                     'vinpassport.compact line 231 char 1',
                                      'Bytes<32>',
                                      vinHash_0)
         }
         if (!(fieldKey_0.buffer instanceof ArrayBuffer && fieldKey_0.BYTES_PER_ELEMENT === 1 && fieldKey_0.length === 32)) {
           __compactRuntime.typeError('proveFieldAtLeast',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 231 char 1',
+                                     'vinpassport.compact line 231 char 1',
                                      'Bytes<32>',
                                      fieldKey_0)
         }
         if (!(typeof(bound_0) === 'bigint' && bound_0 >= 0n && bound_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('proveFieldAtLeast',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'shieldvin-passport.compact line 231 char 1',
+                                     'vinpassport.compact line 231 char 1',
                                      'Uint<0..18446744073709551616>',
                                      bound_0)
         }
@@ -512,7 +512,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('newValue',
                                  'return value',
-                                 'shieldvin-passport.compact line 94 char 1',
+                                 'vinpassport.compact line 94 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -529,7 +529,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('previousValue',
                                  'return value',
-                                 'shieldvin-passport.compact line 98 char 1',
+                                 'vinpassport.compact line 98 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -546,7 +546,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('previousSalt',
                                  'return value',
-                                 'shieldvin-passport.compact line 99 char 1',
+                                 'vinpassport.compact line 99 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -563,7 +563,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('newSalt',
                                  'return value',
-                                 'shieldvin-passport.compact line 103 char 1',
+                                 'vinpassport.compact line 103 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -574,7 +574,7 @@ export class Contract {
     return result_0;
   }
   _slotOf_0(vinHash_0, fieldKey_0) {
-    return this._persistentHash_0([new Uint8Array([115, 104, 105, 101, 108, 100, 118, 105, 110, 58, 102, 105, 101, 108, 100, 58, 118, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+    return this._persistentHash_0([new Uint8Array([118, 105, 110, 112, 97, 115, 115, 112, 111, 114, 116, 58, 102, 105, 101, 108, 100, 58, 118, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
                                    vinHash_0,
                                    fieldKey_0]);
   }
@@ -583,7 +583,7 @@ export class Contract {
                                    slot_0,
                                    __compactRuntime.convertFieldToBytes(32,
                                                                         bound_0,
-                                                                        'shieldvin-passport.compact line 125 char 17'),
+                                                                        'vinpassport.compact line 125 char 17'),
                                    commitment_0]);
   }
   _registerPassport_0(context,
@@ -902,7 +902,7 @@ export class Contract {
                                           commitment_0),
                             'value does not open the stored commitment');
     __compactRuntime.assert(value_0 <= bound_0, 'value above the claimed bound');
-    const tmp_0 = this._claimKey_0(new Uint8Array([115, 104, 105, 101, 108, 100, 118, 105, 110, 58, 99, 108, 97, 105, 109, 58, 97, 116, 109, 111, 115, 116, 58, 118, 49, 0, 0, 0, 0, 0, 0, 0]),
+    const tmp_0 = this._claimKey_0(new Uint8Array([118, 105, 110, 112, 97, 115, 115, 112, 111, 114, 116, 58, 99, 108, 97, 105, 109, 58, 97, 116, 109, 111, 115, 116, 58, 118, 49, 0, 0, 0, 0, 0]),
                                    slot_0,
                                    bound_0,
                                    commitment_0);
@@ -976,7 +976,7 @@ export class Contract {
                                           commitment_0),
                             'value does not open the stored commitment');
     __compactRuntime.assert(value_0 >= bound_0, 'value below the claimed bound');
-    const tmp_0 = this._claimKey_0(new Uint8Array([115, 104, 105, 101, 108, 100, 118, 105, 110, 58, 99, 108, 97, 105, 109, 58, 97, 116, 108, 101, 97, 115, 116, 58, 118, 49, 0, 0, 0, 0, 0, 0]),
+    const tmp_0 = this._claimKey_0(new Uint8Array([118, 105, 110, 112, 97, 115, 115, 112, 111, 114, 116, 58, 99, 108, 97, 105, 109, 58, 97, 116, 108, 101, 97, 115, 116, 58, 118, 49, 0, 0, 0, 0]),
                                    slot_0,
                                    bound_0,
                                    commitment_0);
@@ -1081,7 +1081,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 73 char 1',
+                                     'vinpassport.compact line 73 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1110,7 +1110,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('lookup',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 73 char 1',
+                                     'vinpassport.compact line 73 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1190,7 +1190,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 76 char 1',
+                                     'vinpassport.compact line 76 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1219,7 +1219,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('lookup',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 76 char 1',
+                                     'vinpassport.compact line 76 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1299,7 +1299,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 79 char 1',
+                                     'vinpassport.compact line 79 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1328,7 +1328,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('lookup',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 79 char 1',
+                                     'vinpassport.compact line 79 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1408,7 +1408,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 82 char 1',
+                                     'vinpassport.compact line 82 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1437,7 +1437,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('lookup',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 82 char 1',
+                                     'vinpassport.compact line 82 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1517,7 +1517,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 86 char 1',
+                                     'vinpassport.compact line 86 char 1',
                                      'Bytes<32>',
                                      key_0)
         }
@@ -1546,7 +1546,7 @@ export function ledger(stateOrChargedState) {
         if (!(key_0.buffer instanceof ArrayBuffer && key_0.BYTES_PER_ELEMENT === 1 && key_0.length === 32)) {
           __compactRuntime.typeError('lookup',
                                      'argument 1',
-                                     'shieldvin-passport.compact line 86 char 1',
+                                     'vinpassport.compact line 86 char 1',
                                      'Bytes<32>',
                                      key_0)
         }

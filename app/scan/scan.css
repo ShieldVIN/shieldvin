@@ -1,4 +1,4 @@
-/* ShieldVIN scan page.
+/* VINPassport scan page.
  *
  * The audience is a used-car buyer holding a phone next to a car, so the page
  * is one column, big verdicts first, detail behind a tap. System fonts: this
@@ -6,7 +6,7 @@
  * and a page that must work on a forecourt should not depend on a font CDN).
  */
 
-/* ShieldVIN brand: royal blue #004AAD, periwinkle #8B95FF, cream #EDE4D8 -
+/* VINPassport brand: royal blue #004AAD, periwinkle #8B95FF, cream #EDE4D8 -
    sampled from the logo and banner. Montserrat carries the name. */
 :root {
   --bg:        #EDE4D8;

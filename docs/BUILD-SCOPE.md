@@ -14,7 +14,7 @@ Everything below is downstream of these. They are settled; see
 
 1. **Simple enough for anyone.** No user of any kind ever sees a wallet, a key, or the word
    "blockchain" unless they go looking for it.
-2. **Every transaction is sponsored from a ShieldVIN treasury.** Customers never hold DUST or NIGHT.
+2. **Every transaction is sponsored from a VINPassport treasury.** Customers never hold DUST or NIGHT.
 3. **Every payment is fiat.** One-off, subscription or annual. No crypto payment path exists.
 
 ---
@@ -43,16 +43,16 @@ says asserted a fact.
 
 | | Who signs | Attribution lands on | Verdict |
 |---|---|---|---|
-| A | ShieldVIN | ShieldVIN | **Rejected** |
-| B | ShieldVIN, per-org | The organisation | **Chosen** |
+| A | VINPassport | VINPassport | **Rejected** |
+| B | VINPassport, per-org | The organisation | **Chosen** |
 | C | The organisation, locally | The organisation | Supported later |
 
-**Why A is rejected.** If ShieldVIN signs everything, ShieldVIN asserts everything. A dealer supplies
+**Why A is rejected.** If VINPassport signs everything, VINPassport asserts everything. A dealer supplies
 a false accident count and the record says *we* claimed it. That transfers liability for data we
 cannot verify onto the party least able to verify it, and it destroys the traceability that Phases
 0–1 exist to provide.
 
-**Model B, as built.** ShieldVIN custodies one wallet session per organisation. A treasury **pool**
+**Model B, as built.** VINPassport custodies one wallet session per organisation. A treasury **pool**
 pays every fee via NIGHTGATE's `sponsorSessionId`. The dealer authenticates with an email and a
 password, and their name lands on the record.
 
@@ -96,7 +96,7 @@ Stated plainly, because overclaiming here would be dishonest:
 
 > Custodial attestation is **tamper-evident and attributable**. It is **not non-repudiable**.
 
-A custodial signature proves ShieldVIN's infrastructure produced the record on an organisation's
+A custodial signature proves VINPassport's infrastructure produced the record on an organisation's
 behalf. It does not cryptographically prove that organisation intended it. Every attestation is
 therefore paired with an **authenticated intent record** — who authenticated, when, from where, and
 what they submitted. That is ordinary business evidence, not cryptographic proof, and it is

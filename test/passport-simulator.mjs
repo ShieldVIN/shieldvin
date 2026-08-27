@@ -1,5 +1,5 @@
 /**
- * A local simulator for the `shieldvin-passport` contract.
+ * A local simulator for the `vinpassport` contract.
  *
  * The contract runs here exactly as it runs on chain — same compiled circuits,
  * same ledger semantics, same assertions — but against an in-memory ledger and
@@ -35,7 +35,7 @@ import {
     Contract,
     Rule,
     ledger
-} from '../contracts/shieldvin-passport/src/managed/shieldvin-passport/contract/index.js';
+} from '../contracts/vinpassport/src/managed/vinpassport/contract/index.js';
 
 export { Rule };
 

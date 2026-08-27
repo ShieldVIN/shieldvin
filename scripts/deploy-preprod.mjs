@@ -1,5 +1,5 @@
 /**
- * Deploy `shieldvin-passport` to Midnight preprod, fee paid by ODATANO's
+ * Deploy `vinpassport` to Midnight preprod, fee paid by ODATANO's
  * sponsor. Implements the onboarding recipe: the transaction is built, proven
  * and signed HERE, with our key and our prover keys; the sponsor receives
  * only the unbound transaction bytes, pays the fee, and submits.
@@ -13,7 +13,7 @@
  * ledger. Nothing should be able to spend a deploy by accident.
  *
  * Environment (set in the shell, never in a file inside this repo):
- *   SHIELDVIN_SEED_HEX             128 hex chars. Our key. Never leaves the process.
+ *   VINPASSPORT_SEED_HEX             128 hex chars. Our key. Never leaves the process.
  *   NIGHTGATE_AGENT_TOKEN          the grant token, sent to us privately
  *   NIGHTGATE_SPONSOR_SESSION_ID   the sponsor session the grant is pinned to
  *   NIGHTGATE_BASE_URL             optional, defaults to https://api.nightgate.dev
@@ -29,10 +29,10 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { connect, createTxBuilder } from '@odatano/nightgate-tx';
-import { Contract } from '../contracts/shieldvin-passport/src/managed/shieldvin-passport/contract/index.js';
+import { Contract } from '../contracts/vinpassport/src/managed/vinpassport/contract/index.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const MANAGED = join(ROOT, 'contracts', 'shieldvin-passport', 'src', 'managed', 'shieldvin-passport');
+const MANAGED = join(ROOT, 'contracts', 'vinpassport', 'src', 'managed', 'vinpassport');
 const SUBMIT = process.argv.includes('--submit');
 
 const fail = (msg) => { console.error(`\nSTOP: ${msg}`); process.exit(1); };
@@ -46,9 +46,9 @@ for (const c of CIRCUITS) {
     }
 }
 
-const seed = process.env.SHIELDVIN_SEED_HEX ?? '';
+const seed = process.env.VINPASSPORT_SEED_HEX ?? '';
 if (!/^[0-9a-fA-F]{128}$/.test(seed)) {
-    fail('SHIELDVIN_SEED_HEX must be 128 hex characters. Set it in the shell; never write it to a file in this repo.');
+    fail('VINPASSPORT_SEED_HEX must be 128 hex characters. Set it in the shell; never write it to a file in this repo.');
 }
 const token = process.env.NIGHTGATE_AGENT_TOKEN;
 const sponsorSessionId = process.env.NIGHTGATE_SPONSOR_SESSION_ID;
@@ -78,8 +78,8 @@ const builder = await createTxBuilder({
     indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
     nodeUrl: 'wss://rpc.preprod.midnight.network/',
     contractClass: Contract,
-    contractName: 'shieldvin-passport',
-    privateStateId: 'shieldvin-passport',
+    contractName: 'vinpassport',
+    privateStateId: 'vinpassport',
     zkConfigDir: MANAGED
 });
 
@@ -122,7 +122,7 @@ try {
         network: 'preprod',
         contractAddress: deploy.contractAddress,
         txHash: out.txHash,
-        contract: 'shieldvin-passport',
+        contract: 'vinpassport',
         note: 'Public record of the deployment. Address and tx hash are public by definition.'
     }, null, 2) + '\n');
 

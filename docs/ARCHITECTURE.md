@@ -8,20 +8,20 @@ may claim.
 ## Shape
 
 > **What Wave 1 actually ships is smaller than the diagram below.** Per
-> [D20](DECISIONS.md#settled), the 2 September submission deploys and calls `shieldvin-passport`
+> [D20](DECISIONS.md#settled), the 2 September submission deploys and calls `vinpassport`
 > through **`@odatano/nightgate-tx`**, with ODATANO's hosted NIGHTGATE sponsoring the preprod fees.
 > Transactions are built, proven and signed locally; NIGHTGATE pays and submits and never sees a
 > witness. There is no CAP application — the `@odatano/nightgate` *plugin* below is Wave 2 work.
 > The target architecture is unchanged; this note exists so nobody reads the diagram as a
 > description of what is running today.
 
-The target: ShieldVIN is a **SAP CAP application** that installs `@odatano/nightgate` as a plugin.
-NIGHTGATE supplies the chain integration; ShieldVIN supplies the vehicle domain and the user-facing
+The target: VINPassport is a **SAP CAP application** that installs `@odatano/nightgate` as a plugin.
+NIGHTGATE supplies the chain integration; VINPassport supplies the vehicle domain and the user-facing
 surfaces.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  ShieldVIN (this repo)                                  │
+│  VINPassport (this repo)                                  │
 │                                                         │
 │  db/passport-schema.cds   vehicle domain model          │
 │  srv/passport-service.ts  tier redaction + query guard  │
@@ -48,7 +48,7 @@ as a request or a PR.
 NIGHTGATE ships the `attestation-vault` contract **precompiled**, and an earlier revision of this
 document recorded "no Compact toolchain required" as a benefit of that. **[D16](DECISIONS.md#settled)
 reversed it.** The passport's distinguishing logic is ours and lives in
-[`contracts/shieldvin-passport`](../contracts/shieldvin-passport), so Compact is on the critical
+[`contracts/vinpassport`](../contracts/vinpassport), so Compact is on the critical
 path. Compiled artifacts are committed, so only contributors *changing* the contract need the
 toolchain — but they need WSL2, macOS or Linux, because Compact has no native Windows binary.
 
@@ -134,7 +134,7 @@ Three honest responses, and we intend all three:
 2. **Prove consistency, not truth.** Monotonicity across versions catches the common rollback case
    without any trust assumption, because it compares the producer's own prior commitments.
 3. **Close the gap with hardware — Phase 2.** Sensor-signed readings from a tamper-resistant element
-   at source are the only thing that binds a number to physical reality. This is where ShieldVIN's
+   at source are the only thing that binds a number to physical reality. This is where VINPassport's
    original three-chip work earns its place, and it is precisely the gap NIGHTGATE documents and
    does not attempt to fill.
 

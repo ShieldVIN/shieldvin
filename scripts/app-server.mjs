@@ -82,7 +82,7 @@ const json = (res, code, obj) => {
 
 function ledgerPayload() {
     return {
-        ledger: exportLedger(sim, 'shieldvin-passport, compiled circuits run in-process by scripts/app-server.mjs'),
+        ledger: exportLedger(sim, 'vinpassport, compiled circuits run in-process by scripts/app-server.mjs'),
         vocabulary: vocabulary(vehicles)
     };
 }
@@ -137,7 +137,7 @@ server.on('error', (e) => {
     }
 });
 server.listen(port, () => {
-    console.log(`ShieldVIN app  http://localhost:${port}`);
+    console.log(`VINPassport app  http://localhost:${port}`);
     console.log(`  verification  /          console  /console/          proofs  /proofs/`);
-    console.log(`  circuits: compiled shieldvin-passport, in-process; ledger resets on restart`);
+    console.log(`  circuits: compiled vinpassport, in-process; ledger resets on restart`);
 });

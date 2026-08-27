@@ -97,7 +97,7 @@ guidance says to do **in one batch, never field by field**.
 
 ## Where our passport ends — SETTLED (2026-08-27)
 
-ShieldVIN covers the **vehicle's** record. An EV's battery is a separate regime with its own
+VINPassport covers the **vehicle's** record. An EV's battery is a separate regime with its own
 passport, mandatory from February 2027 under
 [Reg (EU) 2023/1542](https://eur-lex.europa.eu/eli/reg/2023/1542/oj), and
 [NIGHTPASS](https://github.com/ODATANO/NIGHTPASS) covers that ground.

@@ -39,7 +39,7 @@
     { "op": "declare_pub_input", "var": 12 },
     { "op": "pi_skip", "guard": 5, "count": 4 },
     { "op": "assert", "cond": 12 },
-    { "op": "load_imm", "imm": "736869656C6476696E3A6669656C643A7631" },
+    { "op": "load_imm", "imm": "76696E70617373706F72743A6669656C643A7631" },
     { "op": "persistent_hash", "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }], "inputs": [8, 14, 0, 1, 2, 3] },
     { "op": "declare_pub_input", "var": 6 },
     { "op": "pi_skip", "guard": 5, "count": 1 },

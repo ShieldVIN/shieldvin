@@ -1,4 +1,4 @@
-// ShieldVIN — Digital Circularity Vehicle Passport
+// VINPassport — Digital Circularity Vehicle Passport
 // Regulation (EU) 2026/1738, Article 46
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -108,7 +108,7 @@ witness newSalt(): Bytes<32>;
 // can never collide with any other hash this contract stores.
 circuit slotOf(vinHash: Bytes<32>, fieldKey: Bytes<32>): Bytes<32> {
   return persistentHash<Vector<3, Bytes<32>>>(
-    [pad(32, "shieldvin:field:v1"), vinHash, fieldKey]
+    [pad(32, "vinpassport:field:v1"), vinHash, fieldKey]
   );
 }
 
@@ -214,7 +214,7 @@ export circuit proveFieldAtMost(
   // Only reached when the claim holds: a failed proof aborts above and writes
   // nothing.
   claims.insert(
-    claimKey(pad(32, "shieldvin:claim:atmost:v1"), slot, disclose(bound), commitment),
+    claimKey(pad(32, "vinpassport:claim:atmost:v1"), slot, disclose(bound), commitment),
     Claim {
       slot: slot,
       vinHash: disclose(vinHash),
@@ -248,7 +248,7 @@ export circuit proveFieldAtLeast(
   assert(value >= disclose(bound), "value below the claimed bound");
 
   claims.insert(
-    claimKey(pad(32, "shieldvin:claim:atleast:v1"), slot, disclose(bound), commitment),
+    claimKey(pad(32, "vinpassport:claim:atleast:v1"), slot, disclose(bound), commitment),
     Claim {
       slot: slot,
       vinHash: disclose(vinHash),

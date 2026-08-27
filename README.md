@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="app/scan/brand-banner.png" alt="ShieldVIN, proving a vehicle history" width="700"/>
+  <img src="app/scan/brand-banner.png" alt="VINPassport, proving a vehicle identity" width="700"/>
   <p><strong>A Digital Circularity Vehicle Passport built on Midnight's zero-knowledge blockchain.</strong></p>
   <p>Prove what a vehicle is. Reveal only what the asker is entitled to see.</p>
   <p>
-    <a href="https://shieldvin.github.io/shieldvin/"><b>Live demo</b></a> ·
-    <a href="https://shieldvin.github.io/shieldvin/console/"><b>Intake console</b></a> ·
-    <a href="https://shieldvin.github.io/shieldvin/proofs/"><b>Proof explorer</b></a> ·
-    <a href="https://shieldvin.github.io/shieldvin/deck/"><b>Slide deck</b></a>
+    <a href="https://vinpassport.github.io/vinpassport/"><b>Live demo</b></a> ·
+    <a href="https://vinpassport.github.io/vinpassport/console/"><b>Intake console</b></a> ·
+    <a href="https://vinpassport.github.io/vinpassport/proofs/"><b>Proof explorer</b></a> ·
+    <a href="https://vinpassport.github.io/vinpassport/deck/"><b>Slide deck</b></a>
   </p>
 </div>
 
@@ -21,7 +21,7 @@
 
 ## Contents
 
-- [The problem](#the-problem) · [What ShieldVIN does](#what-shieldvin-does)
+- [The problem](#the-problem) · [What VINPassport does](#what-vinpassport-does)
 - [Quick start](#quick-start) · [Evaluating this repository](#evaluating-this-repository)
 - [The contract](#the-contract) · [How privacy is achieved](#how-privacy-is-achieved)
 - [Where this actually stands](#where-this-actually-stands) · [Repository map](#repository-map)
@@ -46,7 +46,7 @@ The reason it is worth solving privately is everything downstream of it: title w
 undisclosed accident history, fabricated service records, mileage fraud, and the ordinary asymmetry
 where a used-car buyer has no way to check what they are told.
 
-## What ShieldVIN does
+## What VINPassport does
 
 One canonical vehicle record, anchored once on Midnight. From then on, each party is shown exactly
 what they are entitled to and provably nothing more.
@@ -86,8 +86,8 @@ invoice. The blockchain is an implementation detail, and it is meant to stay one
 Requires **Node.js 22+**. Nothing else: no Docker, no wallet, no network access, no API keys.
 
 ```bash
-git clone https://github.com/ShieldVIN/shieldvin
-cd shieldvin
+git clone https://github.com/VINPassport/vinpassport
+cd vinpassport
 npm install
 npm test
 ```
@@ -132,7 +132,7 @@ npm run app        # -> http://localhost:8790
 The server is dependency-free Node and runs the **real compiled circuits in-process**: submitting
 the console form registers the passport, records the history, and proves the claims. A rollback
 update or an unsupportable claim is refused in-circuit, shown as refused, and writes nothing. The
-same three surfaces are live statically at **<https://shieldvin.github.io/shieldvin/>**, where the
+same three surfaces are live statically at **<https://vinpassport.github.io/vinpassport/>**, where the
 console falls back to producing an intake file for `scripts/intake.mjs`.
 
 All three are plain HTML/CSS/JS with no build step, by decision
@@ -166,7 +166,7 @@ seeing whether the claims hold.
 **1. The contract compiles.** The committed build carries its own provenance:
 
 ```bash
-cat contracts/shieldvin-passport/src/managed/shieldvin-passport/compiler/contract-info.json
+cat contracts/vinpassport/src/managed/vinpassport/compiler/contract-info.json
 ```
 
 > `"compiler-version": "0.31.1"`, `"language-version": "0.23.0"`, `"runtime-version": "0.16.0"`,
@@ -187,16 +187,16 @@ fails exactly the tests that guard exists for, and nothing else:
 | `assert(rule != Rule.neverRises \|\| current <= prev, "value increased");` | **3**: a declining field climbing back up |
 
 You can reproduce either; both are one-line edits to
-[`shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
+[`vinpassport.compact`](contracts/vinpassport/src/vinpassport.compact).
 
-**4. Read the contract itself.** It is commented for a reader who does not know Compact: [`contracts/shieldvin-passport/src/shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
+**4. Read the contract itself.** It is commented for a reader who does not know Compact: [`contracts/vinpassport/src/vinpassport.compact`](contracts/vinpassport/src/vinpassport.compact).
 
 **5. The honest limits are written down, not buried.** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 § *The trust gap* states plainly what this does not prove. See [below](#what-this-does-not-prove).
 
 ## The contract
 
-[`contracts/shieldvin-passport`](contracts/shieldvin-passport). ShieldVIN's own Compact contract.
+[`contracts/vinpassport`](contracts/vinpassport). VINPassport's own Compact contract.
 
 ### Public ledger
 
@@ -215,7 +215,7 @@ what stops a claim outliving the value it was made about: record a new reading a
 no longer matches the current `fieldCommitment` for that slot, so a verifier can see it is
 superseded without being told. See [D19](docs/DECISIONS.md#settled).
 
-A **slot** is `persistentHash(["shieldvin:field:v1", vinHash, fieldKey])`: domain-separated, so a
+A **slot** is `persistentHash(["vinpassport:field:v1", vinHash, fieldKey])`: domain-separated, so a
 slot key cannot collide with any other hash the contract stores, and an observer who does not
 already know both the vehicle and the field cannot tell which slot holds what.
 
@@ -315,8 +315,8 @@ full in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Repository map
 
 ```
-contracts/shieldvin-passport/
-  src/shieldvin-passport.compact     the contract: start here
+contracts/vinpassport/
+  src/vinpassport.compact     the contract: start here
   src/managed/                       compiled output, committed on purpose
 docs/                                design, decisions, regulatory basis
 test/
@@ -333,22 +333,22 @@ test/
 | [`@odatano/dpp-sdk`](https://github.com/ODATANO) | Salted-Merkle field panel: key derivation, value scaling, tree construction |
 | [`@odatano/nightgate-tx`](https://github.com/ODATANO/NIGHTGATE) | Local transaction building and proving; sponsored submission |
 
-**Where the line falls.** ShieldVIN's Compact contract is its own work: five circuits, its own
+**Where the line falls.** VINPassport's Compact contract is its own work: five circuits, its own
 ledger, its own integrity rules. It is not a fork, and it does not extend NIGHTGATE's
 `attestation-vault`. The 32-slot field panel is ours too: the slot layout is a vehicle-domain
 design, built on `@odatano/dpp-sdk` for key derivation, value scaling and Merkle construction.
 
-ShieldVIN builds on ODATANO in three ways. The field panel uses `@odatano/dpp-sdk`.
+VINPassport builds on ODATANO in three ways. The field panel uses `@odatano/dpp-sdk`.
 `@odatano/nightgate-tx` builds and proves transactions locally against our own key. And ODATANO's
 hosted NIGHTGATE sponsors our preprod transaction fees under a metered grant: every transaction
 is built, proven and signed on our side; **NIGHTGATE pays and submits, and never sees a witness.**
 
-ShieldVIN does not use NIGHTGATE's CAP service, its OData layer, its `attestation-vault` contract,
+VINPassport does not use NIGHTGATE's CAP service, its OData layer, its `attestation-vault` contract,
 or its disclosure grants. Those are on the roadmap, not in this submission, see
 [D20](docs/DECISIONS.md#settled).
 
 Thanks to **[ODATANO](https://github.com/ODATANO)** for the SDK, for the sponsoring grant, for
-review, and for the [reference integration](https://github.com/maxalexweber1/ShieldVIN-NIGHTGATE-DEMO)
+review, and for the [reference integration](https://github.com/maxalexweber1/VINPassport-NIGHTGATE-DEMO)
 that implements this panel end-to-end on Midnight preprod.
 
 ## Documentation
@@ -356,7 +356,7 @@ that implements this panel end-to-end on Midnight preprod.
 | Document | What it covers |
 |---|---|
 | [DEMO.md](docs/DEMO.md) | The ninety-second walkthrough: doubles as the video script |
-| [deck/](deck/index.html) | The Wave 1 slide deck: [present it live](https://shieldvin.github.io/shieldvin/deck/), arrow keys to advance, Ctrl+P for the PDF |
+| [deck/](deck/index.html) | The Wave 1 slide deck: [present it live](https://vinpassport.github.io/vinpassport/deck/), arrow keys to advance, Ctrl+P for the PDF |
 | [REGULATION.md](docs/REGULATION.md) | Primary legal sources, with direct EUR-Lex links |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, the trust model, and its honest limits |
 | [BUILD-SCOPE.md](docs/BUILD-SCOPE.md) | Structure, stack, sponsoring and billing models |

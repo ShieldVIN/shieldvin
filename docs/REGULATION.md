@@ -11,7 +11,7 @@ official EU law portal — free, no account, all official languages.
 
 **[Read the full text on EUR-Lex →](https://eur-lex.europa.eu/eli/reg/2026/1738/oj)**
 
-This is the legal basis for ShieldVIN. It establishes the **Digital Circularity Vehicle Passport**.
+This is the legal basis for VINPassport. It establishes the **Digital Circularity Vehicle Passport**.
 
 | | |
 |---|---|
@@ -26,7 +26,7 @@ This is the legal basis for ShieldVIN. It establishes the **Digital Circularity 
 
 | Article | Subject | Relevance |
 |---|---|---|
-| **Article 46** | Digital Circularity Vehicle Passport | The passport itself — what ShieldVIN implements |
+| **Article 46** | Digital Circularity Vehicle Passport | The passport itself — what VINPassport implements |
 | **Article 29** | Recycled plastic content | Progressively rising targets, including a share sourced from end-of-life vehicles — drives field slots 5–7 |
 
 The clause that shapes the architecture is the interoperability requirement: the passport must be
@@ -34,7 +34,7 @@ The clause that shapes the architecture is the interoperability requirement: the
 passports established under Union law*. That is a direct invitation to dock with the battery
 passport below — and note the verb is **interoperate**, not absorb.
 
-ShieldVIN reads that as a **reference**, not a copy: slot 29 `batteryPassportId` points at an EV's
+VINPassport reads that as a **reference**, not a copy: slot 29 `batteryPassportId` points at an EV's
 battery passport, and the battery's own claims stay in that passport where they are authoritative.
 Restating them here would create two records that can disagree. Whether the panel should also mirror
 `batteryStateOfHealthPct` is an open question — see [FIELDS.md](FIELDS.md).
@@ -54,7 +54,7 @@ Scope is the battery, **not** the vehicle: EV batteries (any capacity), LMT batt
 capacity), and industrial batteries above 2 kWh. An OEM is caught because it places a battery on the
 market inside a vehicle, but this regulation gives the *vehicle* no passport.
 
-This matters for ShieldVIN in two ways. It is the interoperability target named by 2026/1738. And
+This matters for VINPassport in two ways. It is the interoperability target named by 2026/1738. And
 it is already implemented on the same stack we are building on — [NIGHTPASS](https://github.com/ODATANO/NIGHTPASS)
 is a battery passport on NIGHTGATE, which makes a composition demo a realistic Phase 3 goal rather
 than an aspiration.

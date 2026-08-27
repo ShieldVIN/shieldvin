@@ -1,13 +1,13 @@
 {
-  "name": "@shieldvin/passport",
+  "name": "@vinpassport/passport",
   "version": "0.0.0",
-  "description": "ShieldVIN \u2014 a Digital Circularity Vehicle Passport (Reg. (EU) 2026/1738) on Midnight, built on @odatano/nightgate",
+  "description": "VINPassport \u2014 a Digital Circularity Vehicle Passport (Reg. (EU) 2026/1738) on Midnight, built on @odatano/nightgate",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ShieldVIN/shieldvin"
+    "url": "https://github.com/VINPassport/vinpassport"
   },
   "engines": {
     "node": ">=22"
@@ -27,7 +27,7 @@
     "test:contract": "vitest run",
     "test:watch": "vitest",
     "test:sdk": "node test/sdk-assumptions.mjs",
-    "compile": "compact compile contracts/shieldvin-passport/src/shieldvin-passport.compact contracts/shieldvin-passport/src/managed/shieldvin-passport",
+    "compile": "compact compile contracts/vinpassport/src/vinpassport.compact contracts/vinpassport/src/managed/vinpassport",
     "test:app": "node --test \"test/app/*.test.mjs\"",
     "demo:export": "node scripts/export-demo-state.mjs",
     "serve:scan": "npx serve app/scan",

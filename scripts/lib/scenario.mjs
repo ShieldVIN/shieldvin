@@ -61,7 +61,7 @@ const nodeHash = (l, r) => b2b(Uint8Array.from([...l, ...r]));
  * The content root: the real depth-5 tree over the 32-slot panel, built with
  * @odatano/dpp-sdk's own machinery.
  *
- * Leaf rule (shieldvin:leaf:v0): blake2b( tag || slotSalt || fieldKey ||
+ * Leaf rule (vinpassport:leaf:v0): blake2b( tag || slotSalt || fieldKey ||
  * valueDigest ), where numerics digest their x1000-scaled decimal and strings
  * their exact bytes. EVERY slot is salted, occupied or not, so an observer of
  * two roots cannot tell which slots are filled - absence is as private as
@@ -76,7 +76,7 @@ export const contentRoot = (vin, fields, panel = {}) => {
     const leaves = [];
     for (let slot = 0; slot < 32; slot++) {
         const name = Object.keys(PANEL).find((n) => PANEL[n][0] === slot);
-        const slotSalt = b2b(utf8(`shieldvin:leafsalt:v0:${vin}:${slot}`));
+        const slotSalt = b2b(utf8(`vinpassport:leafsalt:v0:${vin}:${slot}`));
         let valueDigest = b2b(utf8(''));                       // absent / reserved
         if (name && values[name] !== undefined && values[name] !== '') {
             const kind = PANEL[name][1];
@@ -85,15 +85,15 @@ export const contentRoot = (vin, fields, panel = {}) => {
                 : b2b(utf8(String(values[name])));
         }
         leaves.push(b2b(Uint8Array.from([
-            ...utf8('shieldvin:leaf:v0'), ...slotSalt,
+            ...utf8('vinpassport:leaf:v0'), ...slotSalt,
             ...(name ? fieldKey(name) : new Uint8Array(32)), ...valueDigest
         ])));
     }
-    const tree = buildTree(padToWidth(leaves, 32, () => b2b(utf8('shieldvin:pad'))), nodeHash);
+    const tree = buildTree(padToWidth(leaves, 32, () => b2b(utf8('vinpassport:pad'))), nodeHash);
     return Uint8Array.from(Buffer.from(tree.rootHex, 'hex'));
 };
 
-export const registrarId = (name) => fieldKey(`shieldvin:registrar:${name}`);
+export const registrarId = (name) => fieldKey(`vinpassport:registrar:${name}`);
 
 // ---------------------------------------------------------------- salts
 

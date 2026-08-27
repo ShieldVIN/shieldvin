@@ -36,7 +36,7 @@ for (const [name, r] of [['A', a], ['B', b]]) {
 }
 
 const ledger = exportLedger(sim,
-    'shieldvin-passport, compiled circuits run locally by scripts/export-demo-state.mjs');
+    'vinpassport, compiled circuits run locally by scripts/export-demo-state.mjs');
 
 writeFileSync(join(OUT, 'demo-data.json'), JSON.stringify(ledger, null, 2) + '\n');
 writeFileSync(join(OUT, 'fields.json'), JSON.stringify(vocabulary([
