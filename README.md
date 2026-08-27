@@ -85,7 +85,7 @@ npm install
 npm test
 ```
 
-Expected: **56 contract tests and 24 SDK assertions, all passing**, in about a second.
+Expected: **67 contract tests and 24 SDK assertions, all passing**, in a couple of seconds.
 
 ```
  Test Files  1 passed (1)
@@ -97,7 +97,7 @@ Expected: **56 contract tests and 24 SDK assertions, all passing**, in about a s
 | Command | What it does |
 |---|---|
 | `npm test` | Everything below, in one run |
-| `npm run test:contract` | The 56 contract tests, against the compiled circuits |
+| `npm run test:contract` | The 67 contract tests, against the compiled circuits |
 | `npm run test:watch` | The same, re-running on change |
 | `npm run test:sdk` | 24 assertions pinning our assumptions about `@odatano/dpp-sdk` |
 | `npm run compile` | Recompile the Compact contract — **WSL2, macOS or Linux only**, see below |
@@ -164,7 +164,14 @@ You can reproduce either; both are one-line edits to
 | `registrar` | `Map<Bytes<32>, Bytes<32>>` | VIN hash → registering authority, so a claim is attributable |
 | `fieldCommitment` | `Map<Bytes<32>, Bytes<32>>` | slot → commitment to that field's current value |
 | `fieldRule` | `Map<Bytes<32>, Rule>` | slot → the integrity rule, written once at creation |
+| `claims` | `Map<Bytes<32>, Claim>` | claim key → a proof that was made, and the value version it was made about |
 | `updateCount` | `Counter` | How many field updates exist across all vehicles |
+
+A **`Claim`** records what was proven and never the value that satisfied it: the slot, the VIN hash,
+the field key, the bound, the direction, and **the commitment the proof opened**. That last part is
+what stops a claim outliving the value it was made about — record a new reading and the old claim
+no longer matches the current `fieldCommitment` for that slot, so a verifier can see it is
+superseded without being told. See [D19](docs/DECISIONS.md#settled).
 
 A **slot** is `persistentHash(["shieldvin:field:v1", vinHash, fieldKey])` — domain-separated, so a
 slot key cannot collide with any other hash the contract stores, and an observer who does not
@@ -190,6 +197,11 @@ Four witnesses, none of which ever reach the ledger:
 | `recordField` | VIN hash, field key | The caller **knows the current value**, and the change **respects the field's rule** |
 | `proveFieldAtMost` | VIN hash, field key, bound | The hidden value is **at or below a public bound** |
 | `proveFieldAtLeast` | VIN hash, field key, bound | The hidden value is **at or above a public bound** |
+
+Both proof circuits **record the claim** on success. A circuit that only asserted would leave a
+verifier nothing to read: the transaction succeeding *is* the proof, but nothing would index it by
+vehicle, so a scan-to-verdict page would have no state to query. A failed proof aborts before the
+write, so the claims ledger only ever holds claims that held.
 
 The rule lives on the ledger rather than in the call, so a caller cannot pick the flattering rule at
 the moment they need it. Recreating a field to change its rule is refused.
@@ -218,6 +230,12 @@ recording **what passed it**. `proveFieldAtMost` and `proveFieldAtLeast` do the 
 public bound, so a dealer can answer *"never written off?"* or *"under 150,000 km?"* with a proof
 rather than a promise.
 
+A recorded claim **names the field it is about**, which the slot hash alone would not reveal. That
+is deliberate: a verdict a verifier cannot read is not a verdict, and the VIN hash is already public
+because `passports` is keyed by it. Fields nobody has claimed about stay unnamed, and **the value
+stays private in every case** — two adjacent tests pin both halves rather than leaving it to this
+paragraph.
+
 This is tested rather than claimed. `test/passport.test.mjs` includes a group named
 *what the public ledger never learns*, which walks every value on the ledger after a full service
 history and asserts no reading and no salt appears among them — plus a test that the search **would**
@@ -244,13 +262,13 @@ full in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 | Component | Status |
 |---|---|
-| Compact contract — 4 circuits | **Done.** Compiles clean, artifacts committed |
-| Contract test suite | **Done.** 56 tests, both rules mutation-checked |
+| Compact contract — 5 circuits | **Done.** Compiles clean, artifacts committed and reproducible from source |
+| Contract test suite | **Done.** 67 tests; integrity rules and the claim write both mutation-checked |
 | SDK assumption guard | **Done.** 24 assertions against `@odatano/dpp-sdk` 0.2.0 |
-| Provable-field registry — 32 slots | **Designed** ([FIELDS.md](docs/FIELDS.md)), not yet wired |
-| Deployment to Midnight preprod | **Not yet.** See [DECISIONS.md](docs/DECISIONS.md) D16 |
-| CAP service layer, tier redaction | **Not yet** |
+| Provable-field registry — 32 slots | **Settled** ([FIELDS.md](docs/FIELDS.md)) — 26 in use, reserve 17–21 and 30–31; not yet wired |
+| Deployment to Midnight preprod | **Not yet.** Path settled: `@odatano/nightgate-tx` with sponsored fees, see [D20](docs/DECISIONS.md#settled) |
 | Frontend — scan-to-verdict, console | **Not yet** |
+| CAP service layer, tier redaction | **Not in this submission.** Wave 2 — see [D20](docs/DECISIONS.md#settled) |
 
 ## Repository map
 
@@ -261,7 +279,7 @@ contracts/shieldvin-passport/
 docs/                                design, decisions, regulatory basis
 test/
   passport-simulator.mjs             harness: compiled circuits + a local ledger
-  passport.test.mjs                  56 contract tests
+  passport.test.mjs                  67 contract tests
   sdk-assumptions.mjs                24 assertions pinning @odatano/dpp-sdk behaviour
 ```
 
