@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { DEMO_VEHICLES } from './demo-vehicles.mjs';
+
 const form = document.getElementById('intake');
 const modeText = document.getElementById('mode-text');
 const updates = document.getElementById('updates');
@@ -89,6 +91,67 @@ const fuelSel = document.getElementById('fuelType');
 const syncEv = () => { evOnly.hidden = !['bev', 'phev'].includes(fuelSel.value); };
 fuelSel.addEventListener('change', syncEv);
 syncEv();
+
+// ---------------------------------------------------------------- demo picker
+
+// Filling is mechanical on purpose: the demo entries mirror the form's field
+// names, so an evaluator watches the same form they could have typed into.
+const demoSelect = document.getElementById('demo-select');
+const demoBlurb = document.getElementById('demo-blurb');
+DEMO_VEHICLES.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = v.name;
+    demoSelect.append(opt);
+});
+
+function fillForm(v) {
+    const f = form.elements;
+    f.vin.value = v.vin;
+    f.registrar.value = v.registrar;
+    f.label.value = v.label ?? '';
+    f.vehicleCategory.value = v.vehicleCategory;
+    f.fuelType.value = v.fuelType;
+    syncEv();
+    f.emissionsClass.value = v.emissionsClass ?? '';
+    f.firstRegistrationDate.value = v.firstRegistrationDate ?? '';
+    f.euTypeApprovalNumber.value = v.euTypeApprovalNumber ?? '';
+    if (!evOnly.hidden) {
+        f.batteryPassportId.value = v.batteryPassportId ?? '';
+        f.batteryChemistry.value = v.batteryChemistry ?? '';
+    }
+    const env = v.env ?? {};
+    for (const n of ['co2FootprintKgCO2e', 'recycledPlasticPct', 'recycledSteelPct', 'recycledAluminiumPct']) {
+        f[n].value = env[n] ?? '';
+    }
+    document.querySelector('.env-details').open = Object.keys(env).length > 0;
+
+    for (const [n, val] of Object.entries(v.fields)) f[n].value = val;
+
+    updates.replaceChildren();
+    for (const u of v.updates) {
+        addUpdateRow();
+        const row = updates.lastElementChild;
+        for (const input of row.querySelectorAll('input[data-u]')) {
+            if (u[input.dataset.u] !== undefined) input.value = u[input.dataset.u];
+        }
+    }
+    checkMonotonic();
+
+    f.neverWrittenOff.checked = v.prove.neverWrittenOff;
+    f.noAccidents.checked = v.prove.noAccidents;
+    f.oneKeeper.checked = v.prove.oneKeeper;
+    f.mileageUnderOn.checked = v.prove.mileageUnder > 0;
+    if (v.prove.mileageUnder > 0) f.mileageUnder.value = v.prove.mileageUnder;
+}
+
+demoSelect.addEventListener('change', () => {
+    const v = DEMO_VEHICLES[Number(demoSelect.value)];
+    if (!v) { demoBlurb.hidden = true; return; }
+    fillForm(v);
+    demoBlurb.textContent = v.expect;
+    demoBlurb.hidden = false;
+});
 
 // ---------------------------------------------------------------- intake
 

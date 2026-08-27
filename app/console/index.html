@@ -35,6 +35,25 @@
 
 <main class="app app-wide">
 
+  <div class="demo-banner" role="note">
+    <span class="demo-tag">DEMO</span>
+    <div>
+      <b>Sample data for evaluation.</b> Every vehicle below is fictional — pick one and the
+      whole form fills itself, then submit and watch the real circuits accept and refuse. Nothing
+      here touches a public network.
+    </div>
+  </div>
+
+  <section class="panel demo-pick">
+    <h2>Pick a demonstration vehicle</h2>
+    <label>Sample vehicle
+      <select id="demo-select">
+        <option value="" selected>— choose, or fill the form yourself —</option>
+      </select>
+    </label>
+    <p class="rule-note" id="demo-blurb" hidden></p>
+  </section>
+
   <div class="privacy-note" id="mode-note">
     <b>Nothing you type here is published.</b> <span id="mode-text">Checking for the local
     circuit server…</span>

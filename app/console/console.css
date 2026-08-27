@@ -89,3 +89,18 @@ a.primary, a.ghost { text-decoration: none; display: inline-block; }
 .env-details summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-2); }
 .env-details[open] summary { margin-bottom: 10px; }
 .rule-note a { color: var(--brand); }
+
+/* ---- demo banner & picker ---- */
+.demo-banner {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--warn-bg); border: 1px dashed var(--warn);
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 14px; color: var(--ink-2);
+}
+.demo-tag {
+  flex: none; font-size: 11px; font-weight: 800; letter-spacing: .12em;
+  background: var(--warn); color: var(--card);
+  border-radius: 5px; padding: 3px 8px; margin-top: 1px;
+}
+.demo-pick { border-style: dashed; }
+#demo-select { width: 100%; }
