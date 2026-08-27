@@ -1,0 +1,194 @@
+/**
+ * Intake console wiring.
+ *
+ * Two modes, decided by whether the app server answers:
+ *
+ *   server  the form POSTs to /api/intake, the compiled circuits run
+ *           in-process, and the result lists every step the circuits
+ *           accepted or REFUSED - then links straight to the vehicle's
+ *           verdicts and the proof explorer.
+ *   static  no server (GitHub Pages): the form produces an intake file for
+ *           scripts/intake.mjs instead, and says so plainly.
+ *
+ * Refusals are rendered, not hidden: watching "update 2: odometerKm -> 40000
+ * REFUSED - value decreased" is the integrity rule doing its job in public.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+const form = document.getElementById('intake');
+const modeText = document.getElementById('mode-text');
+const updates = document.getElementById('updates');
+const warning = document.getElementById('monotonic-warning');
+const go = document.getElementById('go');
+
+let serverMode = false;
+
+// ---------------------------------------------------------------- mode
+
+(async () => {
+    try {
+        const r = await fetch('/api/health', { cache: 'no-store' });
+        serverMode = r.ok;
+    } catch { serverMode = false; }
+    if (serverMode) {
+        modeText.textContent =
+            'The compiled circuits are running locally: submitting registers the passport, ' +
+            'records the history and proves the claims - values stay in that process.';
+    } else {
+        modeText.textContent =
+            'No circuit server here, so the form will produce an intake file to run with ' +
+            'scripts/intake.mjs on your machine. Values stay in this page until then.';
+        go.textContent = 'Generate intake file';
+    }
+})();
+
+// ---------------------------------------------------------------- updates
+
+function addUpdateRow() {
+    const row = document.createElement('div');
+    row.className = 'update-row';
+    row.innerHTML =
+        '<label>Mileage (km)<input data-u="odometerKm" type="number" min="0" step="1"></label>' +
+        '<label>Services total<input data-u="serviceCount" type="number" min="0" step="1"></label>' +
+        '<button type="button" class="remove" aria-label="Remove this record">✕</button>';
+    row.querySelector('.remove').addEventListener('click', () => { row.remove(); checkMonotonic(); });
+    row.addEventListener('input', checkMonotonic);
+    updates.append(row);
+}
+document.getElementById('add-update').addEventListener('click', addUpdateRow);
+
+function readUpdates() {
+    return [...updates.querySelectorAll('.update-row')].map((row) => {
+        const out = {};
+        for (const input of row.querySelectorAll('input[data-u]')) {
+            if (input.value !== '') out[input.dataset.u] = Number(input.value);
+        }
+        return out;
+    }).filter((u) => Object.keys(u).length > 0);
+}
+
+function checkMonotonic() {
+    let last = Number(form.elements.odometerKm.value || 0);
+    let falls = false;
+    for (const u of readUpdates()) {
+        if ('odometerKm' in u) {
+            if (u.odometerKm < last) falls = true;
+            last = u.odometerKm;
+        }
+    }
+    warning.hidden = !falls;
+}
+form.elements.odometerKm.addEventListener('input', checkMonotonic);
+
+// ---------------------------------------------------------------- intake
+
+function buildIntake() {
+    const f = form.elements;
+    const intake = {
+        vin: f.vin.value.trim().toUpperCase(),
+        registrar: f.registrar.value.trim(),
+        fields: {
+            odometerKm: Number(f.odometerKm.value),
+            accidentCount: Number(f.accidentCount.value),
+            ownerCount: Number(f.ownerCount.value),
+            writeOffCategory: Number(f.writeOffCategory.value),
+            serviceCount: Number(f.serviceCount.value)
+        },
+        updates: readUpdates(),
+        prove: {
+            neverWrittenOff: f.neverWrittenOff.checked,
+            noAccidents: f.noAccidents.checked,
+            oneKeeper: f.oneKeeper.checked,
+            mileageUnder: f.mileageUnderOn.checked ? Number(f.mileageUnder.value) : 0
+        }
+    };
+    if (f.label.value.trim()) intake.label = f.label.value.trim();
+    return intake;
+}
+
+// ---------------------------------------------------------------- submit
+
+const submitted = document.getElementById('submitted');
+const stepsEl = document.getElementById('steps');
+const linksEl = document.getElementById('submitted-links');
+const filedrop = document.getElementById('filedrop');
+
+async function submitToCircuits(intake) {
+    go.disabled = true;
+    go.textContent = 'Proving…';
+    try {
+        const r = await fetch('/api/intake', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(intake)
+        });
+        const result = await r.json();
+        if (!r.ok) throw new Error(result.error ?? `server said ${r.status}`);
+
+        stepsEl.replaceChildren();
+        for (const step of result.applied) {
+            const li = document.createElement('li');
+            li.className = 'ok';
+            li.innerHTML = '<b>ok</b>';
+            li.append(` ${step}`);
+            stepsEl.append(li);
+        }
+        for (const ref of result.refused) {
+            const li = document.createElement('li');
+            li.className = 'refused';
+            li.innerHTML = '<b>refused</b>';
+            li.append(` ${ref.step} — ${ref.reason}`);
+            stepsEl.append(li);
+        }
+
+        linksEl.replaceChildren();
+        const view = document.createElement('a');
+        view.className = 'primary';
+        view.href = `../?v=${result.vinHex}`;
+        view.textContent = 'View this passport';
+        const proofs = document.createElement('a');
+        proofs.className = 'ghost';
+        proofs.href = '../proofs/';
+        proofs.textContent = 'All proofs on the ledger';
+        linksEl.append(view, proofs);
+
+        filedrop.hidden = true;
+        submitted.hidden = false;
+        submitted.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+        alert(`Could not submit: ${e.message}`);
+    } finally {
+        go.disabled = false;
+        go.textContent = 'Register & prove';
+    }
+}
+
+function offerFile(intake) {
+    const text = JSON.stringify(intake, null, 2);
+    document.getElementById('preview').textContent = text;
+    submitted.hidden = true;
+    filedrop.hidden = false;
+    filedrop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    document.getElementById('download').onclick = () => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+        a.download = `intake-${intake.vin.slice(-6).toLowerCase()}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    };
+    document.getElementById('copy').onclick = (e) => {
+        navigator.clipboard?.writeText(text).then(() => {
+            e.target.textContent = 'Copied';
+            setTimeout(() => { e.target.textContent = 'Copy JSON'; }, 1600);
+        });
+    };
+}
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const intake = buildIntake();
+    if (serverMode) submitToCircuits(intake);
+    else offerFile(intake);
+});

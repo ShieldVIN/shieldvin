@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { passportView, formatBound, formatNumber } from './verdict.mjs';
-import { pickSource } from './sources.mjs';
+import { loadState } from './sources.mjs';
 
 const app = document.getElementById('app');
 const badge = document.getElementById('src-badge');
@@ -139,10 +139,9 @@ function showPassport(view, vinHex) {
 // ---------------------------------------------------------------- boot
 
 (async () => {
-    const source = pickSource(params);
     let data;
     try {
-        data = await source.load();
+        data = await loadState('', params);
     } catch (e) {
         showError('Could not read the ledger', e.message);
         return;

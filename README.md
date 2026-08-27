@@ -104,16 +104,31 @@ seconds.
 | `npm run test:watch` | The same, re-running on change |
 | `npm run test:app` | 10 tests on the scan page's verdict logic, via `node --test` |
 | `npm run test:sdk` | 24 assertions pinning our assumptions about `@odatano/dpp-sdk` |
-| `npm run serve:scan` | Serve the scan page locally |
+| `npm run app` | All three surfaces + the circuits, one dependency-free server |
+| `npm run serve:scan` | The verification page alone, statically |
 | `npm run demo:export` | Regenerate the scan page's demo ledger by running the compiled circuits |
 | `npm run deploy:preprod` | Build + prove the deploy locally; `--submit` hands it to the sponsor |
 | `npm run compile` | Recompile the Compact contract — **WSL2, macOS or Linux only**, see below |
 
-### The scan page
+### The app — three surfaces, one command
 
-The buyer-facing surface — scan a QR code on a vehicle, see what its passport has *proven*, and
-what it has not. Live at **<https://shieldvin.github.io/shieldvin/>**, or locally with
-`npm run serve:scan`. Plain HTML/CSS/JS with no build step, by decision
+```bash
+npm run app        # -> http://localhost:8790
+```
+
+| Surface | | Who it is for |
+|---|---|---|
+| **Verification** | `/` | A buyer — scan a QR, see what the passport has *proven* and what it has not |
+| **Intake console** | `/console/` | A registrar — fill in the fields, submit, watch the circuits accept and refuse |
+| **Proof explorer** | `/proofs/` | An auditor — every claim on the ledger, marked current or superseded |
+
+The server is dependency-free Node and runs the **real compiled circuits in-process**: submitting
+the console form registers the passport, records the history, and proves the claims — a rollback
+update or an unsupportable claim is refused in-circuit, shown as refused, and writes nothing. The
+same three surfaces are live statically at **<https://shieldvin.github.io/shieldvin/>**, where the
+console falls back to producing an intake file for `scripts/intake.mjs`.
+
+All three are plain HTML/CSS/JS with no build step, by decision
 ([D11](docs/DECISIONS.md#settled)): the audience is a used-car buyer holding a phone.
 
 Its demo ledger is **not hand-written**: `scripts/export-demo-state.mjs` runs the real compiled

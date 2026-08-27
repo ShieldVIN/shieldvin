@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShieldVIN — intake console</title>
+<meta name="description" content="Fill in a vehicle passport, submit it to the circuits, and watch the proofs land.">
+<link rel="stylesheet" href="../scan.css">
+<link rel="stylesheet" href="console.css">
+<!-- The producer's surface. With the app server running (npm run app) the
+     form submits straight into the compiled circuits and the proofs are
+     visible seconds later on the verification page. Served statically, it
+     falls back to producing an intake file for scripts/intake.mjs. Either
+     way the values stay on the operator's side - only commitments and
+     proven claims ever reach a ledger. -->
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 24 24" role="img" aria-label="ShieldVIN">
+      <path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z"
+            fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="brand-name">ShieldVIN</span>
+    <span class="surface-tag">intake</span>
+  </div>
+  <nav class="surface-nav">
+    <a href="../">verify</a>
+    <a href="../proofs/">proofs</a>
+  </nav>
+</header>
+
+<main class="app app-wide">
+
+  <div class="privacy-note" id="mode-note">
+    <b>Nothing you type here is published.</b> <span id="mode-text">Checking for the local
+    circuit server…</span>
+  </div>
+
+  <form id="intake" autocomplete="off">
+
+    <section class="panel">
+      <h2>Vehicle</h2>
+      <label>VIN
+        <input name="vin" required minlength="11" maxlength="17" spellcheck="false"
+               placeholder="WVWZZZ1JZXW000001">
+        <small>Hashed before anything is registered — the VIN itself is never published.</small>
+      </label>
+      <label>Registering authority
+        <input name="registrar" required placeholder="dvla-swansea" spellcheck="false">
+        <small>Every claim is attributable: this name becomes the registrar id on the ledger.</small>
+      </label>
+      <label>Display label <span class="opt">optional</span>
+        <input name="label" maxlength="60" placeholder="2019 Golf, silver">
+        <small>Shown on this instance's landing list only.</small>
+      </label>
+    </section>
+
+    <section class="panel">
+      <h2>Record at registration</h2>
+      <div class="grid2">
+        <label>Mileage (km)
+          <input name="odometerKm" type="number" min="0" step="1" value="0" required>
+        </label>
+        <label>Reported accidents
+          <input name="accidentCount" type="number" min="0" step="1" value="0" required>
+        </label>
+        <label>Keepers
+          <input name="ownerCount" type="number" min="1" step="1" value="1" required>
+        </label>
+        <label>Write-off category
+          <select name="writeOffCategory">
+            <option value="0" selected>0 — never written off</option>
+            <option value="1">1 — category N (non-structural)</option>
+            <option value="2">2 — category S (structural)</option>
+            <option value="3">3 — category B (break)</option>
+            <option value="4">4 — category A (scrap)</option>
+          </select>
+        </label>
+        <label>Services recorded
+          <input name="serviceCount" type="number" min="0" step="1" value="0" required>
+        </label>
+      </div>
+      <p class="rule-note">Each field is created under its integrity rule — none of these may ever
+        fall, and the rule is fixed on the ledger at creation.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Service history <span class="opt">optional</span></h2>
+      <div id="updates"></div>
+      <button type="button" class="ghost" id="add-update">+ Add service record</button>
+      <p class="rule-note warn-note" id="monotonic-warning" hidden>⚠ A mileage lower than the one
+        before it will be <b>refused in-circuit</b> — the step aborts and writes nothing. Submit
+        anyway to watch that happen.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Claims to prove</h2>
+      <label class="check"><input type="checkbox" name="neverWrittenOff" checked>
+        <span><b>Never written off</b> <small>write-off category ≤ 0</small></span></label>
+      <label class="check"><input type="checkbox" name="noAccidents" checked>
+        <span><b>No reported accidents</b> <small>accident count ≤ 0</small></span></label>
+      <label class="check"><input type="checkbox" name="oneKeeper" checked>
+        <span><b>One keeper from new</b> <small>keepers ≤ 1</small></span></label>
+      <label class="check"><input type="checkbox" name="mileageUnderOn" checked>
+        <span><b>Mileage under</b>
+          <input name="mileageUnder" type="number" min="1" step="1000" value="150000"
+                 class="inline-num"> km</span></label>
+      <p class="rule-note">A claim the record cannot support <b>aborts during proving and writes
+        nothing</b> — the verification page then shows “not proven”, never a false tick.</p>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="primary" id="go">Register &amp; prove</button>
+    </div>
+  </form>
+
+  <section class="panel" id="submitted" hidden>
+    <h2>What the circuits did</h2>
+    <ul class="steps" id="steps"></ul>
+    <div class="actions" id="submitted-links"></div>
+  </section>
+
+  <section class="panel" id="filedrop" hidden>
+    <h2>Intake file</h2>
+    <p class="rule-note">No circuit server is running, so the form produced an intake file
+      instead. Save it under <code>private/</code> (never committed — it holds your values and the
+      VIN) and run <code>node scripts/intake.mjs private/&lt;file&gt;.json</code>; the circuits run
+      on your machine and your vehicle appears on the verification page.</p>
+    <pre id="preview"></pre>
+    <div class="actions">
+      <button type="button" class="primary" id="download">Download</button>
+      <button type="button" class="ghost" id="copy">Copy JSON</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p class="colophon"><a href="https://github.com/ShieldVIN/shieldvin">Source</a> ·
+     <a href="../">Verification</a> · <a href="../proofs/">Proof explorer</a> ·
+     Reg (EU) 2026/1738</p>
+</footer>
+
+<script type="module" src="console.js"></script>
+</body>
+</html>

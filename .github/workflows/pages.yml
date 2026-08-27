@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app/scan/**'
+      - 'app/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -32,8 +32,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Compose the three surfaces the way the app server mounts them:
+      # verification at the root, intake and proofs alongside. Statically the
+      # console falls back to producing an intake file, and says so.
+      - name: Compose site
+        run: |
+          mkdir _site
+          cp app/scan/* _site/
+          cp -r app/console _site/console
+          cp -r app/proofs _site/proofs
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: app/scan
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

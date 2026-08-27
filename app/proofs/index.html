@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShieldVIN — proof explorer</title>
+<meta name="description" content="Every claim on the ledger: which vehicle, which field, which bound — and whether it is still current.">
+<link rel="stylesheet" href="../scan.css">
+<link rel="stylesheet" href="proofs.css">
+<!-- The auditor's surface: the whole claims ledger, as an observer would read
+     it. Nothing here requires trusting ShieldVIN - each row is a claim
+     anyone could check against the chain, and each is marked current or
+     superseded by comparing its commitment with the field's live one. -->
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 24 24" role="img" aria-label="ShieldVIN">
+      <path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z"
+            fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="brand-name">ShieldVIN</span>
+    <span class="surface-tag">proofs</span>
+  </div>
+  <nav class="surface-nav">
+    <a href="../">verify</a>
+    <a href="../console/">intake</a>
+  </nav>
+</header>
+
+<main id="app" class="app app-wide" aria-live="polite">
+  <p class="loading">Reading the ledger…</p>
+</main>
+
+<footer class="foot">
+  <p class="colophon"><a href="https://github.com/ShieldVIN/shieldvin">Source</a> ·
+     <a href="../">Verification</a> · <a href="../console/">Intake console</a> ·
+     Reg (EU) 2026/1738</p>
+</footer>
+
+<script type="module" src="proofs.js"></script>
+</body>
+</html>

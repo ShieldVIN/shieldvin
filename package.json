@@ -31,6 +31,8 @@
     "test:app": "node --test \"test/app/*.test.mjs\"",
     "demo:export": "node scripts/export-demo-state.mjs",
     "serve:scan": "npx serve app/scan",
-    "deploy:preprod": "node scripts/deploy-preprod.mjs"
+    "deploy:preprod": "node scripts/deploy-preprod.mjs",
+    "app": "node scripts/app-server.mjs",
+    "intake": "node scripts/intake.mjs"
   }
 }

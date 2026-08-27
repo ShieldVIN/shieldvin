@@ -2,8 +2,8 @@
   "source": "shieldvin-passport, compiled circuits run locally by scripts/export-demo-state.mjs",
   "note": "Real public ledger state. Values and salts never leave the generating process.",
   "passports": {
-    "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
-    "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+    "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "628afecfdc0559a766463d7e968bb4f436cdf646b8ecbbc34ef850595fe12dc8",
+    "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "e9e44591e1dc2570d80b8c3339df693986e0936809cef1649da53a7b136ba233"
   },
   "registrar": {
     "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "48735664c0b525f10ea6283e771601acf44eeb9a174387ea5b880abf8a53e6a1",

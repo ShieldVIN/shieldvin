@@ -303,6 +303,27 @@ disclosure grants — none of which are in this submission.
 `vinHash`, so a redeploy starts from an empty ledger. Do not spend a deploy on a contract that is
 not final.
 
+### D21 — A dependency-free app server makes the frontend functional · 2026-08-27
+
+`npm run app` starts one Node server (no packages beyond Node itself) that serves the three
+surfaces — verification, intake console, proof explorer — and runs the compiled circuits
+in-process. Submitting the console form registers, records and proves for real; refusals are
+returned and rendered, not hidden. Served statically (GitHub Pages), the same pages fall back to
+the committed demo export, and the console produces an intake file instead — each mode labels
+itself.
+
+**Why:** "fill in the fields and see the proofs" must actually work for anyone who clones the
+repo, and the alternatives failed that test. Running `compact-runtime` in the browser needs a
+bundler (against D11's no-build-step rule and unproven under deadline); a file-download-and-run-a-
+script flow is not a frontend. One in-process server is the smallest thing that is honestly
+functional — and it mirrors the real architecture, where an operator's backend runs proving and
+buyers verify statically.
+
+**The boundary that matters:** values submitted through the console exist only inside the server
+process, exactly as they would inside a wallet. What `/api/ledger` exports is commitments and
+claims — the same shape the chain would show, produced by the same export code as the committed
+demo state (`scripts/lib/scenario.mjs`, shared so the two cannot drift).
+
 ## Reversed
 
 Recorded so they are not accidentally reinstated.
