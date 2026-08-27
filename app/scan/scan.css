@@ -2,7 +2,7 @@
  *
  * The audience is a used-car buyer holding a phone next to a car, so the page
  * is one column, big verdicts first, detail behind a tap. System fonts: this
- * is a product surface, not a brochure, and nothing external may load (D11 —
+ * is a product surface, not a brochure, and nothing external may load (D11,
  * and a page that must work on a forecourt should not depend on a font CDN).
  */
 

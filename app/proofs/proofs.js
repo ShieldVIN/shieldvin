@@ -1,7 +1,7 @@
 /**
  * Proof explorer: the whole claims ledger, grouped by vehicle.
  *
- * Every passport on the ledger gets a group — including ones with no claims,
+ * Every passport on the ledger gets a group: including ones with no claims,
  * because "registered, nothing proven" is a state worth seeing. Each claim is
  * marked current or superseded by comparing its recorded commitment against
  * the field's live one, which is the same check the verdict page makes.
@@ -39,7 +39,7 @@ const short = (hex) => `${hex.slice(0, 10)}…${hex.slice(-6)}`;
     head.append(
         el('h1', null, 'Every claim on the ledger'),
         el('p', null,
-            'Which vehicle, which field, which bound — never the value. Superseded means the ' +
+            'Which vehicle, which field, which bound: never the value. Superseded means the ' +
             'field has moved on since the proof was made; the claim was true of an earlier version.'),
         el('p', 'src', data.badge)
     );
@@ -59,7 +59,7 @@ const short = (hex) => `${hex.slice(0, 10)}…${hex.slice(-6)}`;
         const claims = ledger.claims.filter((c) => c.vinHash === vin);
         if (claims.length === 0) {
             group.append(el('p', 'no-claims',
-                'Registered — no claims proven yet. Not a judgement; a blank page.'));
+                'Registered: no claims proven yet. Not a judgement; a blank page.'));
         }
         for (const c of claims) {
             const meta = fieldMeta[c.fieldKey];

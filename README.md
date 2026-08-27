@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="app/scan/brand-banner.png" alt="ShieldVIN — Proving a Vehicle History" width="700"/>
+  <img src="app/scan/brand-banner.png" alt="ShieldVIN, proving a vehicle history" width="700"/>
   <p><strong>A Digital Circularity Vehicle Passport built on Midnight's zero-knowledge blockchain.</strong></p>
   <p>Prove what a vehicle is. Reveal only what the asker is entitled to see.</p>
   <p>
@@ -13,8 +13,8 @@
 ---
 
 > **Status: pre-alpha, under active development.** The Compact contract is written, compiles and is
-> covered by tests, and the three application surfaces — verification, intake console, proof
-> explorer — run against the compiled circuits with one command (`npm run app`). Not yet done:
+> covered by tests, and the three application surfaces (verification, intake console, proof
+> explorer) run against the compiled circuits with one command (`npm run app`). Not yet done:
 > the contract is not deployed to preprod, and the live pages read demo state rather than chain
 > state. The table under [Where this actually stands](#where-this-actually-stands) says exactly
 > what does and does not exist today.
@@ -33,16 +33,16 @@ From **1 September 2032**, every vehicle placed on the EU market must carry a **
 Vehicle Passport** under [Regulation (EU) 2026/1738](https://eur-lex.europa.eu/eli/reg/2026/1738/oj),
 which entered into force on 13 August 2026. The regulation requires that passport to be *"aligned,
 interoperable and, where possible, integrated with other vehicle related environmental passports
-established under Union law"* — most obviously the EV battery passport that becomes mandatory in
+established under Union law"*: most obviously the EV battery passport that becomes mandatory in
 February 2027 under [Regulation (EU) 2023/1542](https://eur-lex.europa.eu/eli/reg/2023/1542/oj).
 
-That mandate creates a conflict. A vehicle passport has to be **verifiable by strangers** — a buyer,
-a recycler, a border authority — and simultaneously **confidential**, because a full vehicle history
+That mandate creates a conflict. A vehicle passport has to be **verifiable by strangers**: a buyer,
+a recycler, a border authority, and simultaneously **confidential**, because a full vehicle history
 is commercially sensitive to a dealer and personally identifying to an owner. Publishing the record
 solves the first and destroys the second. Keeping it private solves the second and leaves the first
 where it is today: trust the seller.
 
-The reason it is worth solving privately is everything downstream of it — title washing,
+The reason it is worth solving privately is everything downstream of it: title washing,
 undisclosed accident history, fabricated service records, mileage fraud, and the ordinary asymmetry
 where a used-car buyer has no way to check what they are told.
 
@@ -64,7 +64,7 @@ fixed when the field is created:
 
 Every field is held the same way, and each declares its own integrity rule when it is created.
 Mileage, accidents, keepers, services and write-off category may never fall. The opposite direction
-exists too — a rule that could only ever point one way would not be a rule at all, and nothing would
+exists too: a rule that could only ever point one way would not be a rule at all, and nothing would
 be fixed at creation.
 
 At no point does a field value itself reach the ledger. Neither does the salt that hides it.
@@ -73,17 +73,17 @@ That is [tested directly](#how-privacy-is-achieved), not asserted.
 
 ### Nobody touches a wallet
 
-A buyer scans a QR code and sees a verdict — *never written off · no reported accidents · one
-keeper* — with no app, no account, and no login. A dealer signs in with an email and a password. Neither ever holds a key, a
+A buyer scans a QR code and sees a verdict, *never written off · no reported accidents · one
+keeper*, with no app, no account, and no login. A dealer signs in with an email and a password. Neither ever holds a key, a
 token, or any cryptocurrency.
 
-Every transaction fee is sponsored. Every customer payment is ordinary fiat — card, direct debit or
+Every transaction fee is sponsored. Every customer payment is ordinary fiat: card, direct debit or
 invoice. The blockchain is an implementation detail, and it is meant to stay one. See
 [BUILD-SCOPE.md](docs/BUILD-SCOPE.md).
 
 ## Quick start
 
-Requires **Node.js 22+**. Nothing else — no Docker, no wallet, no network access, no API keys.
+Requires **Node.js 22+**. Nothing else: no Docker, no wallet, no network access, no API keys.
 
 ```bash
 git clone https://github.com/ShieldVIN/shieldvin
@@ -115,9 +115,9 @@ seconds.
 | `npm run serve:scan` | The verification page alone, statically |
 | `npm run demo:export` | Regenerate the scan page's demo ledger by running the compiled circuits |
 | `npm run deploy:preprod` | Build + prove the deploy locally; `--submit` hands it to the sponsor |
-| `npm run compile` | Recompile the Compact contract — **WSL2, macOS or Linux only**, see below |
+| `npm run compile` | Recompile the Compact contract: **WSL2, macOS or Linux only**, see below |
 
-### The app — three surfaces, one command
+### The app: three surfaces, one command
 
 ```bash
 npm run app        # -> http://localhost:8790
@@ -125,12 +125,12 @@ npm run app        # -> http://localhost:8790
 
 | Surface | | Who it is for |
 |---|---|---|
-| **Verification** | `/` | A buyer — scan a QR, see what the passport has *proven* and what it has not |
-| **Intake console** | `/console/` | A registrar — fill in the fields, submit, watch the circuits accept and refuse |
-| **Proof explorer** | `/proofs/` | An auditor — every claim on the ledger, marked current or superseded |
+| **Verification** | `/` | A buyer: scan a QR, see what the passport has *proven* and what it has not |
+| **Intake console** | `/console/` | A registrar: fill in the fields, submit, watch the circuits accept and refuse |
+| **Proof explorer** | `/proofs/` | An auditor: every claim on the ledger, marked current or superseded |
 
 The server is dependency-free Node and runs the **real compiled circuits in-process**: submitting
-the console form registers the passport, records the history, and proves the claims — a rollback
+the console form registers the passport, records the history, and proves the claims. A rollback
 update or an unsupportable claim is refused in-circuit, shown as refused, and writes nothing. The
 same three surfaces are live statically at **<https://shieldvin.github.io/shieldvin/>**, where the
 console falls back to producing an intake file for `scripts/intake.mjs`.
@@ -140,7 +140,7 @@ All three are plain HTML/CSS/JS with no build step, by decision
 
 Its demo ledger is **not hand-written**: `scripts/export-demo-state.mjs` runs the real compiled
 circuits through a scripted history and exports the resulting public ledger, asserted clean of
-every private value. Two vehicles on purpose — one that proved the four buyer questions, and one
+every private value. Two vehicles on purpose: one that proved the four buyer questions, and one
 whose clean-history proofs would abort in-circuit, so the page must render *not proven* honestly
 rather than inferring a "no".
 
@@ -155,12 +155,12 @@ npm run compile
 ```
 
 **Compact has no native Windows binary, and on Windows `compact` resolves to the built-in NTFS
-compression utility instead** — a silent failure that looks like success. Compile in WSL2, macOS or
+compression utility instead**: a silent failure that looks like success. Compile in WSL2, macOS or
 Linux. See [`contracts/README.md`](contracts/README.md).
 
 ## Evaluating this repository
 
-If you are reviewing this — for the Midnight Buildathon or otherwise — this is the shortest path to
+If you are reviewing this (for the Midnight Buildathon or otherwise) this is the shortest path to
 seeing whether the claims hold.
 
 **1. The contract compiles.** The committed build carries its own provenance:
@@ -169,7 +169,7 @@ seeing whether the claims hold.
 cat contracts/shieldvin-passport/src/managed/shieldvin-passport/compiler/contract-info.json
 ```
 
-> `"compiler-version": "0.31.1"`, `"language-version": "0.23.0"`, `"runtime-version": "0.16.0"` —
+> `"compiler-version": "0.31.1"`, `"language-version": "0.23.0"`, `"runtime-version": "0.16.0"`,
 > the stable ledger-8 line. Five circuits, all with `"proof": true`.
 
 **2. The tests exercise the real circuits.** `test/passport-simulator.mjs` loads the *compiled*
@@ -183,8 +183,8 @@ fails exactly the tests that guard exists for, and nothing else:
 
 | Line deleted | Tests that fail |
 |---|---|
-| `assert(rule != Rule.neverFalls \|\| current >= prev, "value decreased");` | **7** — odometer rollback, erasing an accident, clearing a write-off, reducing keepers |
-| `assert(rule != Rule.neverRises \|\| current <= prev, "value increased");` | **3** — a declining field climbing back up |
+| `assert(rule != Rule.neverFalls \|\| current >= prev, "value decreased");` | **7**: odometer rollback, erasing an accident, clearing a write-off, reducing keepers |
+| `assert(rule != Rule.neverRises \|\| current <= prev, "value increased");` | **3**: a declining field climbing back up |
 
 You can reproduce either; both are one-line edits to
 [`shieldvin-passport.compact`](contracts/shieldvin-passport/src/shieldvin-passport.compact).
@@ -196,7 +196,7 @@ You can reproduce either; both are one-line edits to
 
 ## The contract
 
-[`contracts/shieldvin-passport`](contracts/shieldvin-passport) — ShieldVIN's own Compact contract.
+[`contracts/shieldvin-passport`](contracts/shieldvin-passport). ShieldVIN's own Compact contract.
 
 ### Public ledger
 
@@ -211,11 +211,11 @@ You can reproduce either; both are one-line edits to
 
 A **`Claim`** records what was proven and never the value that satisfied it: the slot, the VIN hash,
 the field key, the bound, the direction, and **the commitment the proof opened**. That last part is
-what stops a claim outliving the value it was made about — record a new reading and the old claim
+what stops a claim outliving the value it was made about: record a new reading and the old claim
 no longer matches the current `fieldCommitment` for that slot, so a verifier can see it is
 superseded without being told. See [D19](docs/DECISIONS.md#settled).
 
-A **slot** is `persistentHash(["shieldvin:field:v1", vinHash, fieldKey])` — domain-separated, so a
+A **slot** is `persistentHash(["shieldvin:field:v1", vinHash, fieldKey])`: domain-separated, so a
 slot key cannot collide with any other hash the contract stores, and an observer who does not
 already know both the vehicle and the field cannot tell which slot holds what.
 
@@ -235,7 +235,7 @@ Four witnesses, none of which ever reach the ledger:
 | Circuit | Public arguments | Proves |
 |---|---|---|
 | `registerPassport` | VIN hash, content root, registrar id | This vehicle is registered once, by a named registrar |
-| `initialiseField` | VIN hash, field key, rule | A field exists under a rule fixed for good — without publishing its value |
+| `initialiseField` | VIN hash, field key, rule | A field exists under a rule fixed for good: without publishing its value |
 | `recordField` | VIN hash, field key | The caller **knows the current value**, and the change **respects the field's rule** |
 | `proveFieldAtMost` | VIN hash, field key, bound | The hidden value is **at or below a public bound** |
 | `proveFieldAtLeast` | VIN hash, field key, bound | The hidden value is **at or above a public bound** |
@@ -258,11 +258,11 @@ ceiling.
 
 `recordField` is the interesting one, so it is worth stating what it actually does.
 
-The ledger holds `persistentCommit(value, salt)` — never the value. To write a new one the caller
+The ledger holds `persistentCommit(value, salt)`, never the value. To write a new one the caller
 must, **inside the circuit**:
 
 1. supply the current value and its salt as witnesses;
-2. recompute the commitment and prove it equals what the ledger already stores — which is only
+2. recompute the commitment and prove it equals what the ledger already stores, which is only
    possible if they genuinely know the current value;
 3. read the field's rule **from the ledger** and prove the new value respects it;
 4. replace the commitment with one over the new value and a fresh salt.
@@ -275,12 +275,12 @@ rather than a promise.
 A recorded claim **names the field it is about**, which the slot hash alone would not reveal. That
 is deliberate: a verdict a verifier cannot read is not a verdict, and the VIN hash is already public
 because `passports` is keyed by it. Fields nobody has claimed about stay unnamed, and **the value
-stays private in every case** — two adjacent tests pin both halves rather than leaving it to this
+stays private in every case**: two adjacent tests pin both halves rather than leaving it to this
 paragraph.
 
 This is tested rather than claimed. `test/passport.test.mjs` includes a group named
 *what the public ledger never learns*, which walks every value on the ledger after a full service
-history and asserts no reading and no salt appears among them — plus a test that the search **would**
+history and asserts no reading and no salt appears among them, plus a test that the search **would**
 find a value that is there, so the privacy assertions cannot pass vacuously.
 
 The suite also covers the attacks worth naming:
@@ -293,7 +293,7 @@ The suite also covers the attacks worth naming:
 ### What this does not prove
 
 It proves a reading is **the one that was committed**, and that it satisfies a bound. It does not
-prove the reading matches physical reality — a producer who commits a false value produces a
+prove the reading matches physical reality. A producer who commits a false value produces a
 cryptographically valid proof of a false fact.
 
 Closing that gap needs hardware attestation at the source, which is deliberately scoped as **Phase
@@ -304,19 +304,19 @@ full in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 | Component | Status |
 |---|---|
-| Compact contract — 5 circuits | **Done.** Compiles clean, artifacts committed and reproducible from source |
+| Compact contract: 5 circuits | **Done.** Compiles clean, artifacts committed and reproducible from source |
 | Contract test suite | **Done.** 67 tests; integrity rules and the claim write both mutation-checked |
 | SDK assumption guard | **Done.** 24 assertions against `@odatano/dpp-sdk` 0.2.0 |
-| Provable-field registry — 32 slots | **Settled** ([FIELDS.md](docs/FIELDS.md)) — 26 in use, reserve 17–21 and 30–31; not yet wired |
+| Provable-field registry, 32 slots | **Settled** ([FIELDS.md](docs/FIELDS.md)). 26 in use, reserve 17–21 and 31; not yet wired |
 | Deployment to Midnight preprod | **Not yet.** Path settled: `@odatano/nightgate-tx` with sponsored fees, see [D20](docs/DECISIONS.md#settled) |
-| Frontend — scan-to-verdict, console | **Not yet** |
-| CAP service layer, tier redaction | **Not in this submission.** Wave 2 — see [D20](docs/DECISIONS.md#settled) |
+| Frontend: verification, intake console, proof explorer | **Done.** Three surfaces against the compiled circuits (`npm run app`); the live pages read demo state until the preprod deploy |
+| CAP service layer, tier redaction | **Not in this submission.** Wave 2: see [D20](docs/DECISIONS.md#settled) |
 
 ## Repository map
 
 ```
 contracts/shieldvin-passport/
-  src/shieldvin-passport.compact     the contract — start here
+  src/shieldvin-passport.compact     the contract: start here
   src/managed/                       compiled output, committed on purpose
 docs/                                design, decisions, regulatory basis
 test/
@@ -330,21 +330,21 @@ test/
 | | |
 |---|---|
 | [Midnight Network](https://midnight.network) | Zero-knowledge blockchain; ledger 8, Compact 0.31.1 |
-| [`@odatano/dpp-sdk`](https://github.com/ODATANO) | Salted-Merkle field panel — key derivation, value scaling, tree construction |
+| [`@odatano/dpp-sdk`](https://github.com/ODATANO) | Salted-Merkle field panel: key derivation, value scaling, tree construction |
 | [`@odatano/nightgate-tx`](https://github.com/ODATANO/NIGHTGATE) | Local transaction building and proving; sponsored submission |
 
-**Where the line falls.** ShieldVIN's Compact contract is its own work — five circuits, its own
+**Where the line falls.** ShieldVIN's Compact contract is its own work: five circuits, its own
 ledger, its own integrity rules. It is not a fork, and it does not extend NIGHTGATE's
 `attestation-vault`. The 32-slot field panel is ours too: the slot layout is a vehicle-domain
 design, built on `@odatano/dpp-sdk` for key derivation, value scaling and Merkle construction.
 
 ShieldVIN builds on ODATANO in three ways. The field panel uses `@odatano/dpp-sdk`.
 `@odatano/nightgate-tx` builds and proves transactions locally against our own key. And ODATANO's
-hosted NIGHTGATE sponsors our preprod transaction fees under a metered grant — every transaction
+hosted NIGHTGATE sponsors our preprod transaction fees under a metered grant: every transaction
 is built, proven and signed on our side; **NIGHTGATE pays and submits, and never sees a witness.**
 
 ShieldVIN does not use NIGHTGATE's CAP service, its OData layer, its `attestation-vault` contract,
-or its disclosure grants. Those are on the roadmap, not in this submission — see
+or its disclosure grants. Those are on the roadmap, not in this submission, see
 [D20](docs/DECISIONS.md#settled).
 
 Thanks to **[ODATANO](https://github.com/ODATANO)** for the SDK, for the sponsoring grant, for
@@ -355,8 +355,8 @@ that implements this panel end-to-end on Midnight preprod.
 
 | Document | What it covers |
 |---|---|
-| [DEMO.md](docs/DEMO.md) | The ninety-second walkthrough — doubles as the video script |
-| [deck/](deck/index.html) | The Wave 1 slide deck — [present it live](https://shieldvin.github.io/shieldvin/deck/), arrow keys to advance, Ctrl+P for the PDF |
+| [DEMO.md](docs/DEMO.md) | The ninety-second walkthrough: doubles as the video script |
+| [deck/](deck/index.html) | The Wave 1 slide deck: [present it live](https://shieldvin.github.io/shieldvin/deck/), arrow keys to advance, Ctrl+P for the PDF |
 | [REGULATION.md](docs/REGULATION.md) | Primary legal sources, with direct EUR-Lex links |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, the trust model, and its honest limits |
 | [BUILD-SCOPE.md](docs/BUILD-SCOPE.md) | Structure, stack, sponsoring and billing models |
@@ -365,7 +365,7 @@ that implements this panel end-to-end on Midnight preprod.
 | [ROADMAP.md](docs/ROADMAP.md) | Phased delivery plan |
 | [contracts/README.md](contracts/README.md) | Building the contract, and the private-state model |
 
-**New here?** Start with [REGULATION.md](docs/REGULATION.md) — the regulation is *why* this project
+**New here?** Start with [REGULATION.md](docs/REGULATION.md): the regulation is *why* this project
 exists, and the full text is one click away.
 
 ## Licence

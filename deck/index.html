@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ShieldVIN — Wave 1 deck</title>
+<title>ShieldVIN Wave 1 Deck</title>
 <meta name="description" content="ShieldVIN slide deck: a Digital Circularity Vehicle Passport on Midnight. Arrow keys to navigate; print to PDF.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap">
@@ -124,18 +124,18 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
 <!-- ============================================================ 2 problem -->
 <section class="slide">
   <div class="eyebrow">The problem</div>
-  <h2>A vehicle's history must be checkable by strangers —<br>and is too sensitive to publish</h2>
+  <h2>A vehicle's history must be checkable by strangers,<br>and too sensitive to publish</h2>
   <div class="cols">
     <div class="box">
       <h3>Today</h3>
       <p>The history a used-car buyer sees is whatever the seller chose to print. Write-offs
       re-registered as clean, accidents that vanish between listings, service stamps nobody
-      earned — each is a field moving a way it should never move, and the buyer cannot tell.</p>
+      earned: each is a field moving a way it should never move, and the buyer cannot tell.</p>
     </div>
     <div class="box">
       <h3>From September 2032, by law</h3>
       <p>Every vehicle placed on the EU market must carry a <strong>Digital Circularity Vehicle
-      Passport</strong> — identity, provenance, history, environmental declarations
+      Passport</strong>: identity, provenance, history, environmental declarations
       (Reg (EU) 2026/1738, Art 46, in force since 13 Aug 2026).</p>
       <p><strong>The regulation demands a passport that can be checked. It does not demand one
       that is public.</strong> A full history is commercially sensitive to the seller and
@@ -151,16 +151,16 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <div class="eyebrow">The insight</div>
   <h2>Prove claims about the record. Never publish the record.</h2>
   <p class="lede">Every field of the passport is a private commitment on Midnight. Questions are
-  answered with zero-knowledge proofs — <em>yes, verifiably</em> — while the values stay where
+  answered with zero-knowledge proofs (<em>yes, verifiably</em>) while the values stay where
   they belong.</p>
   <table>
     <tr><th>The question</th><th>What the chain learns</th></tr>
-    <tr><td>Has it ever been written off?</td><td><strong>No</strong> — or the transaction fails</td></tr>
-    <tr><td>Has it had a reported accident?</td><td><strong>No</strong> — or the transaction fails</td></tr>
+    <tr><td>Has it ever been written off?</td><td><strong>No</strong>, or the transaction fails</td></tr>
+    <tr><td>Has it had a reported accident?</td><td><strong>No</strong>, or the transaction fails</td></tr>
     <tr><td>Record a service, a reading</td><td>The field moved <strong>only the way that field may move</strong></td></tr>
-    <tr><td>Is the mileage under 150 000 km?</td><td><strong>Yes</strong> — the reading itself, never</td></tr>
+    <tr><td>Is the mileage under 150 000 km?</td><td><strong>Yes</strong>, and never the reading itself</td></tr>
   </table>
-  <p>Each field carries an <strong>integrity rule fixed at creation</strong> — mileage, accidents,
+  <p>Each field carries an <strong>integrity rule fixed at creation</strong>: mileage, accidents,
   keepers, write-off status can never fall. The rule lives on the ledger, so nobody can pick the
   flattering rule at the moment they need it.</p>
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i>ShieldVIN</span><span>3</span></div>
@@ -176,16 +176,16 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       <ul>
         <li><strong>5 circuits</strong>: register, initialise, record, prove-at-most, prove-at-least</li>
         <li>A commitment per (vehicle, field); values never reach the ledger</li>
-        <li><strong>Claims ledger</strong>: every successful proof leaves a public, checkable record of the claim — never the value</li>
+        <li><strong>Claims ledger</strong>: every successful proof leaves a public, checkable record of the claim, never the value</li>
         <li>A claim is bound to the record version it proved; supersession is visible</li>
       </ul>
     </div>
     <div class="box">
-      <h3>Three functional surfaces — one command</h3>
+      <h3>Three functional surfaces: one command</h3>
       <ul>
-        <li><strong>Verification</strong> — scan a QR, see the verdicts</li>
-        <li><strong>Intake console</strong> — fill the full regulation panel, submit into the real circuits, watch refusals render</li>
-        <li><strong>Proof explorer</strong> — every claim, current or superseded</li>
+        <li><strong>Verification</strong>: scan a QR, see the verdicts</li>
+        <li><strong>Intake console</strong>: fill the full regulation panel, submit into the real circuits, watch refusals render</li>
+        <li><strong>Proof explorer</strong>: every claim, current or superseded</li>
         <li>26-vehicle demo fleet: new (BEV → diesel) and retrofit</li>
       </ul>
       <p class="url">npm run app · shieldvin.github.io/shieldvin</p>
@@ -206,7 +206,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <text x="150" y="125" text-anchor="middle" font-size="14" fill="#44536F">intake console → compiled circuits</text>
     <text x="150" y="150" text-anchor="middle" font-size="14" fill="#44536F">values &amp; VIN stay here</text>
     <text x="150" y="180" text-anchor="middle" font-size="14" fill="#8C2F26">a rollback is refused in-circuit</text>
-    <text x="150" y="205" text-anchor="middle" font-size="14" fill="#44536F">fees sponsored — no wallet shown</text>
+    <text x="150" y="205" text-anchor="middle" font-size="14" fill="#44536F">fees sponsored, no wallet shown</text>
 
     <rect x="380" y="60" width="280" height="180" rx="10" fill="#DCE3F7" stroke="#004AAD"/>
     <text x="520" y="95" text-anchor="middle" font-size="17" font-weight="700" fill="#003C8F">Midnight ledger</text>
@@ -217,10 +217,10 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
 
     <rect x="750" y="60" width="280" height="180" rx="10" fill="#FBF7F0" stroke="#DBD1C0"/>
     <text x="890" y="95" text-anchor="middle" font-size="17" font-weight="700" fill="#16264A">Buyer's phone</text>
-    <text x="890" y="125" text-anchor="middle" font-size="14" fill="#44536F">scans the QR — no app, no login</text>
+    <text x="890" y="125" text-anchor="middle" font-size="14" fill="#44536F">scans the QR, no app, no login</text>
     <text x="890" y="152" text-anchor="middle" font-size="14" fill="#1E6B33">Never written off ✓</text>
     <text x="890" y="176" text-anchor="middle" font-size="14" fill="#1E6B33">No reported accidents ✓</text>
-    <text x="890" y="203" text-anchor="middle" font-size="14" fill="#8A5A0B">Mileage claim: not proven —</text>
+    <text x="890" y="203" text-anchor="middle" font-size="14" fill="#8A5A0B">Mileage claim: not proven,</text>
     <text x="890" y="222" text-anchor="middle" font-size="14" fill="#8A5A0B">absence of proof, never a false tick</text>
 
     <line x1="290" y1="130" x2="378" y2="130" stroke="#44536F" stroke-width="1.6" marker-end="url(#ar)"/>
@@ -238,19 +238,19 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <h2>Type a lie into the form. Watch the circuit refuse it.</h2>
   <div class="cols">
     <div class="term">
-      <div class="dim">// 2016 Audi A4 — the odometer rollback attempt</div>
+      <div class="dim">// 2016 Audi A4, the odometer rollback attempt</div>
       <div><span class="ok">ok</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update 1: odometerKm → 152 600</div>
-      <div><span class="no">REFUSED</span>&nbsp;update 2: odometerKm → 121 000 — <b>value decreased</b></div>
+      <div><span class="no">REFUSED</span>&nbsp;update 2: odometerKm → 121 000: <b>value decreased</b></div>
       <div><span class="ok">ok</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prove neverWrittenOff</div>
-      <div><span class="no">REFUSED</span>&nbsp;prove mileageUnder 150 000 — <b>value above the claimed bound</b></div>
-      <div class="dim">// refused steps wrote nothing — exactly as on chain</div>
+      <div><span class="no">REFUSED</span>&nbsp;prove mileageUnder 150 000: <b>value above the claimed bound</b></div>
+      <div class="dim">// refused steps wrote nothing, exactly as on chain</div>
     </div>
     <div class="box">
       <h3>Why this matters</h3>
-      <p>The refusal is not form validation — it is the <strong>zero-knowledge circuit aborting
+      <p>The refusal is not form validation: it is the <strong>zero-knowledge circuit aborting
       the transaction</strong>, so nothing is written and no false claim can ever appear proven.</p>
       <p>The buyer's page then shows <span class="chip warn">not proven</span> for exactly that
-      question — an honest absence, never a quiet "no".</p>
+      question: an honest absence, never a quiet "no".</p>
       <p>Anyone can reproduce this: clone, <span class="url">npm run app</span>, pick the Audi
       from the demo fleet, submit.</p>
     </div>
@@ -266,21 +266,21 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <div class="box">
       <h3>32-slot field panel (docs/FIELDS.md)</h3>
       <ul>
-        <li><strong>Fraud history</strong> — mileage, accidents, keepers, write-off, services: live fields under integrity rules</li>
-        <li><strong>Art 46 identity</strong> — category, fuel type (BEV→diesel), type approval, emissions class, registration dates</li>
-        <li><strong>Art 29 / 3R declarations</strong> — recycled plastic, steel, aluminium; CO₂ footprint; dismantling evidence</li>
-        <li><strong>New v retrofit</strong> — which path the passport came through, on the record</li>
+        <li><strong>Fraud history</strong>: mileage, accidents, keepers, write-off, services: live fields under integrity rules</li>
+        <li><strong>Art 46 identity</strong>: category, fuel type (BEV→diesel), type approval, emissions class, registration dates</li>
+        <li><strong>Art 29 / 3R declarations</strong>: recycled plastic, steel, aluminium; CO₂ footprint; dismantling evidence</li>
+        <li><strong>New v retrofit</strong>: which path the passport came through, on the record</li>
       </ul>
     </div>
     <div class="box">
       <h3>Where our passport ends</h3>
       <p>An EV's <strong>battery</strong> is a separate regime with its own passport (Reg (EU)
-      2023/1542, from Feb 2027). We carry the <strong>reference</strong> — slot 29,
-      <code>batteryPassportId</code> — and never restate the battery's claims.</p>
-      <p><em>The regulation asks these passports to interoperate. Interoperate, not absorb —
+      2023/1542, from Feb 2027). We carry the <strong>reference</strong>: slot 29,
+      <code>batteryPassportId</code>: and never restate the battery's claims.</p>
+      <p><em>The regulation asks these passports to interoperate. Interoperate, not absorb,
       a reference is what that actually looks like.</em></p>
       <p>Every declaration anchors under a salted 32-slot content root: it commits to everything
-      and reveals nothing — including which slots are filled.</p>
+      and reveals nothing: including which slots are filled.</p>
     </div>
   </div>
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i>ShieldVIN</span><span>7</span></div>
@@ -293,7 +293,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <div class="cols">
     <div class="box">
       <h3>The numbers</h3>
-      <p><span class="big-num">67</span> contract tests against the <strong>compiled circuits</strong> —
+      <p><span class="big-num">67</span> contract tests against the <strong>compiled circuits</strong>,
       same assertions that reject a transaction on chain</p>
       <p><span class="big-num">+16</span> app tests · <span class="big-num">+24</span> SDK assumption assertions</p>
       <ul>
@@ -304,10 +304,10 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     </div>
     <div class="box">
       <h3>What we do not claim</h3>
-      <p>A proof shows a value is <strong>the anchored one</strong> and satisfies a bound — not
+      <p>A proof shows a value is <strong>the anchored one</strong> and satisfies a bound: not
       that it matched physical reality when written. The registrar is trusted for that, which is
       why every passport names one.</p>
-      <p>So ShieldVIN today makes fraud <strong>attributable and tamper-evident</strong> — never
+      <p>So ShieldVIN today makes fraud <strong>attributable and tamper-evident</strong>: never
       "impossible". Closing the last gap needs attestation at the sensor: honest future work
       (Wave 3+), not something we imply we have.</p>
     </div>
@@ -318,24 +318,24 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
 <!-- ============================================================ 9 ecosystem -->
 <section class="slide">
   <div class="eyebrow">Ecosystem</div>
-  <h2>Built on Midnight, with ODATANO — precisely</h2>
+  <h2>Built on Midnight, with ODATANO: precisely</h2>
   <div class="cols">
     <div class="box">
       <h3>Ours</h3>
       <ul>
-        <li>The Compact contract — five circuits, its own ledger, its own integrity rules. Not a fork; does not extend <code>attestation-vault</code></li>
-        <li>The 32-slot vehicle field panel — a vehicle-domain design</li>
+        <li>The Compact contract: five circuits, its own ledger, its own integrity rules. Not a fork; does not extend <code>attestation-vault</code></li>
+        <li>The 32-slot vehicle field panel: a vehicle-domain design</li>
         <li>All three surfaces, the demo fleet, the tests</li>
       </ul>
     </div>
     <div class="box">
       <h3>ODATANO, in three ways</h3>
       <ul>
-        <li><code>@odatano/dpp-sdk</code> — panel key derivation, value scaling, Merkle construction</li>
-        <li><code>@odatano/nightgate-tx</code> — local transaction building and proving, our own key</li>
-        <li>Hosted NIGHTGATE <strong>sponsors our preprod fees</strong> under a metered grant — every transaction built, proven and signed on our side; <strong>NIGHTGATE pays and submits, and never sees a witness</strong></li>
+        <li><code>@odatano/dpp-sdk</code>: panel key derivation, value scaling, Merkle construction</li>
+        <li><code>@odatano/nightgate-tx</code>: local transaction building and proving, our own key</li>
+        <li>Hosted NIGHTGATE <strong>sponsors our preprod fees</strong> under a metered grant: every transaction built, proven and signed on our side; <strong>NIGHTGATE pays and submits, and never sees a witness</strong></li>
       </ul>
-      <p>Not used: NIGHTGATE's CAP service, OData layer, attestation-vault, disclosure grants — that is the Wave 2 delta, stated in advance.</p>
+      <p>Not used: NIGHTGATE's CAP service, OData layer, attestation-vault, disclosure grants: that is the Wave 2 delta, stated in advance.</p>
     </div>
   </div>
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i>ShieldVIN</span><span>9</span></div>
@@ -343,26 +343,26 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
 
 <!-- ============================================================ 10 business -->
 <section class="slide">
-  <div class="eyebrow">Business — how this earns</div>
+  <div class="eyebrow">Business: how this earns</div>
   <h2>Mandated demand, fiat-only revenue, free verification</h2>
   <div class="cols">
     <div class="box">
       <h3>The model</h3>
       <ul>
-        <li><strong>Who pays:</strong> the independent used-car dealer — our beachhead. A clean-history proof is a sales tool they cannot fake today</li>
+        <li><strong>Who pays:</strong> the independent used-car dealer: our beachhead. A clean-history proof is a sales tool they cannot fake today</li>
         <li><strong>What they buy:</strong> a subscription plus per-passport issuance; services and proofs metered within plans</li>
-        <li><strong>What is free:</strong> verification, always. Every scanned QR is a buyer learning to demand proof — the adoption engine</li>
-        <li><strong>Every payment is fiat.</strong> No customer ever holds crypto, sees a wallet, or pays a gas fee — fees are sponsored from a ShieldVIN treasury</li>
+        <li><strong>What is free:</strong> verification, always. Every scanned QR is a buyer learning to demand proof: the adoption engine</li>
+        <li><strong>Every payment is fiat.</strong> No customer ever holds crypto, sees a wallet, or pays a gas fee: fees are sponsored from a ShieldVIN treasury</li>
       </ul>
     </div>
     <div class="box">
       <h3>Why the demand is not speculative</h3>
       <p>From <strong>September 2032 the passport is mandatory</strong> for every vehicle placed
-      on the EU market — and the existing fleet gets passports retrofitted. The regulation
+      on the EU market: and the existing fleet gets passports retrofitted. The regulation
       creates the obligation; ShieldVIN makes compliance private.</p>
       <h3 style="margin-top:6px">Honest about pricing</h3>
       <p>Price points wait on <strong>measured unit cost</strong> (DUST per anchor and per proof
-      — a named Wave 2 task). The structure is already built: billing gates the action, not the
+      a named Wave 2 task). The structure is already built: billing gates the action, not the
       chain, so pricing never touches crypto code.</p>
     </div>
   </div>
@@ -375,11 +375,11 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <h2>Each wave states its delta in advance</h2>
   <table style="flex:1">
     <tr><th style="width:130px">Wave 2</th>
-        <td><strong>The full NIGHTGATE integration</strong> — tiered disclosure (buyer / trade / authority see genuinely different views), disclosure grants, live browser reads, the CAP service layer, and <strong>measured unit economics</strong> that turn the pricing structure into prices</td></tr>
+        <td><strong>The full NIGHTGATE integration</strong>: tiered disclosure (buyer / trade / authority see genuinely different views), disclosure grants, live browser reads, the CAP service layer, and <strong>measured unit economics</strong> that turn the pricing structure into prices</td></tr>
     <tr><th>Wave 3</th>
-        <td><strong>Composition &amp; commerce</strong> — the battery passport link exercised against NIGHTPASS end to end, cross-root integrity in the product flow, the dealer workflow, fleet view, and one real pilot conversation</td></tr>
+        <td><strong>Composition &amp; commerce</strong>: the battery passport link exercised against NIGHTPASS end to end, cross-root integrity in the product flow, the dealer workflow, fleet view, and one real pilot conversation</td></tr>
     <tr><th>Horizon</th>
-        <td><strong>Closing the trust gap</strong> — sensor-signed readings from tamper-resistant hardware bind numbers to physical reality; provenance marking lets a verifier tell a sensor-attested reading from a self-declared one. That distinction becomes the product</td></tr>
+        <td><strong>Closing the trust gap</strong>: sensor-signed readings from tamper-resistant hardware bind numbers to physical reality; provenance marking lets a verifier tell a sensor-attested reading from a self-declared one. That distinction becomes the product</td></tr>
   </table>
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i>ShieldVIN</span><span>11</span></div>
 </section>
@@ -395,8 +395,8 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <div>npm run app&nbsp;&nbsp;<span class="dim"># the whole product on localhost</span></div>
   </div>
   <p style="margin-top:8px">
-    <span class="url">shieldvin.github.io/shieldvin</span> — live demo ·
-    <span class="url">docs/DEMO.md</span> — the walkthrough ·
+    <span class="url">shieldvin.github.io/shieldvin</span>: live demo ·
+    <span class="url">docs/DEMO.md</span>: the walkthrough ·
     Apache-2.0, fully open source
   </p>
   <div style="flex:1"></div>

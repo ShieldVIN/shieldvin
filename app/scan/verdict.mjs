@@ -1,5 +1,5 @@
 /**
- * Verdict logic for the scan page — pure functions over exported ledger JSON.
+ * Verdict logic for the scan page: pure functions over exported ledger JSON.
  *
  * Kept framework-free and DOM-free on purpose: the page imports this as an ES
  * module, and `test/app/scan-verdict.test.mjs` runs the same file under
@@ -8,7 +8,7 @@
  * would be lying; sharing this module is what prevents that.
  *
  * The one rule that matters here: a verdict comes FROM A CLAIM ON THE LEDGER
- * or it does not exist. This module never infers "clean" from silence — a
+ * or it does not exist. This module never infers "clean" from silence: a
  * question with no claim behind it is `not-proven`, rendered as exactly that.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -28,7 +28,7 @@ export const QUESTIONS = [
     { field: 'odometerKm', atMost: true, bound: null, label: 'Mileage under a stated ceiling' }
 ];
 
-/** "150000" -> "150 000" — thin-space grouping, no locale surprises. */
+/** "150000" -> "150 000": thin-space grouping, no locale surprises. */
 export const formatNumber = (s) =>
     String(s).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
@@ -44,7 +44,7 @@ export const formatBound = (kind, bound) => {
  *
  * Statuses per question:
  *   'proven'      a claim answers it, made against the field's CURRENT value
- *   'superseded'  a claim answers it, but the field has moved on since — the
+ *   'superseded'  a claim answers it, but the field has moved on since: the
  *                 claim was true of an earlier version, ask for a fresh proof
  *   'not-proven'  no claim on the ledger answers it; this is NOT "no"
  */
@@ -86,7 +86,7 @@ export function passportView(ledger, vinHex, vocabulary) {
         };
     });
 
-    // Claims that answered no standard question still deserve a row — a
+    // Claims that answered no standard question still deserve a row: a
     // verifier should never discover ledger state the page chose not to show.
     const shown = new Set(answers.filter((a) => a.claim).map((a) => a.claim.key));
     const extras = mine

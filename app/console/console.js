@@ -105,8 +105,8 @@ const demoBlurb = document.getElementById('demo-blurb');
         new: document.createElement('optgroup'),
         retrofit: document.createElement('optgroup')
     };
-    groups.new.label = 'New vehicles — first placing on the market';
-    groups.retrofit.label = 'Existing fleet — retrofit passports';
+    groups.new.label = 'New vehicles: first placing on the market';
+    groups.retrofit.label = 'Existing fleet: retrofit passports';
     DEMO_VEHICLES.forEach((v, i) => {
         const opt = document.createElement('option');
         opt.value = String(i);
@@ -246,7 +246,7 @@ async function submitToCircuits(intake) {
             const li = document.createElement('li');
             li.className = 'refused';
             li.innerHTML = '<b>refused</b>';
-            li.append(` ${ref.step} — ${ref.reason}`);
+            li.append(` ${ref.step}: ${ref.reason}`);
             stepsEl.append(li);
         }
 

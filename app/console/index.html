@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ShieldVIN — intake console</title>
+<title>ShieldVIN: intake console</title>
 <meta name="description" content="Fill in a vehicle passport, submit it to the circuits, and watch the proofs land.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap">
@@ -36,7 +36,7 @@
   <div class="demo-banner" role="note">
     <span class="demo-tag">DEMO</span>
     <div>
-      <b>Sample data for evaluation.</b> Every vehicle below is fictional — pick one and the
+      <b>Sample data for evaluation.</b> Every vehicle below is fictional: pick one and the
       whole form fills itself, then submit and watch the real circuits accept and refuse. Nothing
       here touches a public network.
     </div>
@@ -46,7 +46,7 @@
     <h2>Pick a demonstration vehicle</h2>
     <label>Sample vehicle
       <select id="demo-select">
-        <option value="" selected>— choose, or fill the form yourself —</option>
+        <option value="" selected>Choose a vehicle, or fill the form yourself</option>
       </select>
     </label>
     <p class="rule-note" id="demo-blurb" hidden></p>
@@ -65,18 +65,18 @@
         <legend>Passport type</legend>
         <label class="radio"><input type="radio" name="passportOrigin" value="new" checked>
           <span><b>New vehicle</b>
-          <small>Issued at first placing on the market — the mandatory path from
+          <small>Issued at first placing on the market: the mandatory path from
           September 2032.</small></span></label>
         <label class="radio"><input type="radio" name="passportOrigin" value="retrofit">
-          <span><b>Existing vehicle — retrofit</b>
+          <span><b>Existing vehicle: retrofit</b>
           <small>Produced before the regulation applies; the passport is added to the existing
-          fleet. The fields are the same today — the record simply says which path it came
+          fleet. The fields are the same today, the record simply says which path it came
           through, anchored like every other declaration.</small></span></label>
       </fieldset>
       <label>VIN
         <input name="vin" required minlength="11" maxlength="17" spellcheck="false"
                placeholder="WVWZZZ1JZXW000001">
-        <small>Hashed before anything is registered — the VIN itself is never published.</small>
+        <small>Hashed before anything is registered: the VIN itself is never published.</small>
       </label>
       <label>Registering authority
         <input name="registrar" required placeholder="dvla-swansea" spellcheck="false">
@@ -93,13 +93,13 @@
       <div class="grid2">
         <label>Vehicle category
           <select name="vehicleCategory">
-            <option value="M1" selected>M1 — passenger car</option>
-            <option value="M2">M2 — minibus</option>
-            <option value="M3">M3 — bus / coach</option>
-            <option value="N1">N1 — van (≤3.5t)</option>
-            <option value="N2">N2 — truck (≤12t)</option>
-            <option value="N3">N3 — truck (&gt;12t)</option>
-            <option value="L">L — two/three-wheeler</option>
+            <option value="M1" selected>M1: passenger car</option>
+            <option value="M2">M2: minibus</option>
+            <option value="M3">M3: bus / coach</option>
+            <option value="N1">N1: van (≤3.5t)</option>
+            <option value="N2">N2: truck (≤12t)</option>
+            <option value="N3">N3: truck (&gt;12t)</option>
+            <option value="L">L: two/three-wheeler</option>
           </select>
         </label>
         <label>Powertrain / fuel
@@ -117,7 +117,7 @@
         </label>
         <label>Emissions class
           <select name="emissionsClass">
-            <option value="">—</option>
+            <option value="">not specified</option>
             <option value="Euro 5">Euro 5</option>
             <option value="Euro 6">Euro 6</option>
             <option value="Euro 6e">Euro 6e</option>
@@ -132,7 +132,7 @@
       <div class="grid2 ev-only" id="ev-only" hidden>
         <label>Battery passport ID
           <input name="batteryPassportId" spellcheck="false" placeholder="BPID-EU-000184-2027">
-          <small>The link to the battery's own passport (Reg (EU) 2023/1542) — a reference,
+          <small>The link to the battery's own passport (Reg (EU) 2023/1542): a reference,
             never a copy of its claims.</small>
         </label>
         <label>Battery chemistry <span class="opt">optional</span>
@@ -140,7 +140,7 @@
         </label>
       </div>
       <details class="env-details">
-        <summary>Environmental declarations (Art 46 / Art 29) — optional</summary>
+        <summary>Environmental declarations (Art 46 / Art 29), optional</summary>
         <div class="grid2">
           <label>CO₂ footprint (kg CO₂e)
             <input name="co2FootprintKgCO2e" type="number" min="0" step="1"></label>
@@ -152,7 +152,7 @@
             <input name="recycledAluminiumPct" type="number" min="0" max="100" step="0.1"></label>
         </div>
       </details>
-      <p class="rule-note">These anchor into the passport's <b>content root</b> — the 32-slot
+      <p class="rule-note">These anchor into the passport's <b>content root</b>: the 32-slot
         panel from <a href="https://github.com/ShieldVIN/shieldvin/blob/main/docs/FIELDS.md">FIELDS.md</a>.
         The values stay private; the root commits to them, and disclosure is a separate, later act.</p>
     </section>
@@ -168,23 +168,23 @@
         </label>
         <label>Keepers
           <input name="ownerCount" type="number" min="0" step="1" value="1" required>
-          <small>0 = new, never registered — the passport carries a keeper count, and "new
+          <small>0 = new, never registered. The passport carries a keeper count, and "new
             versus second-hand" is exactly what it answers.</small>
         </label>
         <label>Write-off category
           <select name="writeOffCategory">
-            <option value="0" selected>0 — never written off</option>
-            <option value="1">1 — category N (non-structural)</option>
-            <option value="2">2 — category S (structural)</option>
-            <option value="3">3 — category B (break)</option>
-            <option value="4">4 — category A (scrap)</option>
+            <option value="0" selected>0: never written off</option>
+            <option value="1">1: category N (non-structural)</option>
+            <option value="2">2: category S (structural)</option>
+            <option value="3">3: category B (break)</option>
+            <option value="4">4: category A (scrap)</option>
           </select>
         </label>
         <label>Services recorded
           <input name="serviceCount" type="number" min="0" step="1" value="0" required>
         </label>
       </div>
-      <p class="rule-note">Each field is created under its integrity rule — none of these may ever
+      <p class="rule-note">Each field is created under its integrity rule: none of these may ever
         fall, and the rule is fixed on the ledger at creation.</p>
     </section>
 
@@ -193,7 +193,7 @@
       <div id="updates"></div>
       <button type="button" class="ghost" id="add-update">+ Add service record</button>
       <p class="rule-note warn-note" id="monotonic-warning" hidden>⚠ A mileage lower than the one
-        before it will be <b>refused in-circuit</b> — the step aborts and writes nothing. Submit
+        before it will be <b>refused in-circuit</b>: the step aborts and writes nothing. Submit
         anyway to watch that happen.</p>
     </section>
 
@@ -210,7 +210,7 @@
           <input name="mileageUnder" type="number" min="1" step="1000" value="150000"
                  class="inline-num"> km</span></label>
       <p class="rule-note">A claim the record cannot support <b>aborts during proving and writes
-        nothing</b> — the verification page then shows “not proven”, never a false tick.</p>
+        nothing</b>: the verification page then shows “not proven”, never a false tick.</p>
     </section>
 
     <div class="actions">
@@ -227,7 +227,7 @@
   <section class="panel" id="filedrop" hidden>
     <h2>Intake file</h2>
     <p class="rule-note">No circuit server is running, so the form produced an intake file
-      instead. Save it under <code>private/</code> (never committed — it holds your values and the
+      instead. Save it under <code>private/</code> (never committed, it holds your values and the
       VIN) and run <code>node scripts/intake.mjs private/&lt;file&gt;.json</code>; the circuits run
       on your machine and your vehicle appears on the verification page.</p>
     <pre id="preview"></pre>
