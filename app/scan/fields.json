@@ -1,0 +1,42 @@
+{
+  "note": "Public vocabulary: blake2b-256(field name) -> display metadata. See docs/FIELDS.md.",
+  "fields": {
+    "2dd69ded11554ddb3306be039e80f3f82824b0d4af96b9bc287055558ea92fe7": {
+      "name": "odometerKm",
+      "label": "Mileage",
+      "kind": "km"
+    },
+    "aeb322aa379bd01ecb61ca57719f40e3c4a0368533dd62b1c7b5d2d995da98eb": {
+      "name": "accidentCount",
+      "label": "Reported accidents",
+      "kind": "count"
+    },
+    "7567eb36429241cb257b43d05709400ac5e7400e088048071b387d7d0548b25c": {
+      "name": "ownerCount",
+      "label": "Keepers",
+      "kind": "count"
+    },
+    "177d70535ec71b35583722c2d5f1ec963e3b32b7553dce868e547c0c5140e3c0": {
+      "name": "writeOffCategory",
+      "label": "Write-off category",
+      "kind": "category"
+    },
+    "48bdd789ee03fb0debd23d7e156228d3233f0110d48ed2d7dda663fb22521aff": {
+      "name": "serviceCount",
+      "label": "Services recorded",
+      "kind": "count"
+    }
+  },
+  "demoVehicles": [
+    {
+      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "title": "Vehicle A",
+      "blurb": "Full service history, claims proven"
+    },
+    {
+      "vinHash": "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b",
+      "title": "Vehicle B",
+      "blurb": "A record it cannot prove clean"
+    }
+  ]
+}

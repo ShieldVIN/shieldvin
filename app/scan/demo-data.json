@@ -1,0 +1,82 @@
+{
+  "source": "shieldvin-passport, compiled circuits run locally by scripts/export-demo-state.mjs",
+  "note": "Real public ledger state. Values and salts never leave the generating process.",
+  "passports": {
+    "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+  },
+  "registrar": {
+    "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "48735664c0b525f10ea6283e771601acf44eeb9a174387ea5b880abf8a53e6a1",
+    "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "48735664c0b525f10ea6283e771601acf44eeb9a174387ea5b880abf8a53e6a1"
+  },
+  "fieldCommitment": {
+    "ab36d4e730c153e82109b3460f0e26d6d3bfaad007f782b4867e4e00ccc6c3db": "b04fda727e4aa710a34f65dae9244ee6df02411db82dbc176da47aa79e81cb09",
+    "1c35bb205d08d7214a7a1866abbf892b44bb59214a77d92c36a4e4ebedeace8d": "d362758e70221a3d374987355c7bbb501b05d577e12bb9507c02ebc789bf1f5b",
+    "a155446f5152e62089281feec806a027f875a4f98032b05f0246f780bc0477e8": "01d149526c33ed2ae9bafd025604bf3e8b5648c563a56b0d92a072669f2261c7",
+    "911f689d64beea9d6da5cc276f7bda972b7ff64d88c7e909015343e4f6f095d7": "f5ad92ad0bcc165cf5a131541273264d3b2586635b305bd2e768917d275c0791",
+    "20f082f50ead8b5a016f3dc1c6a6caffe32b62477caf794f6cdfc49e29af00ff": "60cc9dccf1584f4660b813b0bf5ece6fe5d35e4dfafaaca7b083ff93ba2c3804",
+    "3a7bb0f14b32ce41a9048821284c285197c09e229947f88d63e07f00a7cf50f2": "a0a2752285a24a7c15fdbe4e1679db161cd93e086f4a2c328fa9995dba0da7a9",
+    "38c154b9e98f72884daff3515c2b44930be156a5f86afaff650f8553c0b98d39": "0cd644a6024d1d4e41a3e1db5f2b336e2c9c12dfc535f84dab2831466fad66d9",
+    "2f1db028a0159d4672c919ce3d8ddd1b629080aaea74234853f725a922207dc2": "1d72984de1bb5cfa3fc9c206a98134ae802452da31d55929bdc852efe379145d",
+    "690615c16991264c717249aa38d6d4e357bf949439e0bcd8b6b5b088c202d86f": "d23fc2163578f3363f4632895d80d4e6c1f6c626fb79240c2f5db2c544634fc5"
+  },
+  "fieldRule": {
+    "ab36d4e730c153e82109b3460f0e26d6d3bfaad007f782b4867e4e00ccc6c3db": 0,
+    "1c35bb205d08d7214a7a1866abbf892b44bb59214a77d92c36a4e4ebedeace8d": 0,
+    "a155446f5152e62089281feec806a027f875a4f98032b05f0246f780bc0477e8": 0,
+    "911f689d64beea9d6da5cc276f7bda972b7ff64d88c7e909015343e4f6f095d7": 0,
+    "20f082f50ead8b5a016f3dc1c6a6caffe32b62477caf794f6cdfc49e29af00ff": 0,
+    "3a7bb0f14b32ce41a9048821284c285197c09e229947f88d63e07f00a7cf50f2": 0,
+    "38c154b9e98f72884daff3515c2b44930be156a5f86afaff650f8553c0b98d39": 0,
+    "2f1db028a0159d4672c919ce3d8ddd1b629080aaea74234853f725a922207dc2": 0,
+    "690615c16991264c717249aa38d6d4e357bf949439e0bcd8b6b5b088c202d86f": 0
+  },
+  "claims": [
+    {
+      "key": "5134031b182fe4c2a683c9fc58dce08eb22cf768ab1a0abe565cfba0e6d6cd94",
+      "slot": "690615c16991264c717249aa38d6d4e357bf949439e0bcd8b6b5b088c202d86f",
+      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "fieldKey": "2dd69ded11554ddb3306be039e80f3f82824b0d4af96b9bc287055558ea92fe7",
+      "commitment": "d23fc2163578f3363f4632895d80d4e6c1f6c626fb79240c2f5db2c544634fc5",
+      "bound": "150000",
+      "atMost": true
+    },
+    {
+      "key": "09f5a3d7635bab59a8d8e11ae7b2b85a283629af858c4ee067e56e7326b470d8",
+      "slot": "a155446f5152e62089281feec806a027f875a4f98032b05f0246f780bc0477e8",
+      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "fieldKey": "7567eb36429241cb257b43d05709400ac5e7400e088048071b387d7d0548b25c",
+      "commitment": "01d149526c33ed2ae9bafd025604bf3e8b5648c563a56b0d92a072669f2261c7",
+      "bound": "1",
+      "atMost": true
+    },
+    {
+      "key": "4dfee9a89fac7e876103c37c4ee7112e58eacb78ddef3c04fc6b45ce3ddfcabd",
+      "slot": "ab36d4e730c153e82109b3460f0e26d6d3bfaad007f782b4867e4e00ccc6c3db",
+      "vinHash": "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b",
+      "fieldKey": "2dd69ded11554ddb3306be039e80f3f82824b0d4af96b9bc287055558ea92fe7",
+      "commitment": "b04fda727e4aa710a34f65dae9244ee6df02411db82dbc176da47aa79e81cb09",
+      "bound": "200000",
+      "atMost": true
+    },
+    {
+      "key": "e9100ce36c8c8cb195ffb9298639a9cddd0ac871cc5b1dabe9cf468bc3efdb33",
+      "slot": "1c35bb205d08d7214a7a1866abbf892b44bb59214a77d92c36a4e4ebedeace8d",
+      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "fieldKey": "177d70535ec71b35583722c2d5f1ec963e3b32b7553dce868e547c0c5140e3c0",
+      "commitment": "d362758e70221a3d374987355c7bbb501b05d577e12bb9507c02ebc789bf1f5b",
+      "bound": "0",
+      "atMost": true
+    },
+    {
+      "key": "e8c6c035bea808600e4cfe9ad33afc40023cfbcc37dca2db126a2800c3dfa4ed",
+      "slot": "911f689d64beea9d6da5cc276f7bda972b7ff64d88c7e909015343e4f6f095d7",
+      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "fieldKey": "aeb322aa379bd01ecb61ca57719f40e3c4a0368533dd62b1c7b5d2d995da98eb",
+      "commitment": "f5ad92ad0bcc165cf5a131541273264d3b2586635b305bd2e768917d275c0791",
+      "bound": "0",
+      "atMost": true
+    }
+  ],
+  "updateCount": "16"
+}
