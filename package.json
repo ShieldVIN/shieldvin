@@ -14,7 +14,8 @@
   },
   "comment": "Compact has no Windows binary: run `npm run compile` in WSL2, macOS or Linux. Tests run anywhere. @odatano/* versions are pinned EXACTLY on purpose - see docs/DECISIONS.md D10.",
   "dependencies": {
-    "@odatano/dpp-sdk": "0.2.0"
+    "@odatano/dpp-sdk": "0.2.0",
+    "@odatano/nightgate-tx": "0.4.0"
   },
   "devDependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
@@ -29,6 +30,7 @@
     "compile": "compact compile contracts/shieldvin-passport/src/shieldvin-passport.compact contracts/shieldvin-passport/src/managed/shieldvin-passport",
     "test:app": "node --test \"test/app/*.test.mjs\"",
     "demo:export": "node scripts/export-demo-state.mjs",
-    "serve:scan": "npx serve app/scan"
+    "serve:scan": "npx serve app/scan",
+    "deploy:preprod": "node scripts/deploy-preprod.mjs"
   }
 }

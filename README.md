@@ -85,11 +85,14 @@ npm install
 npm test
 ```
 
-Expected: **67 contract tests and 24 SDK assertions, all passing**, in a couple of seconds.
+Expected: **67 contract tests, 10 app tests and 24 SDK assertions, all passing**, in a couple of
+seconds.
 
 ```
  Test Files  1 passed (1)
-      Tests  56 passed (56)
+      Tests  67 passed (67)
+
+# pass 10
 
 ================ 24 passed, 0 failed ================
 ```
@@ -99,8 +102,25 @@ Expected: **67 contract tests and 24 SDK assertions, all passing**, in a couple 
 | `npm test` | Everything below, in one run |
 | `npm run test:contract` | The 67 contract tests, against the compiled circuits |
 | `npm run test:watch` | The same, re-running on change |
+| `npm run test:app` | 10 tests on the scan page's verdict logic, via `node --test` |
 | `npm run test:sdk` | 24 assertions pinning our assumptions about `@odatano/dpp-sdk` |
+| `npm run serve:scan` | Serve the scan page locally |
+| `npm run demo:export` | Regenerate the scan page's demo ledger by running the compiled circuits |
+| `npm run deploy:preprod` | Build + prove the deploy locally; `--submit` hands it to the sponsor |
 | `npm run compile` | Recompile the Compact contract — **WSL2, macOS or Linux only**, see below |
+
+### The scan page
+
+The buyer-facing surface — scan a QR code on a vehicle, see what its passport has *proven*, and
+what it has not. Live at **<https://shieldvin.github.io/shieldvin/>**, or locally with
+`npm run serve:scan`. Plain HTML/CSS/JS with no build step, by decision
+([D11](docs/DECISIONS.md#settled)): the audience is a used-car buyer holding a phone.
+
+Its demo ledger is **not hand-written**: `scripts/export-demo-state.mjs` runs the real compiled
+circuits through a scripted history and exports the resulting public ledger, asserted clean of
+every private value. Two vehicles on purpose — one that proved the four buyer questions, and one
+whose clean-history proofs would abort in-circuit, so the page must render *not proven* honestly
+rather than inferring a "no".
 
 ### Recompiling the contract
 
