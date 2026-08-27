@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - 'app/**'
+      - 'deck/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -41,6 +42,7 @@ jobs:
           cp app/scan/* _site/
           cp -r app/console _site/console
           cp -r app/proofs _site/proofs
+          cp -r deck _site/deck
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShieldVIN — Wave 1 deck</title>
+<meta name="description" content="ShieldVIN slide deck: a Digital Circularity Vehicle Passport on Midnight. Arrow keys to navigate; print to PDF.">
+<style>
+/* Self-contained slide deck. Arrow keys / click to advance; Ctrl+P prints one
+   slide per landscape page for the PDF the submission wants. System fonts,
+   product palette, no external requests. */
+:root {
+  --bg: #F4F6F5; --card: #FFFFFF; --ink: #17201D; --ink-2: #46524E;
+  --muted: #71807B; --line: #DCE2E0; --brand: #0F5257; --brand-soft: #DCEBEA;
+  --ok: #1E6B33; --ok-bg: #E4F0E6; --warn: #8A5A0B; --warn-bg: #F5EAD3;
+  --bad: #8C2F26; --bad-bg: #F4E1DE;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: #222927; color: var(--ink);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+  width: 1280px; max-width: 100vw; aspect-ratio: 16 / 9;
+  margin: 24px auto; padding: 56px 72px;
+  background: var(--bg); border-radius: 6px;
+  display: none; flex-direction: column; gap: 18px;
+  position: relative; overflow: hidden;
+}
+.slide.active { display: flex; }
+
+.eyebrow {
+  font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--brand);
+}
+h1 { font-size: 54px; line-height: 1.1; margin: 0; letter-spacing: -.02em; }
+h2 { font-size: 36px; line-height: 1.15; margin: 0 0 6px; letter-spacing: -.015em; }
+h3 { font-size: 20px; margin: 0; }
+p, li { font-size: 19px; color: var(--ink-2); }
+.lede { font-size: 24px; color: var(--ink-2); max-width: 60ch; }
+strong { color: var(--ink); }
+ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; flex: 1; min-height: 0; }
+.box {
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  padding: 20px 22px; display: flex; flex-direction: column; gap: 10px;
+}
+.box h3 { color: var(--brand); font-size: 16px; text-transform: uppercase; letter-spacing: .06em; }
+
+.slide-foot {
+  position: absolute; left: 72px; right: 72px; bottom: 26px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13px; color: var(--muted);
+}
+.brandline { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--ink); }
+.brandline svg { width: 18px; height: 18px; color: var(--brand); }
+
+table { border-collapse: collapse; width: 100%; font-size: 17px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spacing: .05em; }
+
+.big-num { font-size: 46px; font-weight: 800; color: var(--brand); letter-spacing: -.02em; }
+.chip { display: inline-block; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 3px 12px; }
+.chip.ok { background: var(--ok-bg); color: var(--ok); }
+.chip.warn { background: var(--warn-bg); color: var(--warn); }
+.chip.brand { background: var(--brand-soft); color: var(--brand); }
+
+.term {
+  font-family: ui-monospace, Consolas, monospace; font-size: 15px; line-height: 1.65;
+  background: #141a18; color: #d9e2df; border-radius: 10px; padding: 18px 22px;
+}
+.term .ok { color: #7cc489; }
+.term .no { color: #e0a45c; }
+.term .dim { color: #7c8a86; }
+
+.url { font-family: ui-monospace, Consolas, monospace; font-size: 16px; color: var(--brand); }
+
+.nav-hint {
+  position: fixed; right: 18px; bottom: 12px; font-size: 12px; color: #9fb0ab;
+}
+
+@media print {
+  body { background: #fff; }
+  .slide { display: flex !important; page-break-after: always; margin: 0 auto; border-radius: 0; width: 100%; aspect-ratio: auto; height: 100vh; }
+  .nav-hint { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ 1 title -->
+<section class="slide active">
+  <div style="flex:1"></div>
+  <div class="eyebrow">Midnight Buildathon · Wave 1 · September 2026</div>
+  <h1>ShieldVIN</h1>
+  <p class="lede"><strong>Prove a vehicle's history. Never show the record.</strong><br>
+  A Digital Circularity Vehicle Passport under Regulation (EU) 2026/1738, built on
+  Midnight's zero-knowledge blockchain.</p>
+  <p>
+    <span class="url">github.com/ShieldVIN/shieldvin</span> &nbsp;·&nbsp;
+    <span class="url">shieldvin.github.io/shieldvin</span>
+  </p>
+  <div style="flex:1"></div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>1</span></div>
+</section>
+
+<!-- ============================================================ 2 problem -->
+<section class="slide">
+  <div class="eyebrow">The problem</div>
+  <h2>A vehicle's history must be checkable by strangers —<br>and is too sensitive to publish</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>Today</h3>
+      <p>The history a used-car buyer sees is whatever the seller chose to print. Write-offs
+      re-registered as clean, accidents that vanish between listings, service stamps nobody
+      earned — each is a field moving a way it should never move, and the buyer cannot tell.</p>
+    </div>
+    <div class="box">
+      <h3>From September 2032, by law</h3>
+      <p>Every vehicle placed on the EU market must carry a <strong>Digital Circularity Vehicle
+      Passport</strong> — identity, provenance, history, environmental declarations
+      (Reg (EU) 2026/1738, Art 46, in force since 13 Aug 2026).</p>
+      <p><strong>The regulation demands a passport that can be checked. It does not demand one
+      that is public.</strong> A full history is commercially sensitive to the seller and
+      personally identifying to the owner. Publish it, and one problem is solved by creating
+      the other.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>2</span></div>
+</section>
+
+<!-- ============================================================ 3 insight -->
+<section class="slide">
+  <div class="eyebrow">The insight</div>
+  <h2>Prove claims about the record. Never publish the record.</h2>
+  <p class="lede">Every field of the passport is a private commitment on Midnight. Questions are
+  answered with zero-knowledge proofs — <em>yes, verifiably</em> — while the values stay where
+  they belong.</p>
+  <table>
+    <tr><th>The question</th><th>What the chain learns</th></tr>
+    <tr><td>Has it ever been written off?</td><td><strong>No</strong> — or the transaction fails</td></tr>
+    <tr><td>Has it had a reported accident?</td><td><strong>No</strong> — or the transaction fails</td></tr>
+    <tr><td>Record a service, a reading</td><td>The field moved <strong>only the way that field may move</strong></td></tr>
+    <tr><td>Is the mileage under 150 000 km?</td><td><strong>Yes</strong> — the reading itself, never</td></tr>
+  </table>
+  <p>Each field carries an <strong>integrity rule fixed at creation</strong> — mileage, accidents,
+  keepers, write-off status can never fall. The rule lives on the ledger, so nobody can pick the
+  flattering rule at the moment they need it.</p>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>3</span></div>
+</section>
+
+<!-- ============================================================ 4 built -->
+<section class="slide">
+  <div class="eyebrow">What Wave 1 ships</div>
+  <h2>A working product, end to end</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>Our own Compact contract</h3>
+      <ul>
+        <li><strong>5 circuits</strong>: register, initialise, record, prove-at-most, prove-at-least</li>
+        <li>A commitment per (vehicle, field); values never reach the ledger</li>
+        <li><strong>Claims ledger</strong>: every successful proof leaves a public, checkable record of the claim — never the value</li>
+        <li>A claim is bound to the record version it proved; supersession is visible</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Three functional surfaces — one command</h3>
+      <ul>
+        <li><strong>Verification</strong> — scan a QR, see the verdicts</li>
+        <li><strong>Intake console</strong> — fill the full regulation panel, submit into the real circuits, watch refusals render</li>
+        <li><strong>Proof explorer</strong> — every claim, current or superseded</li>
+        <li>26-vehicle demo fleet: new (BEV → diesel) and retrofit</li>
+      </ul>
+      <p class="url">npm run app · shieldvin.github.io/shieldvin</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>4</span></div>
+</section>
+
+<!-- ============================================================ 5 how -->
+<section class="slide">
+  <div class="eyebrow">How it works</div>
+  <h2>Values stay with the operator. Only proofs travel.</h2>
+  <figure style="margin:0; flex:1; display:flex; align-items:center;">
+  <svg viewBox="0 0 1040 300" role="img" aria-label="Registrar's machine runs the circuits locally; the ledger holds commitments and claims; the buyer's phone reads verdicts." style="width:100%; height:auto;">
+    <defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="#46524E"/></marker></defs>
+    <rect x="10" y="60" width="280" height="180" rx="10" fill="#FFFFFF" stroke="#DCE2E0"/>
+    <text x="150" y="95" text-anchor="middle" font-size="17" font-weight="700" fill="#17201D">Registrar's machine</text>
+    <text x="150" y="125" text-anchor="middle" font-size="14" fill="#46524E">intake console → compiled circuits</text>
+    <text x="150" y="150" text-anchor="middle" font-size="14" fill="#46524E">values &amp; VIN stay here</text>
+    <text x="150" y="180" text-anchor="middle" font-size="14" fill="#8C2F26">a rollback is refused in-circuit</text>
+    <text x="150" y="205" text-anchor="middle" font-size="14" fill="#46524E">fees sponsored — no wallet shown</text>
+
+    <rect x="380" y="60" width="280" height="180" rx="10" fill="#DCEBEA" stroke="#0F5257"/>
+    <text x="520" y="95" text-anchor="middle" font-size="17" font-weight="700" fill="#0B3E42">Midnight ledger</text>
+    <text x="520" y="125" text-anchor="middle" font-size="14" fill="#0B3E42">commitment per (vehicle, field)</text>
+    <text x="520" y="150" text-anchor="middle" font-size="14" fill="#0B3E42">integrity rule, fixed at creation</text>
+    <text x="520" y="175" text-anchor="middle" font-size="14" fill="#0B3E42">claims: field · bound · version</text>
+    <text x="520" y="203" text-anchor="middle" font-size="14" font-weight="700" fill="#0B3E42">never a value, never a VIN</text>
+
+    <rect x="750" y="60" width="280" height="180" rx="10" fill="#FFFFFF" stroke="#DCE2E0"/>
+    <text x="890" y="95" text-anchor="middle" font-size="17" font-weight="700" fill="#17201D">Buyer's phone</text>
+    <text x="890" y="125" text-anchor="middle" font-size="14" fill="#46524E">scans the QR — no app, no login</text>
+    <text x="890" y="152" text-anchor="middle" font-size="14" fill="#1E6B33">Never written off ✓</text>
+    <text x="890" y="176" text-anchor="middle" font-size="14" fill="#1E6B33">No reported accidents ✓</text>
+    <text x="890" y="203" text-anchor="middle" font-size="14" fill="#8A5A0B">Mileage claim: not proven —</text>
+    <text x="890" y="222" text-anchor="middle" font-size="14" fill="#8A5A0B">absence of proof, never a false tick</text>
+
+    <line x1="290" y1="130" x2="378" y2="130" stroke="#46524E" stroke-width="1.6" marker-end="url(#ar)"/>
+    <text x="334" y="118" text-anchor="middle" font-size="13" fill="#46524E">proofs</text>
+    <line x1="660" y1="150" x2="748" y2="150" stroke="#46524E" stroke-width="1.6" marker-end="url(#ar)"/>
+    <text x="704" y="138" text-anchor="middle" font-size="13" fill="#46524E">reads claims</text>
+  </svg>
+  </figure>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>5</span></div>
+</section>
+
+<!-- ============================================================ 6 refusal -->
+<section class="slide">
+  <div class="eyebrow">The thirty seconds that carry the pitch</div>
+  <h2>Type a lie into the form. Watch the circuit refuse it.</h2>
+  <div class="cols">
+    <div class="term">
+      <div class="dim">// 2016 Audi A4 — the odometer rollback attempt</div>
+      <div><span class="ok">ok</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update 1: odometerKm → 152 600</div>
+      <div><span class="no">REFUSED</span>&nbsp;update 2: odometerKm → 121 000 — <b>value decreased</b></div>
+      <div><span class="ok">ok</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prove neverWrittenOff</div>
+      <div><span class="no">REFUSED</span>&nbsp;prove mileageUnder 150 000 — <b>value above the claimed bound</b></div>
+      <div class="dim">// refused steps wrote nothing — exactly as on chain</div>
+    </div>
+    <div class="box">
+      <h3>Why this matters</h3>
+      <p>The refusal is not form validation — it is the <strong>zero-knowledge circuit aborting
+      the transaction</strong>, so nothing is written and no false claim can ever appear proven.</p>
+      <p>The buyer's page then shows <span class="chip warn">not proven</span> for exactly that
+      question — an honest absence, never a quiet "no".</p>
+      <p>Anyone can reproduce this: clone, <span class="url">npm run app</span>, pick the Audi
+      from the demo fleet, submit.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>6</span></div>
+</section>
+
+<!-- ============================================================ 7 regulation panel -->
+<section class="slide">
+  <div class="eyebrow">Regulatory depth</div>
+  <h2>The full DCVP panel, not a demo subset</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>32-slot field panel (docs/FIELDS.md)</h3>
+      <ul>
+        <li><strong>Fraud history</strong> — mileage, accidents, keepers, write-off, services: live fields under integrity rules</li>
+        <li><strong>Art 46 identity</strong> — category, fuel type (BEV→diesel), type approval, emissions class, registration dates</li>
+        <li><strong>Art 29 / 3R declarations</strong> — recycled plastic, steel, aluminium; CO₂ footprint; dismantling evidence</li>
+        <li><strong>New v retrofit</strong> — which path the passport came through, on the record</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Where our passport ends</h3>
+      <p>An EV's <strong>battery</strong> is a separate regime with its own passport (Reg (EU)
+      2023/1542, from Feb 2027). We carry the <strong>reference</strong> — slot 29,
+      <code>batteryPassportId</code> — and never restate the battery's claims.</p>
+      <p><em>The regulation asks these passports to interoperate. Interoperate, not absorb —
+      a reference is what that actually looks like.</em></p>
+      <p>Every declaration anchors under a salted 32-slot content root: it commits to everything
+      and reveals nothing — including which slots are filled.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>7</span></div>
+</section>
+
+<!-- ============================================================ 8 QA -->
+<section class="slide">
+  <div class="eyebrow">Engineering &amp; quality</div>
+  <h2>Tested like it matters, honest about what a proof means</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>The numbers</h3>
+      <p><span class="big-num">67</span> contract tests against the <strong>compiled circuits</strong> —
+      same assertions that reject a transaction on chain</p>
+      <p><span class="big-num">+16</span> app tests · <span class="big-num">+24</span> SDK assumption assertions</p>
+      <ul>
+        <li><strong>Mutation-checked</strong>: delete an integrity rule → exactly that rule's tests fail, nothing else</li>
+        <li>Committed build reproduces <strong>byte-identically</strong> from source</li>
+        <li>Toolchain pinned: Compact 0.31.1, runtime 0.16.0 exact</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>What we do not claim</h3>
+      <p>A proof shows a value is <strong>the anchored one</strong> and satisfies a bound — not
+      that it matched physical reality when written. The registrar is trusted for that, which is
+      why every passport names one.</p>
+      <p>So ShieldVIN today makes fraud <strong>attributable and tamper-evident</strong> — never
+      "impossible". Closing the last gap needs attestation at the sensor: honest future work
+      (Wave 3+), not something we imply we have.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>8</span></div>
+</section>
+
+<!-- ============================================================ 9 ecosystem -->
+<section class="slide">
+  <div class="eyebrow">Ecosystem</div>
+  <h2>Built on Midnight, with ODATANO — precisely</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>Ours</h3>
+      <ul>
+        <li>The Compact contract — five circuits, its own ledger, its own integrity rules. Not a fork; does not extend <code>attestation-vault</code></li>
+        <li>The 32-slot vehicle field panel — a vehicle-domain design</li>
+        <li>All three surfaces, the demo fleet, the tests</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>ODATANO, in three ways</h3>
+      <ul>
+        <li><code>@odatano/dpp-sdk</code> — panel key derivation, value scaling, Merkle construction</li>
+        <li><code>@odatano/nightgate-tx</code> — local transaction building and proving, our own key</li>
+        <li>Hosted NIGHTGATE <strong>sponsors our preprod fees</strong> under a metered grant — every transaction built, proven and signed on our side; <strong>NIGHTGATE pays and submits, and never sees a witness</strong></li>
+      </ul>
+      <p>Not used: NIGHTGATE's CAP service, OData layer, attestation-vault, disclosure grants — that is the Wave 2 delta, stated in advance.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>9</span></div>
+</section>
+
+<!-- ============================================================ 10 business -->
+<section class="slide">
+  <div class="eyebrow">Business — how this earns</div>
+  <h2>Mandated demand, fiat-only revenue, free verification</h2>
+  <div class="cols">
+    <div class="box">
+      <h3>The model</h3>
+      <ul>
+        <li><strong>Who pays:</strong> the independent used-car dealer — our beachhead. A clean-history proof is a sales tool they cannot fake today</li>
+        <li><strong>What they buy:</strong> a subscription plus per-passport issuance; services and proofs metered within plans</li>
+        <li><strong>What is free:</strong> verification, always. Every scanned QR is a buyer learning to demand proof — the adoption engine</li>
+        <li><strong>Every payment is fiat.</strong> No customer ever holds crypto, sees a wallet, or pays a gas fee — fees are sponsored from a ShieldVIN treasury</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Why the demand is not speculative</h3>
+      <p>From <strong>September 2032 the passport is mandatory</strong> for every vehicle placed
+      on the EU market — and the existing fleet gets passports retrofitted. The regulation
+      creates the obligation; ShieldVIN makes compliance private.</p>
+      <h3 style="margin-top:6px">Honest about pricing</h3>
+      <p>Price points wait on <strong>measured unit cost</strong> (DUST per anchor and per proof
+      — a named Wave 2 task). The structure is already built: billing gates the action, not the
+      chain, so pricing never touches crypto code.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>10</span></div>
+</section>
+
+<!-- ============================================================ 11 roadmap -->
+<section class="slide">
+  <div class="eyebrow">Roadmap</div>
+  <h2>Each wave states its delta in advance</h2>
+  <table style="flex:1">
+    <tr><th style="width:130px">Wave 2</th>
+        <td><strong>The full NIGHTGATE integration</strong> — tiered disclosure (buyer / trade / authority see genuinely different views), disclosure grants, live browser reads, the CAP service layer, and <strong>measured unit economics</strong> that turn the pricing structure into prices</td></tr>
+    <tr><th>Wave 3</th>
+        <td><strong>Composition &amp; commerce</strong> — the battery passport link exercised against NIGHTPASS end to end, cross-root integrity in the product flow, the dealer workflow, fleet view, and one real pilot conversation</td></tr>
+    <tr><th>Horizon</th>
+        <td><strong>Closing the trust gap</strong> — sensor-signed readings from tamper-resistant hardware bind numbers to physical reality; provenance marking lets a verifier tell a sensor-attested reading from a self-declared one. That distinction becomes the product</td></tr>
+  </table>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>11</span></div>
+</section>
+
+<!-- ============================================================ 12 close -->
+<section class="slide">
+  <div style="flex:1"></div>
+  <div class="eyebrow">Try it in ninety seconds</div>
+  <h2>Scan a car. Get a verdict. Trust the math, not the seller.</h2>
+  <div class="term" style="max-width:640px">
+    <div>git clone https://github.com/ShieldVIN/shieldvin</div>
+    <div>npm install &amp;&amp; npm test&nbsp;&nbsp;<span class="dim"># 67 + 16 + 24, all green</span></div>
+    <div>npm run app&nbsp;&nbsp;<span class="dim"># the whole product on localhost</span></div>
+  </div>
+  <p style="margin-top:8px">
+    <span class="url">shieldvin.github.io/shieldvin</span> — live demo ·
+    <span class="url">docs/DEMO.md</span> — the walkthrough ·
+    Apache-2.0, fully open source
+  </p>
+  <div style="flex:1"></div>
+  <div class="slide-foot"><span class="brandline"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.2-8 11-4.6-1.8-8-6-8-11V5l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4L15.6 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>ShieldVIN</span><span>12</span></div>
+</section>
+
+<div class="nav-hint">← → to navigate · Ctrl+P for PDF</div>
+
+<script>
+const slides = [...document.querySelectorAll('.slide')];
+let i = 0;
+function show(n) {
+  i = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, j) => s.classList.toggle('active', j === i));
+}
+addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length - 1);
+});
+addEventListener('click', (e) => {
+  if (e.target.closest('a')) return;
+  show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+});
+</script>
+</body>
+</html>

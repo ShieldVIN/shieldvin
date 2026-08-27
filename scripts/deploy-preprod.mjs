@@ -83,8 +83,22 @@ const builder = await createTxBuilder({
     zkConfigDir: MANAGED
 });
 
+// The contract declares four witnesses, and the compiled class checks their
+// SHAPE at construction even though a deploy never calls one. These stubs
+// satisfy the shape and throw if that assumption ever stops holding - a
+// deploy that silently invoked a witness would be worth crashing over.
+const neverCalled = (name) => () => {
+    throw new Error(`witness ${name}() was invoked during deploy - that must never happen`);
+};
+const witnesses = {
+    newValue: neverCalled('newValue'),
+    previousValue: neverCalled('previousValue'),
+    previousSalt: neverCalled('previousSalt'),
+    newSalt: neverCalled('newSalt')
+};
+
 try {
-    const deploy = await builder.buildDeploySponsorable({ initialPrivateState: {}, bind: false });
+    const deploy = await builder.buildDeploySponsorable({ initialPrivateState: {}, witnesses, bind: false });
     console.log(`\ncontract address (known before submission): ${deploy.contractAddress}`);
 
     if (!SUBMIT) {
