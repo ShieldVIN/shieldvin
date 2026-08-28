@@ -12,10 +12,12 @@
 
 > **Status: pre-alpha, under active development.** The Compact contract is written, compiles and is
 > covered by tests, and the three application surfaces (verification, intake console, proof
-> explorer) run against the compiled circuits with one command (`npm run app`). Not yet done:
-> the contract is not deployed to preprod, and the live pages read demo state rather than chain
-> state. The table under [Where this actually stands](#where-this-actually-stands) says exactly
-> what does and does not exist today.
+> explorer) run against the compiled circuits with one command (`npm run app`). The contract is
+> **deployed on Midnight preprod** (28 Aug 2026, [`deploy/preprod.json`](deploy/preprod.json)).
+> Not yet done: the live pages read demo state rather than chain state; wiring the site's writes
+> to the deployed contract is the named Wave 2 delta. The table under
+> [Where this actually stands](#where-this-actually-stands) says exactly what does and does not
+> exist today.
 
 ## Contents
 
@@ -170,12 +172,22 @@ cat contracts/vinpassport/src/managed/vinpassport/compiler/contract-info.json
 > `"compiler-version": "0.31.1"`, `"language-version": "0.23.0"`, `"runtime-version": "0.16.0"`,
 > the stable ledger-8 line. Five circuits, all with `"proof": true`.
 
-**2. The tests exercise the real circuits.** `test/passport-simulator.mjs` loads the *compiled*
+**2. The deploy is real.** The contract is live on Midnight preprod; address and transaction
+hash are committed at [`deploy/preprod.json`](deploy/preprod.json). Ask the public indexer
+yourself:
+
+```bash
+curl -s -X POST https://indexer.preprod.midnight.network/api/v4/graphql   -H 'Content-Type: application/json'   -d '{"query":"{ contractAction(address: \"72e524881363db50ff0bcf6c01fd9de1b550902540f9ca10e4b649df992d553a\") { __typename transaction { hash block { height } } } }"}'
+```
+
+> Returns a `ContractDeploy` whose transaction hash matches the committed record.
+
+**3. The tests exercise the real circuits.** `test/passport-simulator.mjs` loads the *compiled*
 contract and runs it through `@midnight-ntwrk/compact-runtime` at the pinned matching version
 (`0.16.0`). An assertion that fires in these tests is the same assertion that would reject the
 transaction on chain.
 
-**3. The tests would catch a regression.** Passing tests prove nothing on their own, so both
+**4. The tests would catch a regression.** Passing tests prove nothing on their own, so both
 integrity rules were checked by mutation. Deleting either guard from `recordField` and recompiling
 fails exactly the tests that guard exists for, and nothing else:
 
@@ -187,9 +199,9 @@ fails exactly the tests that guard exists for, and nothing else:
 You can reproduce either; both are one-line edits to
 [`vinpassport.compact`](contracts/vinpassport/src/vinpassport.compact).
 
-**4. Read the contract itself.** It is commented for a reader who does not know Compact: [`contracts/vinpassport/src/vinpassport.compact`](contracts/vinpassport/src/vinpassport.compact).
+**5. Read the contract itself.** It is commented for a reader who does not know Compact: [`contracts/vinpassport/src/vinpassport.compact`](contracts/vinpassport/src/vinpassport.compact).
 
-**5. The honest limits are written down, not buried.** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+**6. The honest limits are written down, not buried.** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 § *The trust gap* states plainly what this does not prove. See [below](#what-this-does-not-prove).
 
 ## The contract
@@ -306,8 +318,8 @@ full in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | Contract test suite | **Done.** 67 tests; integrity rules and the claim write both mutation-checked |
 | SDK assumption guard | **Done.** 24 assertions against `@odatano/dpp-sdk` 0.2.0 |
 | Provable-field registry, 32 slots | **Settled** ([FIELDS.md](docs/FIELDS.md)). 26 in use, reserve 17–21 and 31; not yet wired |
-| Deployment to Midnight preprod | **Not yet.** Path settled: `@odatano/nightgate-tx` with sponsored fees, see [D20](docs/DECISIONS.md#settled) |
-| Frontend: verification, intake console, proof explorer | **Done.** Three surfaces against the compiled circuits (`npm run app`); the live pages read demo state until the preprod deploy |
+| Deployment to Midnight preprod | **Done (28 Aug 2026).** Built, proven and signed locally; fee-sponsored via `@odatano/nightgate-tx` ([D20](docs/DECISIONS.md#settled)). Address and tx committed at [`deploy/preprod.json`](deploy/preprod.json) |
+| Frontend: verification, intake console, proof explorer | **Done.** Three surfaces against the compiled circuits (`npm run app`), live for anyone at [passport.vin](https://passport.vin/); the pages read demo state, and full preprod wiring is the named Wave 2 delta |
 | CAP service layer, tier redaction | **Not in this submission.** Wave 2: see [D20](docs/DECISIONS.md#settled) |
 
 ## Repository map
