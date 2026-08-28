@@ -335,7 +335,9 @@ Because nothing had been deployed to preprod, the rename reached the protocol la
 zero cost: every domain-separation tag moved from `shieldvin:*` to `vinpassport:*`
 (`vinpassport:field:v1`, `vinpassport:claim:atmost:v1`, `vinpassport:claim:atleast:v1`,
 `vinpassport:leaf:v0`, `vinpassport:leafsalt:v0`), which changes the circuits and
-therefore the eventual contract address. After a deploy this would have meant a second
+therefore the eventual contract address. (The address itself is minted fresh with
+each built deploy transaction; only the one that is submitted fixes it, and it is
+recorded in `deploy/preprod.json` at that moment.) After a deploy this would have meant a second
 grant slot and a migration; on 2026-08-27 it meant a recompile and a green test run.
 
 One identifier deliberately keeps the old name: ODATANO's agent grant is `shieldvin-w1`.
