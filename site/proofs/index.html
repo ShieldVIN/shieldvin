@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proof explorer · VINPassport</title>
+<meta name="description" content="Every claim on the ledger: which vehicle, which field, which bound, never the value.">
+<link rel="icon" href="../assets/vinpassport-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<div style="max-width:1000px;margin:0 auto;padding:0 var(--edge)">
+
+  <nav style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 22px;padding:16px 0;border-bottom:1px solid rgba(0,74,173,.26)">
+    <a href="../" style="display:flex;align-items:center;gap:9px;margin-right:auto;flex:none;text-decoration:none">
+      <img src="../assets/vinpassport-mark.png" alt="" style="width:30px;height:30px">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:21px;letter-spacing:.1em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+    </a>
+    <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
+    <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">proofs</span>
+    <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
+    <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+  </nav>
+
+  <header style="padding:clamp(24px,4vw,40px) 0 20px">
+    <span style="display:block;font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Public ledger · read-only</span>
+    <h1 style="margin:4px 0 0;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:.01em;text-transform:uppercase">Every claim on the ledger</h1>
+    <p style="margin:12px 0 0;font-size:15px;line-height:1.6;max-width:66ch;color:rgba(14,23,38,.8)">Which vehicle, which field, which bound, never the value. <b>Superseded</b> means the field has moved on since the proof was made: the claim was true of an earlier version.</p>
+  </header>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(0,74,173,.18);border:1px solid rgba(0,74,173,.26);margin-bottom:30px">
+    <div style="background:#EDE4D8;padding:14px 16px"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:32px;line-height:1;color:#004AAD">2</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">passports</div></div>
+    <div style="background:#EDE4D8;padding:14px 16px"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:32px;line-height:1;color:#004AAD">5</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">claims</div></div>
+    <div style="background:#EDE4D8;padding:14px 16px"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:32px;line-height:1;color:#004AAD">16</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">field updates</div></div>
+    <div style="background:#EDE4D8;padding:14px 16px"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:32px;line-height:1;color:#004AAD">0</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">values published</div></div>
+  </div>
+
+  <section style="border:1px solid rgba(0,74,173,.26);margin-bottom:22px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;padding:13px 15px;border-bottom:1px solid rgba(0,74,173,.26)">
+      <b style="font-family:'Barlow Condensed',sans-serif;font-size:21px;letter-spacing:.02em">VEHICLE A</b>
+      <span style="font-size:12px;color:rgba(14,23,38,.55)">4 claims · all current</span>
+      <a href="../verify/" style="margin-left:auto;font-size:13px;text-decoration:none;white-space:nowrap">Verdict view →</a>
+    </div>
+    <div class="mono" style="padding:9px 15px;font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all;border-bottom:1px solid rgba(0,74,173,.18)">VIN HASH 391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357</div>
+    <div class="claim">
+      <div style="flex:1 1 240px;min-width:0"><b style="display:block;font-size:14.5px">Mileage ≤ 150,000 km</b><span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.55)">odometerKm · slot 690615c169…02d86f · proven against d23fc21635…634fc5</span></div>
+      <span class="chip chip-cur">current</span>
+    </div>
+    <div class="claim">
+      <div style="flex:1 1 240px;min-width:0"><b style="display:block;font-size:14.5px">Write-off category ≤ 0</b><span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.55)">writeOffCategory · slot 1c35bb205d…eace8d · proven against d362758e70…bf1f5b</span></div>
+      <span class="chip chip-cur">current</span>
+    </div>
+    <div class="claim">
+      <div style="flex:1 1 240px;min-width:0"><b style="display:block;font-size:14.5px">Reported accidents ≤ 0</b><span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.55)">accidentCount · slot 911f689d64…f095d7 · proven against f5ad92ad0b…5c0791</span></div>
+      <span class="chip chip-cur">current</span>
+    </div>
+    <div class="claim" style="border-bottom:none">
+      <div style="flex:1 1 240px;min-width:0"><b style="display:block;font-size:14.5px">Keepers ≤ 1</b><span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.55)">ownerCount · slot a155446f51…0477e8 · proven against 01d149526c…2261c7</span></div>
+      <span class="chip chip-cur">current</span>
+    </div>
+  </section>
+
+  <section style="border:1px solid rgba(0,74,173,.26);margin-bottom:22px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;padding:13px 15px;border-bottom:1px solid rgba(0,74,173,.26)">
+      <b style="font-family:'Barlow Condensed',sans-serif;font-size:21px;letter-spacing:.02em">VEHICLE B</b>
+      <span style="font-size:12px;color:rgba(14,23,38,.55)">1 claim · a record it cannot prove clean</span>
+      <a href="../verify/#b" style="margin-left:auto;font-size:13px;text-decoration:none;white-space:nowrap">Verdict view →</a>
+    </div>
+    <div class="mono" style="padding:9px 15px;font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all;border-bottom:1px solid rgba(0,74,173,.18)">VIN HASH c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b</div>
+    <div class="claim">
+      <div style="flex:1 1 240px;min-width:0"><b style="display:block;font-size:14.5px">Mileage ≤ 200,000 km</b><span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.55)">odometerKm · slot ab36d4e730…c6c3db · proven against b04fda727e…81cb09</span></div>
+      <span class="chip chip-cur">current</span>
+    </div>
+    <p style="margin:0;padding:12px 15px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.68)">Three clean-history claims were <b>not requested</b>. The write-off, accident and keeper proofs would have aborted in-circuit. Absence of a claim is what the verdict page renders, never a quiet no.</p>
+  </section>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 15px;border:1px solid rgba(0,74,173,.26);margin-bottom:40px">
+    <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(14,23,38,.55)">Legend</span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span class="chip chip-cur">current</span>commitment still matches the field</span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span class="chip chip-sup">superseded</span>field has moved on since</span>
+  </div>
+
+  <footer style="padding:24px 0 44px;border-top:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;gap:14px 30px;align-items:center;font-size:13px;color:rgba(14,23,38,.7)">
+    <img src="../assets/vinpassport-mark.png" alt="" style="width:24px;height:24px">
+    <span>VINPassport. Proving a vehicle identity.</span>
+    <span style="margin-left:auto;min-width:0">Apache-2.0 · Reg (EU) 2026/1738 · Midnight Network</span>
+  </footer>
+
+</div>
+<script type="module" src="proofs.js"></script>
+</body>
+</html>

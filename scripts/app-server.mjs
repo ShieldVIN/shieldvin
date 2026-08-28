@@ -47,21 +47,22 @@ const vehicles = [
 
 // ---------------------------------------------------------------- static
 
-const MOUNTS = { '/': 'app/scan', '/verify': 'app/scan', '/console': 'app/console', '/proofs': 'app/proofs' };
 const TYPES = {
     '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
-    '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml'
+    '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml',
+    '.png': 'image/png', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml'
 };
 
 async function serveStatic(res, urlPath) {
-    let mount = '/', rest = urlPath;
-    for (const m of ['/verify', '/console', '/proofs']) {
-        if (urlPath === m || urlPath.startsWith(m + '/')) { mount = m; rest = urlPath.slice(m.length); break; }
+    // The published site is the single source: every path resolves under site/,
+    // and a directory path serves its index.html, exactly as Pages does.
+    let rest = urlPath;
+    if (!rest.slice(rest.lastIndexOf('/')).includes('.')) {
+        rest = rest.endsWith('/') ? rest + 'index.html' : rest + '/index.html';
     }
-    if (rest === '' || rest === '/') rest = '/index.html';
-    const file = normalize(join(ROOT, MOUNTS[mount], rest));
-    if (!file.startsWith(normalize(join(ROOT, 'app')))) { res.writeHead(403); return res.end(); }
+    const file = normalize(join(ROOT, 'site', rest));
+    if (!file.startsWith(normalize(join(ROOT, 'site')))) { res.writeHead(403); return res.end(); }
     try {
         const body = await readFile(file);
         const ext = file.slice(file.lastIndexOf('.'));
@@ -138,6 +139,6 @@ server.on('error', (e) => {
 });
 server.listen(port, () => {
     console.log(`VINPassport app  http://localhost:${port}`);
-    console.log(`  verification  /          console  /console/          proofs  /proofs/`);
+    console.log(`  site  /       verify  /verify/       intake  /intake/       proofs  /proofs/`);
     console.log(`  circuits: compiled vinpassport, in-process; ledger resets on restart`);
 });

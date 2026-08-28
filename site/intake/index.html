@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intake console · VINPassport</title>
+<meta name="description" content="Register a vehicle passport. Values stay local; only commitments and proven claims reach the ledger.">
+<link rel="icon" href="../assets/vinpassport-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<div style="max-width:1060px;margin:0 auto;padding:0 var(--edge)">
+
+  <nav style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 22px;padding:16px 0;border-bottom:1px solid rgba(0,74,173,.26)">
+    <a href="../" style="display:flex;align-items:center;gap:9px;margin-right:auto;flex:none;text-decoration:none">
+      <img src="../assets/vinpassport-mark.png" alt="" style="width:30px;height:30px">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:21px;letter-spacing:.1em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+    </a>
+    <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">intake</span>
+    <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
+    <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
+    <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+  </nav>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 16px;padding:clamp(24px,4vw,40px) 0 18px">
+    <div style="flex:1 1 380px;min-width:0">
+      <span style="display:block;font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Registrar console</span>
+      <h1 style="margin:4px 0 0;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:.01em;text-transform:uppercase">Register a passport</h1>
+      <p style="margin:12px 0 0;font-size:15px;line-height:1.6;max-width:62ch;color:rgba(14,23,38,.8)">Nothing you type here is published. Values stay on this machine, and only commitments and proven claims reach the ledger.</p>
+    </div>
+    <div style="flex:0 1 240px;min-width:0;padding:12px 14px;border:1px solid rgba(0,74,173,.28)">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="width:7px;height:7px;background:#004AAD;flex:none"></span>Local circuit server found</div>
+      <div class="mono" style="margin-top:6px;font-size:10.5px;color:rgba(14,23,38,.5)">attestation-vault-32 · depth 5</div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid #8B95FF;background:rgba(139,149,255,.16);margin-bottom:28px;flex-wrap:wrap">
+    <span style="flex:none;display:inline-block;line-height:1.2;white-space:nowrap;font:700 9.5px Barlow,sans-serif;letter-spacing:.18em;background:#8B95FF;color:#0E1726;padding:4px 9px">DEMO</span>
+    <div style="flex:1 1 320px;min-width:0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.8)"><b>Sample data for evaluation.</b> Twenty-six fictional vehicles. Pick one and the whole form fills itself, then submit and watch the real circuits accept and refuse.</div>
+  </div>
+
+  <section style="margin-bottom:30px">
+    <div class="sect"><span class="snum">01</span><h2 class="stitle">PASSPORT TYPE</h2><span class="smeta">slot 30 · passportOrigin</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+      <label style="display:flex;flex-direction:column;gap:6px;padding:14px 15px;border:1px solid #004AAD;background:#004AAD;color:#EDE4D8;cursor:pointer">
+        <span style="display:flex;align-items:center;gap:9px"><span style="flex:none;width:14px;height:14px;border:1.5px solid #EDE4D8;border-radius:50%;background:#EDE4D8;box-shadow:inset 0 0 0 3px #004AAD"></span><b style="font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.03em">NEW VEHICLE</b></span>
+        <span style="font-size:12px;line-height:1.5;opacity:.82">Issued at first placing on the market, the mandatory path from September 2032. Keepers 0, delivery mileage, no history yet.</span>
+        <span class="mono" style="font-size:10.5px;opacity:.7">21 demo vehicles</span>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;padding:14px 15px;border:1px solid rgba(0,74,173,.28);cursor:pointer">
+        <span style="display:flex;align-items:center;gap:9px"><span style="flex:none;width:14px;height:14px;border:1.5px solid rgba(0,74,173,.45);border-radius:50%"></span><b style="font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.03em;color:#004AAD">EXISTING VEHICLE, RETROFIT</b></span>
+        <span style="font-size:12px;line-height:1.5;color:rgba(14,23,38,.68)">Produced before the regulation applies. The passport is added to the fleet that already exists, history and all.</span>
+        <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.45)">5 demo vehicles</span>
+      </label>
+    </div>
+  </section>
+
+  <section style="margin-bottom:30px">
+    <div class="sect"><span class="snum">02</span><h2 class="stitle">DEMONSTRATION VEHICLE</h2><span class="smeta">filtered by passport type</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+      <div style="flex:1 1 340px;min-width:0">
+        <label class="lbl" for="dv">Sample vehicle, new</label>
+        <select id="dv" class="inp" style="border-color:#004AAD">
+          <option>choose, or fill the form yourself</option>
+          <optgroup label="Battery electric">
+            <option>VW ID.7 Pro (BEV)</option>
+            <option selected="selected">Tesla Model Y (BEV)</option>
+            <option>BMW i4 eDrive40 (BEV)</option>
+            <option>Renault 5 E-Tech (BEV)</option>
+            <option>Škoda Elroq 85 (BEV)</option>
+            <option>Hyundai Ioniq 6 (BEV)</option>
+            <option>Kia EV3 Long Range (BEV)</option>
+            <option>Polestar 4 (BEV)</option>
+            <option>Fiat 500e (BEV)</option>
+            <option>Volvo EX30 (BEV)</option>
+          </optgroup>
+          <optgroup label="Plug-in hybrid · hybrid">
+            <option>Ford Kuga 2.5 PHEV</option>
+            <option>Mercedes GLC 300e (PHEV)</option>
+            <option>BMW X1 xDrive25e (PHEV)</option>
+            <option>Toyota Corolla 1.8 HEV</option>
+            <option>Honda CR-V e:HEV</option>
+          </optgroup>
+          <optgroup label="Petrol · diesel · hydrogen">
+            <option>VW Golf 1.5 eTSI (petrol)</option>
+            <option>Toyota Yaris 1.5 (petrol)</option>
+            <option>VW Passat 2.0 TDI (diesel)</option>
+            <option>Toyota Hilux 2.8 D (diesel)</option>
+            <option>Toyota Mirai (hydrogen)</option>
+            <option>2024 Ford Transit: sold new with its passport</option>
+          </optgroup>
+        </select>
+        <p style="margin:9px 0 0;font-size:12px;line-height:1.55;color:rgba(14,23,38,.62)">Switch to <b>Existing vehicle</b> and the list becomes the five retrofit records, including the odometer-rollback attempt and a written-off car whose clean claims are declined.</p>
+      </div>
+      <div style="flex:1 1 240px;min-width:0;padding:13px 15px;border:1px solid rgba(0,74,173,.28)">
+        <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Expect</span>
+        <p style="margin:6px 0 0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.8)">All accepted. A new vehicle proves its four claims by construction: keepers 0, and nothing on the record yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-bottom:30px">
+    <div class="sect"><span class="snum">03</span><h2 class="stitle">VEHICLE &amp; IDENTITY</h2><span class="smeta">slots 5 · 22–26 · 28</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 18px">
+      <div><label class="lbl" for="vin">VIN</label><input id="vin" class="inp mono" value="5YJYGDEF3SF208934"><small style="display:block;margin-top:5px;font-size:11.5px;color:rgba(14,23,38,.58)">Hashed before registration. Never published.</small></div>
+      <div><label class="lbl" for="reg">Registering authority</label><input id="reg" class="inp" value="rdw-veendam"><small style="display:block;margin-top:5px;font-size:11.5px;color:rgba(14,23,38,.58)">Becomes the registrar id, so every claim is attributable.</small></div>
+      <div><label class="lbl" for="dl">Display label <span style="text-transform:none;letter-spacing:0;color:rgba(14,23,38,.45)">optional</span></label><input id="dl" class="inp" value="Model Y, midnight silver"><small style="display:block;margin-top:5px;font-size:11.5px;color:rgba(14,23,38,.58)">This instance's landing list only.</small></div>
+      <div><label class="lbl" for="cat">Vehicle category</label><select id="cat" class="inp"><option>M1, passenger car</option><option>N1, van up to 3.5t</option></select></div>
+      <div><label class="lbl" for="fuel">Powertrain / fuel</label><select id="fuel" class="inp"><option>Battery electric (BEV)</option></select></div>
+      <div><label class="lbl" for="em">Emissions class</label><select id="em" class="inp"><option>n/a (zero-emission)</option></select></div>
+    </div>
+    <div style="margin-top:14px;padding:13px 15px;border:1px solid #8B95FF;background:rgba(139,149,255,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px 18px">
+      <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:9px"><span style="flex:none;display:inline-block;line-height:1.2;white-space:nowrap;font:700 9.5px Barlow,sans-serif;letter-spacing:.16em;background:#8B95FF;color:#0E1726;padding:3px 8px">BEV / PHEV ONLY</span><span style="font-size:12px;color:rgba(14,23,38,.72)">Slot 29 is the link out to the battery passport. A reference, never a copy of its claims.</span></div>
+      <div><label class="lbl" for="bp">Battery passport ID</label><input id="bp" class="inp mono" style="background:#EDE4D8" value="BPID-EU-001377-2027"></div>
+      <div><label class="lbl" for="bc">Battery chemistry</label><input id="bc" class="inp mono" style="background:#EDE4D8" value="LFP"></div>
+    </div>
+  </section>
+
+  <section style="margin-bottom:30px">
+    <div class="sect"><span class="snum">04</span><h2 class="stitle">RECORD AT REGISTRATION</h2><span class="smeta">slots 0–4 · rule: never falls</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 18px">
+      <div><label class="lbl" for="km">Mileage km</label><input id="km" class="inp mono" value="22"></div>
+      <div><label class="lbl" for="ac">Accidents</label><input id="ac" class="inp mono" value="0"></div>
+      <div><label class="lbl" for="kp">Keepers</label><input id="kp" class="inp mono" value="0"></div>
+      <div><label class="lbl" for="wo">Write-off category</label><select id="wo" class="inp"><option>0, none</option></select></div>
+      <div><label class="lbl" for="sv">Services</label><input id="sv" class="inp mono" value="0"></div>
+    </div>
+    <p style="margin:10px 0 0;font-size:12px;color:rgba(14,23,38,.58)">Each field is created under its integrity rule, fixed on the ledger at creation. None of these five may ever fall. Keepers 0 is what says new, never registered.</p>
+  </section>
+
+  <section style="margin-bottom:30px">
+    <div class="sect"><span class="snum">05</span><h2 class="stitle">CLAIMS TO PROVE</h2><span class="smeta">proveFieldAtMost × 4</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 16px">
+      <label style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center;margin-top:1px"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span><b style="font-size:14px">Never written off</b><small style="display:block;font-size:11.5px;color:rgba(14,23,38,.6)">writeOffCategory ≤ 0</small></span></label>
+      <label style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center;margin-top:1px"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span><b style="font-size:14px">No reported accidents</b><small style="display:block;font-size:11.5px;color:rgba(14,23,38,.6)">accidentCount ≤ 0</small></span></label>
+      <label style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center;margin-top:1px"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span><b style="font-size:14px">One keeper from new</b><small style="display:block;font-size:11.5px;color:rgba(14,23,38,.6)">ownerCount ≤ 1</small></span></label>
+      <label style="display:flex;gap:10px;align-items:center;padding:11px 13px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span style="display:flex;align-items:center;gap:7px;font-size:14px;flex-wrap:wrap"><b>Mileage under</b><input value="500" class="mono" style="width:82px;min-height:34px;padding:4px 8px;font-size:13px;background:#EDE4D8;border:1px solid rgba(0,74,173,.28);color:#0E1726">km</span></label>
+    </div>
+    <p style="margin:11px 0 0;font-size:12px;color:rgba(14,23,38,.58)">A claim the record cannot support <b>aborts during proving and writes nothing</b>. Verification then shows not proven, never a false tick.</p>
+  </section>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:30px">
+    <button style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:48px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;cursor:pointer;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:12px 28px">REGISTER &amp; PROVE</button>
+    <button style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:48px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;cursor:pointer;background:transparent;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:12px 22px">DOWNLOAD INTAKE FILE</button>
+    <span style="font-size:12px;color:rgba(14,23,38,.5)">6 circuits will run</span>
+  </div>
+
+  <section style="border:1px solid rgba(0,74,173,.26);margin-bottom:40px">
+    <div style="padding:12px 15px;border-bottom:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;align-items:baseline;gap:8px"><h3 style="margin:0;font-size:19px;letter-spacing:.02em;text-transform:uppercase">What the circuits did</h3><span class="mono" style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.55)">5 accepted · 1 refused</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px 0;padding:10px 15px;border-bottom:1px solid rgba(0,74,173,.12)"><span class="mono" style="flex:none;width:9ch;font-size:10.5px;letter-spacing:.06em;color:#004AAD">OK</span><span class="mono" style="flex:none;width:17ch;font-size:12px">registerPassport</span><span style="flex:1 1 220px;min-width:0;font-size:13px;color:rgba(14,23,38,.78)">passport anchored, registrar rdw-veendam</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px 0;padding:10px 15px;border-bottom:1px solid rgba(0,74,173,.12)"><span class="mono" style="flex:none;width:9ch;font-size:10.5px;letter-spacing:.06em;color:#004AAD">OK</span><span class="mono" style="flex:none;width:17ch;font-size:12px">initialiseField ×5</span><span style="flex:1 1 220px;min-width:0;font-size:13px;color:rgba(14,23,38,.78)">slots 0 to 4 created under rule neverFalls</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px 0;padding:10px 15px;border-bottom:1px solid rgba(0,74,173,.12)"><span class="mono" style="flex:none;width:9ch;font-size:10.5px;letter-spacing:.06em;color:#004AAD">OK</span><span class="mono" style="flex:none;width:17ch;font-size:12px">proveFieldAtMost</span><span style="flex:1 1 220px;min-width:0;font-size:13px;color:rgba(14,23,38,.78)">writeOffCategory ≤ 0 · accidentCount ≤ 0 · ownerCount ≤ 1 · odometerKm ≤ 500</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px 0;padding:10px 15px;background:rgba(139,149,255,.18)"><span class="mono" style="flex:none;width:9ch;font-size:10.5px;letter-spacing:.06em;font-weight:700">REFUSED</span><span class="mono" style="flex:none;width:17ch;font-size:12px">recordField</span><span style="flex:1 1 220px;min-width:0;font-size:13px;color:rgba(14,23,38,.85)">odometerKm 152,600 → 121,000. <b>Value decreased</b>, aborted in-circuit, wrote nothing</span></div>
+    <div style="padding:12px 15px;border-top:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;gap:10px">
+      <a href="../verify/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;padding:10px 20px">VIEW THIS PASSPORT</a>
+      <a href="../proofs/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:10px 20px">ALL PROOFS ON THE LEDGER</a>
+    </div>
+  </section>
+
+  <footer style="padding:24px 0 44px;border-top:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;gap:14px 30px;align-items:center;font-size:13px;color:rgba(14,23,38,.7)">
+    <img src="../assets/vinpassport-mark.png" alt="" style="width:24px;height:24px">
+    <span>VINPassport. Proving a vehicle identity.</span>
+    <span style="margin-left:auto;min-width:0">Apache-2.0 · Reg (EU) 2026/1738 · Midnight Network</span>
+  </footer>
+
+</div>
+<script type="module" src="intake.js"></script>
+</body>
+</html>

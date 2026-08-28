@@ -10,7 +10,6 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app/**'
       - 'site/**'
       - 'deck/**'
       - '.github/workflows/pages.yml'
@@ -42,10 +41,6 @@ jobs:
           mkdir _site
           cp -r site/* _site/
           cp site/.nojekyll _site/
-          mkdir _site/verify
-          cp app/scan/* _site/verify/
-          cp -r app/console _site/console
-          cp -r app/proofs _site/proofs
           cp -r deck _site/deck
       - uses: actions/upload-pages-artifact@v3
         with:

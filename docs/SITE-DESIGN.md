@@ -5,16 +5,21 @@ The site in `site/` was hand-designed and delivered as a finished artifact on
 future edit. Status of the handoff's open items, as integrated:
 
 - Placeholder links: wired. Nav and hero go to `/verify/`; the three surface
-  cards go to `/console/`, `/proofs/`, `/verify/`; contract and repo links
+  cards go to `/intake/`, `/proofs/`, `/verify/`; contract and repo links
   point at VINPassport/VINPassport. Still pending: the 90-second walkthrough
   link (waits for the video).
 - Repo links: updated for the VINPassport rename.
 - Em dashes in the mockups page prose were converted to the project's
   no-em-dash convention, and the mockup vehicle dropdowns were aligned to the
-  exact names in `app/console/demo-vehicles.mjs`. The not-proven badge glyph
+  exact names in `site/assets/demo-vehicles.mjs`. The not-proven badge glyph
   stays: it is an icon, not wording.
-- The published layout: `site/` at the root, the scan app at `/verify/`,
-  console, proofs and deck at their own paths. See `.github/workflows/pages.yml`.
+- The published layout: `site/` IS the app. The designed `/verify/`, `/intake/`
+  and `/proofs/` pages are wired to the real logic by `verify.js`, `intake.js`
+  and `proofs.js` (each added as a separate module script, markup untouched, per
+  the rule above). Shared logic lives in `site/assets/` (`verdict.mjs`,
+  `sources.mjs`, `demo-vehicles.mjs`); the demo ledger export lives in
+  `site/verify/`. `/console/` is a redirect stub to `/intake/` for old links.
+  See `.github/workflows/pages.yml`.
 
 The original handoff text follows.
 

@@ -1,5 +1,5 @@
 /**
- * Generate `app/scan/demo-data.json` and `app/scan/fields.json`.
+ * Generate `site/verify/demo-data.json` and `site/verify/fields.json`.
  *
  * The demo data is NOT hand-written. It is the public ledger of the real
  * compiled contract after a scripted history, exported as JSON — so the scan
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { PassportSimulator, buildDemoVehicles, exportLedger, vocabulary, saltStream } from './lib/scenario.mjs';
 
-const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'app', 'scan');
+const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'site', 'verify');
 
 const sim = new PassportSimulator();
 const { a, b } = buildDemoVehicles(sim, saltStream());
@@ -40,8 +40,8 @@ const ledger = exportLedger(sim,
 
 writeFileSync(join(OUT, 'demo-data.json'), JSON.stringify(ledger, null, 2) + '\n');
 writeFileSync(join(OUT, 'fields.json'), JSON.stringify(vocabulary([
-    { vinHash: a.vinHex, title: 'Vehicle A', blurb: 'Full service history, claims proven' },
-    { vinHash: b.vinHex, title: 'Vehicle B', blurb: 'A record it cannot prove clean' }
+    { vinHash: a.vinHex, title: '2019 Golf, silver', battery: 'not an EV', blurb: 'Full service history, claims proven' },
+    { vinHash: b.vinHex, title: '2018 320d, grey', battery: 'not an EV', blurb: 'A record it cannot prove clean' }
 ]), null, 2) + '\n');
 
-console.log(`exported ${ledger.claims.length} claims, ${Object.keys(ledger.passports).length} passports -> app/scan/`);
+console.log(`exported ${ledger.claims.length} claims, ${Object.keys(ledger.passports).length} passports -> site/verify/`);

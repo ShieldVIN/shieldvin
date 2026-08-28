@@ -58,3 +58,31 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{
 .dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11.5px Barlow,sans-serif;color:rgba(14,23,38,.6)}
 .dv-opt:target .dv-oid{background:#004AAD;color:#EDE4D8}
 .dv-next{margin:26px 0 0;font:12.5px/1.6 Barlow,sans-serif;color:rgba(14,23,38,.6)}
+
+/* --- App surfaces: /intake/, /proofs/, /verify/ --- */
+
+/* Intake form primitives */
+.lbl{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px}
+.inp{width:100%;min-height:44px;padding:8px 11px;font-size:14.5px;font-family:inherit;
+  background:var(--color-surface);border:1px solid rgba(0,74,173,.28);color:var(--color-text);border-radius:0}
+.inp:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+
+/* Numbered section header: kicker + title + right-aligned slot note over a full rule */
+.sect{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--color-divider);padding-bottom:6px;margin-bottom:14px}
+.snum{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--color-accent)}
+.stitle{margin:0;font-family:'Barlow Condensed',sans-serif;font-size:clamp(19px,2.4vw,23px);letter-spacing:.01em}
+.smeta{margin-left:auto;font-size:11px;color:rgba(14,23,38,.5);text-align:right}
+
+/* Proof-explorer state chips and claim rows */
+.chip{flex:none;display:inline-block;line-height:1.2;white-space:nowrap;
+  font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px}
+.chip-cur{background:var(--color-accent);color:var(--color-bg)}
+.chip-sup{background:var(--color-periwinkle);color:var(--color-text)}
+.claim{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:12px 15px;
+  border-bottom:1px solid rgba(0,74,173,.12)}
+
+/* Verification verdict rows. .tick is a proven claim, .none is "not proven" (never a no). */
+.row{display:flex;gap:13px;padding:14px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start}
+.tick{flex:none;width:27px;height:27px;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center}
+.none{flex:none;width:27px;height:27px;border:1px dashed rgba(14,23,38,.42);display:grid;place-items:center;
+  color:rgba(14,23,38,.5);font-size:15px}

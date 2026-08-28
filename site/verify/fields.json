@@ -30,12 +30,14 @@
   "demoVehicles": [
     {
       "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
-      "title": "Vehicle A",
+      "title": "2019 Golf, silver",
+      "battery": "not an EV",
       "blurb": "Full service history, claims proven"
     },
     {
       "vinHash": "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b",
-      "title": "Vehicle B",
+      "title": "2018 320d, grey",
+      "battery": "not an EV",
       "blurb": "A record it cannot prove clean"
     }
   ]
