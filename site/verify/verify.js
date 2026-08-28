@@ -34,16 +34,16 @@ const qSub = (a) => {
         : `${bound} · proven against an earlier version, since superseded`;
 };
 
-function detailBlock(a) {
+function detailBlock(a, open) {
     if (a.status === 'not-proven') {
-        return `<div class="vp-detail" hidden style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3)">
+        return `<div class="vp-detail"${open ? '' : ' hidden'} style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3)">
       <p style="margin:0 0 11px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.78)">Nothing on the ledger answers this question. A failed proof writes nothing and no proof was recorded, so the honest rendering is not proven. Ask the seller for it: if the claim is true of the record, producing it costs one transaction.</p>
       <a href="../intake/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:44px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:10px 18px;text-decoration:none">REQUEST THIS PROOF</a>
     </div>`;
     }
     const c = a.claim;
     const cname = a.meta?.name ?? a.field ?? 'field';
-    return `<div class="vp-detail" hidden style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8">
+    return `<div class="vp-detail"${open ? '' : ' hidden'} style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8">
       <p style="margin:0 0 11px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.78)">A zero-knowledge proof was accepted on the ledger. It could not have been produced unless the hidden value satisfied the bound, and the value itself was never published.</p>
       <div class="mono" style="display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:10.5px">
         <span style="color:rgba(14,23,38,.45)">claim</span><span>${esc(cname)} ${a.atMost ? '≤' : '≥'} ${fmt(c.bound)}</span>
@@ -54,14 +54,23 @@ function detailBlock(a) {
     </div>`;
 }
 
-function rowsFor(view) {
+function rowsFor(view, secondary = false) {
     const extras = (view.extras ?? []).map((x) => ({
         field: x.meta?.name, atMost: x.claim.atMost, meta: x.meta,
         label: `${x.meta?.label ?? 'Field'} ${x.claim.atMost ? 'at most' : 'at least'} ${fmt(x.claim.bound)}`,
         status: x.status, claim: x.claim
     }));
-    return view.answers.concat(extras).map((a) => {
+    const all = view.answers.concat(extras);
+    let openAt = -1;
+    if (secondary) {
+        openAt = all.findIndex((a) => a.status === 'not-proven');
+    } else {
+        openAt = all.findIndex((a) => a.field === 'odometerKm' && a.status !== 'not-proven');
+        if (openAt === -1) openAt = all.findIndex((a) => a.status !== 'not-proven');
+    }
+    return all.map((a, i) => {
         const proven = a.status !== 'not-proven';
+        const open = i === openAt;
         const mark = proven ? TICK : '<span class="none">—</span>';
         const name = proven
             ? `<b style="display:block;font-size:15.5px">${esc(qLabel(a, a.claim))}</b>`
@@ -69,8 +78,8 @@ function rowsFor(view) {
         return `<div class="row" style="cursor:pointer">
       ${mark}
       <div style="flex:1;min-width:0">${name}<span style="font-size:12px;color:rgba(14,23,38,.58)">${esc(qSub(a))}</span></div>
-      <span class="mono vp-toggle" style="flex:none;font-size:12px;color:rgba(14,23,38,.42)">+</span>
-    </div>${detailBlock(a)}`;
+      <span class="mono vp-toggle" style="flex:none;font-size:12px;color:rgba(14,23,38,.42)">${open ? '−' : '+'}</span>
+    </div>${detailBlock(a, open)}`;
     }).join('\n');
 }
 
@@ -120,7 +129,7 @@ function mainSection(vin, view, vinfo, badge) {
     <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
   </header>
   ${scoreBand(view, false)}
-  ${rowsFor(view)}
+  ${rowsFor(view, false)}
   ${statsBlock(view, vinfo, badge)}
   ${HONESTY}`;
 }
@@ -131,7 +140,7 @@ function secondarySection(vin, view, vinfo, index) {
     <h2 style="margin:5px 0 4px;font-size:clamp(24px,6vw,32px);line-height:1;letter-spacing:.01em;text-transform:uppercase">${esc(vinfo?.title ?? 'Vehicle passport')}</h2>
     <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
     ${scoreBand(view, true)}
-    ${rowsFor(view)}
+    ${rowsFor(view, true)}
     <p style="margin:16px 0 0;font-size:13px"><a href="../proofs/">See every claim in the proof explorer →</a></p>
   </section>`;
 }
