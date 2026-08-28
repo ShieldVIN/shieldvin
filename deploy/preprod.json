@@ -1,0 +1,7 @@
+{
+  "network": "preprod",
+  "contractAddress": "72e524881363db50ff0bcf6c01fd9de1b550902540f9ca10e4b649df992d553a",
+  "txHash": "af31ba67df440a343479be1d1b8b730464ce381f692e0063b8efafcf2830070f",
+  "contract": "vinpassport",
+  "note": "Public record of the deployment. Address and tx hash are public by definition."
+}
