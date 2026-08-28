@@ -86,3 +86,10 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{
 .tick{flex:none;width:27px;height:27px;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center}
 .none{flex:none;width:27px;height:27px;border:1px dashed rgba(14,23,38,.42);display:grid;place-items:center;
   color:rgba(14,23,38,.5);font-size:15px}
+
+/* Explainer video: one cut per orientation. The pages set the default
+   display inline (desktop cut visible), so the swap needs !important. */
+@media (max-width:700px){
+  .vid-desktop{display:none!important}
+  .vid-mobile{display:block!important}
+}
