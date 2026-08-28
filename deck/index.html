@@ -115,7 +115,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   Midnight's zero-knowledge blockchain.</p>
   <p>
     <span class="url">github.com/VINPassport/VINPassport</span> &nbsp;·&nbsp;
-    <span class="url">vinpassport.github.io/VINPassport</span>
+    <span class="url">passport.vin</span>
   </p>
   <div style="flex:1"></div>
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i>VINPassport</span><span>1</span></div>
@@ -188,7 +188,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
         <li><strong>Proof explorer</strong>: every claim, current or superseded</li>
         <li>26-vehicle demo fleet: new (BEV → diesel) and retrofit</li>
       </ul>
-      <p class="url">npm run app · vinpassport.github.io/VINPassport</p>
+      <p class="url">passport.vin: register &amp; prove live for anyone · npm run app locally</p>
     </div>
   </div>
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i>VINPassport</span><span>4</span></div>
@@ -334,6 +334,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
         <li><code>@odatano/dpp-sdk</code>: panel key derivation, value scaling, Merkle construction</li>
         <li><code>@odatano/nightgate-tx</code>: local transaction building and proving, our own key</li>
         <li>Hosted NIGHTGATE <strong>sponsors our preprod fees</strong> under a metered grant: every transaction built, proven and signed on our side; <strong>NIGHTGATE pays and submits, and never sees a witness</strong></li>
+        <li>That grant carried our deploy: <strong>live on preprod since 28 Aug</strong>, contract <code>72e52488…d553a</code>, recorded at <code>deploy/preprod.json</code></li>
       </ul>
       <p>Not used: NIGHTGATE's CAP service, OData layer, attestation-vault, disclosure grants: that is the Wave 2 delta, stated in advance.</p>
     </div>
@@ -375,7 +376,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <h2>Each wave states its delta in advance</h2>
   <table style="flex:1">
     <tr><th style="width:130px">Wave 2</th>
-        <td><strong>The full NIGHTGATE integration</strong>: tiered disclosure (buyer / trade / authority see genuinely different views), disclosure grants, live browser reads, the CAP service layer, and <strong>measured unit economics</strong> that turn the pricing structure into prices</td></tr>
+        <td><strong>Full preprod wiring</strong>: the site’s register &amp; prove submits real transactions to the deployed contract - per-intake proving, dust-funded fees from our own wallet, finality in the UI. Then <strong>the full NIGHTGATE integration</strong>: tiered disclosure (buyer / trade / authority see genuinely different views), disclosure grants, live browser reads, the CAP service layer, and <strong>measured unit economics</strong> that turn the pricing structure into prices</td></tr>
     <tr><th>Wave 3</th>
         <td><strong>Composition &amp; commerce</strong>: the battery passport link exercised against NIGHTPASS end to end, cross-root integrity in the product flow, the dealer workflow, fleet view, and one real pilot conversation</td></tr>
     <tr><th>Horizon</th>
@@ -395,7 +396,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <div>npm run app&nbsp;&nbsp;<span class="dim"># the whole product on localhost</span></div>
   </div>
   <p style="margin-top:8px">
-    <span class="url">vinpassport.github.io/VINPassport</span>: live demo ·
+    <span class="url">passport.vin</span>: live demo · <span class="url">deploy/preprod.json</span>: the preprod contract ·
     <span class="url">docs/DEMO.md</span>: the walkthrough ·
     Apache-2.0, fully open source
   </p>
