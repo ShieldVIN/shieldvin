@@ -21,6 +21,27 @@ const fetchJson = async (url) => {
 };
 
 /**
+ * Where /api/ lives for this page: '' when the page is served by the app
+ * server itself (npm run app), the public API host when the page is a static
+ * copy (GitHub Pages at passport.vin) and that host answers, else null.
+ * Resolved once per page load; both probes are one small GET.
+ */
+export const PUBLIC_API = 'https://api.passport.vin';
+let apiBasePromise;
+export function resolveApiBase() {
+    apiBasePromise ??= (async () => {
+        for (const base of ['', PUBLIC_API]) {
+            try {
+                const r = await fetch(`${base}/api/health`, { cache: 'no-store' });
+                if (r.ok) return base;
+            } catch { /* not this backing */ }
+        }
+        return null;
+    })();
+    return apiBasePromise;
+}
+
+/**
  * `staticBase` is the relative path from the calling page to the scan root,
  * where the static exports live: '' for the scan page, '../' for /console/
  * and /proofs/.
@@ -28,8 +49,14 @@ const fetchJson = async (url) => {
 export async function loadState(staticBase = '', params = new URLSearchParams()) {
     if (params.get('src') !== 'demo') {
         try {
-            const { ledger, vocabulary } = await fetchJson('/api/ledger');
-            return { ledger, vocabulary, mode: 'server', badge: 'live: compiled circuits, local ledger' };
+            const apiBase = await resolveApiBase();
+            if (apiBase != null) {
+                const { ledger, vocabulary } = await fetchJson(`${apiBase}/api/ledger`);
+                const badge = apiBase === ''
+                    ? 'live: compiled circuits, local ledger'
+                    : 'live: compiled circuits, shared demo ledger at api.passport.vin';
+                return { ledger, vocabulary, mode: 'server', badge };
+            }
         } catch { /* no server: fall through to the static export */ }
     }
     const [ledger, vocabulary] = await Promise.all([

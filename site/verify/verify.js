@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { passportView, QUESTIONS } from '../assets/verdict.mjs';
-import { loadState } from '../assets/sources.mjs';
+import { loadState } from '../assets/sources.mjs?v=3';
 
 const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const short = (h) => `${String(h).slice(0, 10)}…${String(h).slice(-6)}`;

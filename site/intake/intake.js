@@ -53,13 +53,22 @@ const downloadBtn = [...document.querySelectorAll('button')]
 const circuitsNote = registerBtn.parentElement.querySelector('span');
 
 let serverMode = false;
+let apiBase = '';
 (async () => {
     try {
-        const r = await fetch('/api/health', { cache: 'no-store' });
-        serverMode = r.ok;
+        const { resolveApiBase } = await import('../assets/sources.mjs?v=3');
+        const base = await resolveApiBase();
+        serverMode = base != null;
+        apiBase = base ?? '';
     } catch { serverMode = false; }
     const line = statusCard.querySelector('div');
     const dot = line.querySelector('span');
+    if (serverMode && apiBase !== '') {
+        line.innerHTML = line.innerHTML.replace('Local circuit server found',
+            'Circuit server connected');
+        statusCard.querySelector('.mono').textContent =
+            'api.passport.vin · shared demo ledger, resets on restart';
+    }
     if (!serverMode) {
         dot.style.background = '#8B95FF';
         line.append(''); // keep node shape
@@ -313,7 +322,7 @@ registerBtn.addEventListener('click', async () => {
     const was = registerBtn.textContent;
     registerBtn.textContent = 'PROVING…';
     try {
-        const r = await fetch('/api/intake', {
+        const r = await fetch(`${apiBase}/api/intake`, {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify(buildIntake())

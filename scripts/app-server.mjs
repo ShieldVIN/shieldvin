@@ -116,8 +116,29 @@ async function handleIntake(req, res) {
 
 // ---------------------------------------------------------------- server
 
+// The published site lives on passport.vin (GitHub Pages) while /api/ lives
+// here; the browser needs these headers before it lets that page call us.
+const CORS_ORIGINS = new Set(['https://passport.vin', 'https://www.passport.vin']);
+function cors(req, res) {
+    const origin = req.headers.origin;
+    if (origin && CORS_ORIGINS.has(origin)) {
+        res.setHeader('access-control-allow-origin', origin);
+        res.setHeader('vary', 'origin');
+    }
+}
+
 const server = createServer(async (req, res) => {
     const { pathname } = new URL(req.url, 'http://x');
+    if (pathname.startsWith('/api/')) {
+        cors(req, res);
+        if (req.method === 'OPTIONS') {
+            res.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS');
+            res.setHeader('access-control-allow-headers', 'content-type');
+            res.setHeader('access-control-max-age', '86400');
+            res.writeHead(204);
+            return res.end();
+        }
+    }
     if (pathname === '/api/health') return json(res, 200, { ok: true });
     if (pathname === '/api/ledger' && req.method === 'GET') return json(res, 200, ledgerPayload());
     if (pathname === '/api/intake' && req.method === 'POST') return handleIntake(req, res);
