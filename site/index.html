@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VINPassport · Proving a vehicle identity</title>
+<meta name="description" content="A Digital Circularity Vehicle Passport on Midnight's zero-knowledge blockchain. Prove what a vehicle is, reveal only what the asker is entitled to see.">
+<link rel="icon" href="assets/vinpassport-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div style="max-width:1200px;margin:0 auto;padding:0 var(--edge)">
+
+  <nav style="display:flex;align-items:center;flex-wrap:wrap;gap:14px 26px;padding:18px 0;border-bottom:1px solid rgba(0,74,173,.26)">
+    <span style="display:flex;align-items:center;gap:10px;margin-right:auto;flex:none">
+      <img src="assets/vinpassport-mark.png" alt="" style="width:34px;height:34px">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:23px;letter-spacing:.1em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+    </span>
+    <a href="#how" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">How it works</a>
+    <a href="#surfaces" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Surfaces</a>
+    <a href="regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    <a href="#limits" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Honest limits</a>
+    <a href="verify/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:9px 20px;white-space:nowrap;flex:none">SCAN A VEHICLE</a>
+  </nav>
+
+  <section style="padding:clamp(48px,8vw,96px) 0 72px;display:flex;flex-wrap:wrap;gap:clamp(32px,4vw,56px);align-items:flex-start">
+    <div style="flex:1 1 460px;min-width:0">
+      <h1 style="margin:0;font-size:clamp(38px,6.4vw,88px);line-height:1.04;letter-spacing:.01em;text-transform:uppercase;margin-left:-.052em">
+        <span style="display:block">Prove what a vehicle is.</span>
+        <span style="display:block;color:#004AAD">Reveal only what the</span>
+        <span style="display:block;color:#004AAD">asker is entitled to see.</span>
+      </h1>
+      <p style="font-size:17px;line-height:1.55;max-width:58ch;margin:28px 0 0;color:rgba(14,23,38,.82)">A Digital Circularity Vehicle Passport built on Midnight's zero-knowledge blockchain. One canonical vehicle record, anchored once. From then on each party, whether buyer, recycler or border authority, is shown exactly what they are entitled to and provably nothing more.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px">
+        <a href="verify/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:12px 26px">SEE A LIVE PASSPORT</a>
+        <a href="https://github.com/VINPassport/VINPassport/tree/main/contracts" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.06em;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:12px 22px">READ THE CONTRACT</a>
+      </div>
+      <p style="margin:22px 0 0;font-size:12.5px;color:rgba(14,23,38,.55)">No wallet. No account. No login. A buyer scans a QR code and sees a verdict; every transaction fee is sponsored.</p>
+    </div>
+    <div class="blueprint" style="flex:1 1 300px;min-width:0;padding:20px 22px;background:rgba(0,74,173,.05)">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <span style="font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">The four buyer questions</span>
+      <div style="height:1px;background:rgba(0,74,173,.26);margin:12px 0 4px"></div>
+      <div style="display:flex;flex-direction:column">
+        <div style="display:flex;align-items:baseline;gap:12px;padding:13px 0;border-bottom:1px solid rgba(0,74,173,.16)"><span class="mono" style="font-size:11px;color:#004AAD">01</span><b style="flex:1;font-size:16px">Has it ever been written off?</b><span class="mono" style="font-size:11.5px;color:rgba(14,23,38,.6)">≤ 0</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;padding:13px 0;border-bottom:1px solid rgba(0,74,173,.16)"><span class="mono" style="font-size:11px;color:#004AAD">02</span><b style="flex:1;font-size:16px">Any reported accidents?</b><span class="mono" style="font-size:11.5px;color:rgba(14,23,38,.6)">≤ 0</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;padding:13px 0;border-bottom:1px solid rgba(0,74,173,.16)"><span class="mono" style="font-size:11px;color:#004AAD">03</span><b style="flex:1;font-size:16px">One keeper from new?</b><span class="mono" style="font-size:11.5px;color:rgba(14,23,38,.6)">≤ 1</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;padding:13px 0"><span class="mono" style="font-size:11px;color:#004AAD">04</span><b style="flex:1;font-size:16px">Mileage under 150,000 km?</b><span class="mono" style="font-size:11.5px;color:rgba(14,23,38,.6)">≤ 150k</span></div>
+      </div>
+      <p style="margin:10px 0 0;font-size:12px;line-height:1.5;color:rgba(14,23,38,.65)">Each is answered <b>yes, or the transaction fails</b>. The value that satisfied the bound is never published, and “not proven” is rendered as exactly that: no claim, never a quiet no.</p>
+    </div>
+  </section>
+
+  <section style="padding:0 0 84px" aria-label="VINPassport build status">
+    <div class="blueprint" style="position:relative">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <header style="display:flex;flex-wrap:wrap;align-items:stretch;border-bottom:1px solid rgba(0,74,173,.26);font:600 12.5px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase">
+        <span style="flex:1 1 16ch;min-width:0;padding:12px clamp(16px,3vw,24px)">VINPassport contract data</span>
+        <span style="border-left:1px solid rgba(0,74,173,.26);padding:12px clamp(16px,3vw,24px);color:rgba(14,23,38,.7);white-space:nowrap">Compact 0.31.1</span>
+        <span style="border-left:1px solid rgba(0,74,173,.26);padding:12px clamp(16px,3vw,24px);color:rgba(14,23,38,.7);white-space:nowrap">Ledger 8</span>
+        <span style="border-left:1px solid rgba(0,74,173,.26);padding:12px clamp(16px,3vw,24px);color:rgba(14,23,38,.7);white-space:nowrap">Sheet 01 of 01</span>
+      </header>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 0;padding:10px clamp(16px,3vw,24px);border-bottom:1px solid rgba(0,74,173,.1)">
+        <span class="mono" style="flex:none;width:38px;font-size:12.5px;color:#002E6E">01</span>
+        <span style="flex:1 1 150px;min-width:0;font-size:15px;padding-right:16px">Circuits in the contract</span>
+        <span style="flex:none;width:64px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:23px;letter-spacing:.02em">5</span>
+        <span style="flex:1 1 240px;min-width:0;font-size:14.5px;line-height:1.5;color:rgba(14,23,38,.78);padding-left:38px">All with <span class="mono" style="font-size:12.5px">proof: true</span>; artifacts committed</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 0;padding:10px clamp(16px,3vw,24px);border-bottom:1px solid rgba(0,74,173,.1)">
+        <span class="mono" style="flex:none;width:38px;font-size:12.5px;color:#002E6E">02</span>
+        <span style="flex:1 1 150px;min-width:0;font-size:15px;padding-right:16px">Contract tests passing</span>
+        <span style="flex:none;width:64px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:23px;letter-spacing:.02em">67</span>
+        <span style="flex:1 1 240px;min-width:0;font-size:14.5px;line-height:1.5;color:rgba(14,23,38,.78);padding-left:38px">Both integrity rules mutation-checked</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 0;padding:10px clamp(16px,3vw,24px);border-bottom:1px solid rgba(0,74,173,.1)">
+        <span class="mono" style="flex:none;width:38px;font-size:12.5px;color:#002E6E">03</span>
+        <span style="flex:1 1 150px;min-width:0;font-size:15px;padding-right:16px">Provable field slots</span>
+        <span style="flex:none;width:64px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:23px;letter-spacing:.02em">32</span>
+        <span style="flex:1 1 240px;min-width:0;font-size:14.5px;line-height:1.5;color:rgba(14,23,38,.78);padding-left:38px">26 in use, 6 reserved. Depth 5, width permanent</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 0;padding:10px clamp(16px,3vw,24px)">
+        <span class="mono" style="flex:none;width:38px;font-size:12.5px;color:#002E6E">04</span>
+        <span style="flex:1 1 150px;min-width:0;font-size:15px;padding-right:16px">Private values on the ledger</span>
+        <span style="flex:none;width:64px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:23px;letter-spacing:.02em">0</span>
+        <span style="flex:1 1 240px;min-width:0;font-size:14.5px;line-height:1.5;color:rgba(14,23,38,.78);padding-left:38px">Asserted by test, not by this sentence</span>
+      </div>
+      <p style="margin:0;padding:12px clamp(16px,3vw,24px);border-top:1px solid rgba(0,74,173,.26);font-size:12.5px;color:rgba(14,23,38,.7)">Pre-alpha, under active development. The contract is written, compiles and is covered by tests; the application layer around it is being built.</p>
+    </div>
+  </section>
+
+  <section id="how" style="padding:0 0 84px">
+    <span style="display:block;font:600 13px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#002E6E;margin-bottom:12px">02 · How privacy is achieved</span>
+    <div style="height:1px;background:rgba(0,74,173,.26);margin-bottom:36px"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(24px,3.4vw,48px)">
+      <div class="blueprint" style="padding:24px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h2 style="margin:0;font-size:23px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase">A commitment per field</h2>
+        <p style="font-size:15px;line-height:1.6;margin:14px 0 0;color:rgba(14,23,38,.8)">The ledger stores <span class="mono" style="font-size:13px">persistentCommit(value, salt)</span>, never the value and never the salt. Each field also carries an integrity rule, written once at creation, so a caller cannot pick the flattering rule at the moment they need it.</p>
+      </div>
+      <div class="blueprint" style="padding:24px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h2 style="margin:0;font-size:23px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase">Rules that only point one way</h2>
+        <p style="font-size:15px;line-height:1.6;margin:14px 0 0;color:rgba(14,23,38,.8)">Mileage, accidents, keepers, services and write-off category may never fall. To write a new value the caller must prove, inside the circuit, that they know the current one and that the change respects the rule. A rollback by one kilometre is refused.</p>
+      </div>
+      <div class="blueprint" style="padding:24px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h2 style="margin:0;font-size:23px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase">Claims that expire honestly</h2>
+        <p style="font-size:15px;line-height:1.6;margin:14px 0 0;color:rgba(14,23,38,.8)">A recorded claim names the commitment its proof opened. Record a new reading and the old claim no longer matches the field, so a verifier can see it is <b>superseded</b> without being told.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="surfaces" style="padding:0 0 84px">
+    <span style="display:block;font:600 13px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#002E6E;margin-bottom:12px">03 · Three surfaces, one ledger</span>
+    <div style="height:1px;background:rgba(0,74,173,.26);margin-bottom:36px"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border:1px solid rgba(0,74,173,.26)">
+      <div style="padding:26px 24px;border-right:1px solid rgba(0,74,173,.18);display:flex;flex-direction:column;gap:10px">
+        <span class="mono" style="font-size:12px;color:#004AAD">/console/</span>
+        <h3 style="margin:0;font-size:26px;line-height:1;letter-spacing:.02em;text-transform:uppercase">Intake</h3>
+        <span style="font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(14,23,38,.55)">For a registrar</span>
+        <p style="margin:6px 0 0;font-size:14.5px;line-height:1.6;color:rgba(14,23,38,.8)">Fill in the fields, submit, and watch the compiled circuits accept and refuse. A rollback update aborts in-circuit, is shown as refused, and writes nothing.</p>
+        <a href="console/" style="margin-top:auto;padding-top:14px;font-size:13.5px;text-decoration:none">Open the console →</a>
+      </div>
+      <div style="padding:26px 24px;border-right:1px solid rgba(0,74,173,.18);display:flex;flex-direction:column;gap:10px">
+        <span class="mono" style="font-size:12px;color:#004AAD">/proofs/</span>
+        <h3 style="margin:0;font-size:26px;line-height:1;letter-spacing:.02em;text-transform:uppercase">Proof explorer</h3>
+        <span style="font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(14,23,38,.55)">For an auditor</span>
+        <p style="margin:6px 0 0;font-size:14.5px;line-height:1.6;color:rgba(14,23,38,.8)">Every claim on the ledger, grouped by vehicle and marked current or superseded. Nothing here requires trusting VINPassport. Every row is a claim anyone can check.</p>
+        <a href="proofs/" style="margin-top:auto;padding-top:14px;font-size:13.5px;text-decoration:none">Open the explorer →</a>
+      </div>
+      <div style="padding:26px 24px;display:flex;flex-direction:column;gap:10px;background:rgba(0,74,173,.05)">
+        <span class="mono" style="font-size:12px;color:#004AAD">/</span>
+        <h3 style="margin:0;font-size:26px;line-height:1;letter-spacing:.02em;text-transform:uppercase">Verification</h3>
+        <span style="font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(14,23,38,.55)">For a buyer</span>
+        <p style="margin:6px 0 0;font-size:14.5px;line-height:1.6;color:rgba(14,23,38,.8)">Scan the QR code on a vehicle or its listing and this page opens on its passport. The page never sees a VIN, only its hash.</p>
+        <a href="verify/" style="margin-top:auto;padding-top:14px;font-size:13.5px;text-decoration:none">See a verdict →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="regulation" style="padding:0 0 84px;display:flex;flex-wrap:wrap;gap:clamp(28px,5vw,84px);align-items:flex-start">
+    <div style="flex:1 1 320px;min-width:0">
+      <span style="display:block;font:600 13px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#002E6E;margin-bottom:12px">04 · Why this exists</span>
+      <div style="height:1px;background:rgba(0,74,173,.26);margin-bottom:24px"></div>
+      <h2 style="margin:0;font-size:34px;line-height:1.06;letter-spacing:.02em;text-transform:uppercase">A mandate with a conflict inside it</h2>
+      <p style="font-size:15px;line-height:1.6;margin:18px 0 0;color:rgba(14,23,38,.8);max-width:48ch">A vehicle passport has to be verifiable by strangers and confidential at the same time. A full history is commercially sensitive to a dealer and personally identifying to an owner. Publishing the record solves the first and destroys the second. Keeping it private leaves the first where it is today: trust the seller.</p>
+      <p style="margin:16px 0 0;font-size:14px"><a href="regulation/">Read the regulation in full on its own page</a></p>
+    </div>
+    <div style="flex:1 1 380px;min-width:0;border:1px solid rgba(0,74,173,.26)">
+      <div style="display:flex;flex-direction:column">
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 0;padding:16px 20px;border-bottom:1px solid rgba(0,74,173,.14)">
+          <span class="mono" style="flex:none;width:11ch;font-size:13px;color:#004AAD">13 AUG 2026</span>
+          <span style="flex:1 1 220px;min-width:0;font-size:15px;line-height:1.45;padding-left:16px">Regulation (EU) 2026/1738 enters into force</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 0;padding:16px 20px;border-bottom:1px solid rgba(0,74,173,.14)">
+          <span class="mono" style="flex:none;width:11ch;font-size:13px;color:#004AAD">FEB 2027</span>
+          <span style="flex:1 1 220px;min-width:0;font-size:15px;line-height:1.45;padding-left:16px">EV battery passport becomes mandatory under Reg (EU) 2023/1542. Slot 29 is the link out to it</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 0;padding:16px 20px;border-bottom:1px solid rgba(0,74,173,.14)">
+          <span class="mono" style="flex:none;width:11ch;font-size:13px;color:#004AAD">1 SEP 2028</span>
+          <span style="flex:1 1 220px;min-width:0;font-size:15px;line-height:1.45;padding-left:16px">The regulation generally applies. Manufacturer circularity strategies follow a year later</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 0;padding:16px 20px;border-bottom:1px solid rgba(0,74,173,.14)">
+          <span class="mono" style="flex:none;width:11ch;font-size:13px;color:#004AAD">1 SEP 2032</span>
+          <span style="flex:1 1 220px;min-width:0;font-size:15px;line-height:1.45;padding-left:16px">Every vehicle placed on the EU market must carry a Digital Circularity Vehicle Passport</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 0;padding:16px 20px">
+          <span class="mono" style="flex:none;width:11ch;font-size:13px;color:rgba(14,23,38,.5)">TODAY</span>
+          <span style="flex:1 1 220px;min-width:0;font-size:15px;line-height:1.45;padding-left:16px;color:rgba(14,23,38,.7)">Title washing, undisclosed accident history, fabricated service records, mileage fraud</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="limits" style="padding:0 0 84px">
+    <div style="padding:clamp(24px,4vw,34px) clamp(20px,4vw,36px);background:#004AAD;color:#EDE4D8;display:flex;flex-wrap:wrap;gap:clamp(24px,4vw,64px);align-items:center">
+      <div style="flex:1 1 380px;min-width:0">
+        <span style="display:block;font:600 12px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:14px">05 · What this does not prove</span>
+        <p style="margin:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:clamp(24px,2.6vw,34px);line-height:1.15;letter-spacing:.01em;max-width:38ch">A producer who commits a false value produces a cryptographically valid proof of a false fact.</p>
+      </div>
+      <p style="flex:1 1 280px;min-width:0;margin:0;font-size:15px;line-height:1.6;opacity:.85">VINPassport proves a reading is the one that was committed, and that it satisfies a bound. It does not prove the reading matched physical reality. Closing that gap needs hardware attestation at the source. That is scoped as Phase 2 rather than pretended away, and stated in full in <span class="mono" style="font-size:13px">docs/ARCHITECTURE.md</span>.</p>
+    </div>
+  </section>
+
+  <section style="padding:0 0 84px">
+    <span style="display:block;font:600 13px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#002E6E;margin-bottom:12px">06 · Built on</span>
+    <div style="height:1px;background:rgba(0,74,173,.26);margin-bottom:28px"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(24px,3vw,44px);align-items:stretch">
+      <div style="flex:1 1 300px;min-width:0;padding:18px 20px;border:1px solid rgba(0,74,173,.26)">
+        <span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">The platform</span>
+        <b style="display:block;margin:6px 0 4px;font-family:'Barlow Condensed',sans-serif;font-size:23px;letter-spacing:.02em;text-transform:uppercase">Midnight Network</b>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:rgba(14,23,38,.78)">The zero-knowledge chain the passport lives on, at ledger 8. The contract, its five circuits and both integrity rules are ours, written in Compact and covered by our own tests.</p>
+      </div>
+      <div style="flex:1 1 300px;min-width:0;padding:18px 20px;border:1px solid rgba(0,74,173,.26)">
+        <span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Two libraries, narrow jobs</span>
+        <div style="margin:8px 0 0;display:flex;flex-direction:column;gap:10px">
+          <div><b class="mono" style="font-size:13px;color:#0E1726">@odatano/dpp-sdk</b><div style="font-size:13.5px;line-height:1.55;color:rgba(14,23,38,.75)">Used for one thing: the salted-Merkle field panel that holds the 32 commitments.</div></div>
+          <div><b class="mono" style="font-size:13px;color:#0E1726">@odatano/nightgate-tx</b><div style="font-size:13.5px;line-height:1.55;color:rgba(14,23,38,.75)">Used for one thing: building and proving our transactions locally, against our own key. The hosted NIGHTGATE service pays and submits them.</div></div>
+        </div>
+      </div>
+      <p style="flex:1 1 260px;min-width:0;margin:0;align-self:center;font-size:13.5px;line-height:1.6;color:rgba(14,23,38,.7)">Nothing about the passport logic is delegated. Every transaction is assembled, proven and signed locally before it leaves the machine, so the submission service pays a fee it cannot read and never sees a witness.</p>
+    </div>
+  </section>
+
+  <section style="padding:0 0 84px">
+    <span style="display:block;font:600 13px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#002E6E;margin-bottom:12px">07 · Try it</span>
+    <div style="height:1px;background:rgba(0,74,173,.26);margin-bottom:28px"></div>
+    <h3 style="margin:0;font-size:26px;line-height:1.1;letter-spacing:.02em;text-transform:uppercase">Run the whole thing locally in one command</h3>
+    <p style="font-size:15px;line-height:1.6;margin:14px 0 0;max-width:60ch;color:rgba(14,23,38,.8)">Node 22+. No Docker, no wallet, no network access, no API keys. Three surfaces and the real compiled circuits, in-process.</p>
+    <div class="mono" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:20px;padding:13px 18px;border:1px solid rgba(0,74,173,.28);background:#E6DCCE;font-size:13.5px;max-width:max-content">
+      <span style="color:rgba(14,23,38,.45)">$</span><span>npm install &amp;&amp; npm run app</span><span style="color:rgba(14,23,38,.45)">→ localhost:8790</span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px">
+      <a href="https://github.com/VINPassport/VINPassport" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:12px 26px">VIEW ON GITHUB</a>
+      <a href="#surfaces" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.06em;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:12px 22px">THE 90-SECOND WALKTHROUGH</a>
+    </div>
+  </section>
+
+  <footer style="padding:26px 0 48px;border-top:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;font-size:13px;color:rgba(14,23,38,.7)">
+    <img src="assets/vinpassport-mark.png" alt="" style="width:24px;height:24px">
+    <span>VINPassport. Proving a vehicle identity.</span>
+    <span style="margin-left:auto;min-width:0">Apache-2.0 · Reg (EU) 2026/1738 · Midnight Network</span>
+  </footer>
+
+</div>
+</body>
+</html>

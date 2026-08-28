@@ -253,7 +253,7 @@ async function submitToCircuits(intake) {
         linksEl.replaceChildren();
         const view = document.createElement('a');
         view.className = 'primary';
-        view.href = `../?v=${result.vinHex}`;
+        view.href = `../verify/?v=${result.vinHex}`;
         view.textContent = 'View this passport';
         const proofs = document.createElement('a');
         proofs.className = 'ghost';

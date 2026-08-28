@@ -3,10 +3,11 @@
   <p><strong>A Digital Circularity Vehicle Passport built on Midnight's zero-knowledge blockchain.</strong></p>
   <p>Prove what a vehicle is. Reveal only what the asker is entitled to see.</p>
   <p>
-    <a href="https://vinpassport.github.io/vinpassport/"><b>Live demo</b></a> ·
-    <a href="https://vinpassport.github.io/vinpassport/console/"><b>Intake console</b></a> ·
-    <a href="https://vinpassport.github.io/vinpassport/proofs/"><b>Proof explorer</b></a> ·
-    <a href="https://vinpassport.github.io/vinpassport/deck/"><b>Slide deck</b></a>
+    <a href="https://vinpassport.github.io/VINPassport/"><b>Website</b></a> ·
+    <a href="https://vinpassport.github.io/VINPassport/verify/"><b>Verify a vehicle</b></a> ·
+    <a href="https://vinpassport.github.io/VINPassport/console/"><b>Intake console</b></a> ·
+    <a href="https://vinpassport.github.io/VINPassport/proofs/"><b>Proof explorer</b></a> ·
+    <a href="https://vinpassport.github.io/VINPassport/deck/"><b>Slide deck</b></a>
   </p>
 </div>
 
@@ -86,7 +87,7 @@ invoice. The blockchain is an implementation detail, and it is meant to stay one
 Requires **Node.js 22+**. Nothing else: no Docker, no wallet, no network access, no API keys.
 
 ```bash
-git clone https://github.com/VINPassport/vinpassport
+git clone https://github.com/VINPassport/VINPassport
 cd vinpassport
 npm install
 npm test
@@ -132,7 +133,7 @@ npm run app        # -> http://localhost:8790
 The server is dependency-free Node and runs the **real compiled circuits in-process**: submitting
 the console form registers the passport, records the history, and proves the claims. A rollback
 update or an unsupportable claim is refused in-circuit, shown as refused, and writes nothing. The
-same three surfaces are live statically at **<https://vinpassport.github.io/vinpassport/>**, where the
+same three surfaces are live statically at **<https://vinpassport.github.io/VINPassport/>**, where the
 console falls back to producing an intake file for `scripts/intake.mjs`.
 
 All three are plain HTML/CSS/JS with no build step, by decision
@@ -356,7 +357,7 @@ that implements this panel end-to-end on Midnight preprod.
 | Document | What it covers |
 |---|---|
 | [DEMO.md](docs/DEMO.md) | The ninety-second walkthrough: doubles as the video script |
-| [deck/](deck/index.html) | The Wave 1 slide deck: [present it live](https://vinpassport.github.io/vinpassport/deck/), arrow keys to advance, Ctrl+P for the PDF |
+| [deck/](deck/index.html) | The Wave 1 slide deck: [present it live](https://vinpassport.github.io/VINPassport/deck/), arrow keys to advance, Ctrl+P for the PDF |
 | [REGULATION.md](docs/REGULATION.md) | Primary legal sources, with direct EUR-Lex links |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, the trust model, and its honest limits |
 | [BUILD-SCOPE.md](docs/BUILD-SCOPE.md) | Structure, stack, sponsoring and billing models |

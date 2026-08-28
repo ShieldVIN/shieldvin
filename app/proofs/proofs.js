@@ -23,7 +23,7 @@ const short = (hex) => `${hex.slice(0, 10)}…${hex.slice(-6)}`;
 (async () => {
     let data;
     try {
-        data = await loadState('../', new URLSearchParams(location.search));
+        data = await loadState('../verify/', new URLSearchParams(location.search));
     } catch (e) {
         app.replaceChildren(el('p', 'loading', `Could not read the ledger: ${e.message}`));
         return;
@@ -51,7 +51,7 @@ const short = (hex) => `${hex.slice(0, 10)}…${hex.slice(-6)}`;
         const gh = el('div', 'vg-head');
         gh.append(el('b', null, titles[vin] ?? 'Unlabelled vehicle'));
         const link = el('a');
-        link.href = `../?v=${vin}`;
+        link.href = `../verify/?v=${vin}`;
         link.textContent = 'verdict view →';
         gh.append(link);
         group.append(gh, el('div', 'vg-hash', `VIN hash ${vin}`));

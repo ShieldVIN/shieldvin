@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - 'app/**'
+      - 'site/**'
       - 'deck/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -39,7 +40,11 @@ jobs:
       - name: Compose site
         run: |
           mkdir _site
-          cp app/scan/* _site/
+          cp -r site/* _site/
+          cp site/.nojekyll _site/
+          rm -f _site/CNAME   # held back until passport.vin DNS is live; then set the domain in Settings -> Pages
+          mkdir _site/verify
+          cp app/scan/* _site/verify/
           cp -r app/console _site/console
           cp -r app/proofs _site/proofs
           cp -r deck _site/deck

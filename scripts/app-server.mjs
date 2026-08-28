@@ -47,7 +47,7 @@ const vehicles = [
 
 // ---------------------------------------------------------------- static
 
-const MOUNTS = { '/': 'app/scan', '/console': 'app/console', '/proofs': 'app/proofs' };
+const MOUNTS = { '/': 'app/scan', '/verify': 'app/scan', '/console': 'app/console', '/proofs': 'app/proofs' };
 const TYPES = {
     '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
@@ -56,7 +56,7 @@ const TYPES = {
 
 async function serveStatic(res, urlPath) {
     let mount = '/', rest = urlPath;
-    for (const m of ['/console', '/proofs']) {
+    for (const m of ['/verify', '/console', '/proofs']) {
         if (urlPath === m || urlPath.startsWith(m + '/')) { mount = m; rest = urlPath.slice(m.length); break; }
     }
     if (rest === '' || rest === '/') rest = '/index.html';

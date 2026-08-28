@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interface mockups · VINPassport</title>
+<meta name="description" content="Design reference: intake console, proof explorer and buyer verification, desktop and phone.">
+<link rel="icon" href="../assets/vinpassport-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<div class="mockup-board">
+<section class="dv-turn" id="t2">
+  <div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Phone versions of the two desktop surfaces, 393 × 852</span></div>
+  <p style="margin:0 0 22px;font:13px/1.6 Barlow,sans-serif;color:rgba(14,23,38,.65);max-width:840px">The registrar and auditor screens rebuilt for a phone: one column, sections collapsed to accordions with a sticky action bar in <a class="dv-oid" href="#2a">2a</a>, and the claims table linearised into stacked claim blocks in <a class="dv-oid" href="#2b">2b</a> rather than scrolled sideways. Same data, same grammar as <a class="dv-oid" href="#1a">1a</a> / <a class="dv-oid" href="#1b">1b</a>.</p>
+  <div class="dv-opts">
+
+    <div class="dv-opt" id="2a">
+      <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Intake console · phone · accordion + sticky action bar</div>
+      <div style="width:393px;height:852px;display:flex;flex-direction:column;overflow:hidden;background:#EDE4D8;color:#0E1726;font-family:Barlow,system-ui,sans-serif;border:1px solid rgba(0,74,173,.28)">
+        <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <img src="../assets/vinpassport-mark.png" alt="VINPassport" style="width:26px;height:26px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:17px;letter-spacing:.06em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+            <span style="font:600 9px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:3px 7px">intake</span>
+          </div>
+          <span style="display:flex;flex-direction:column;gap:3px;padding:4px"><span style="width:17px;height:1.5px;background:#0E1726"></span><span style="width:17px;height:1.5px;background:#0E1726"></span><span style="width:17px;height:1.5px;background:#0E1726"></span></span>
+        </div>
+
+        <div style="flex:none;display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.28);background:rgba(139,149,255,.16)">
+          <span style="flex:none;font:700 9px Barlow,sans-serif;letter-spacing:.18em;background:#8B95FF;color:#0E1726;padding:3px 7px">DEMO</span>
+          <div style="font-size:11.5px;line-height:1.45;color:rgba(14,23,38,.8)"><b>Sample data.</b> 26 fictional vehicles, pick one, the form fills itself.</div>
+        </div>
+
+        <div class="noscroll" style="flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px">
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:9px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:5px;margin-bottom:10px">
+              <span class="mono" style="font-size:10.5px;color:#004AAD">01</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.02em">PASSPORT TYPE</h2>
+              <span style="margin-left:auto;font-size:10px;color:rgba(14,23,38,.5)">slot 30</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="display:flex;gap:9px;align-items:flex-start;padding:11px 12px;border:1px solid #004AAD;background:#004AAD;color:#EDE4D8"><span style="flex:none;width:14px;height:14px;border:1.5px solid #EDE4D8;border-radius:50%;background:#EDE4D8;box-shadow:inset 0 0 0 3px #004AAD;margin-top:3px"></span><span><b style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:.03em">NEW VEHICLE</b><small style="display:block;font-size:11px;line-height:1.45;opacity:.8">First placing on the market. Keepers 0, delivery mileage, no history. <span class="mono">20 vehicles</span></small></span></label>
+              <label style="display:flex;gap:9px;align-items:flex-start;padding:11px 12px;border:1px solid rgba(0,74,173,.28)"><span style="flex:none;width:14px;height:14px;border:1.5px solid rgba(0,74,173,.45);border-radius:50%;margin-top:3px"></span><span><b style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:.03em;color:#004AAD">EXISTING · RETROFIT</b><small style="display:block;font-size:11px;line-height:1.45;color:rgba(14,23,38,.65)">Added to the fleet that already exists, history and all. <span class="mono">6 vehicles</span></small></span></label>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:9px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:5px;margin-bottom:10px">
+              <span class="mono" style="font-size:10.5px;color:#004AAD">02</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.02em">DEMONSTRATION VEHICLE</h2>
+            </div>
+            <select style="width:100%;min-height:44px;padding:8px 10px;font-size:15px;font-family:inherit;background:#E6DCCE;border:1px solid #004AAD;color:#0E1726">
+              <option>Choose a vehicle, or fill the form yourself</option>
+              <optgroup label="Battery electric">
+                <option>VW ID.7 Pro (BEV)</option>
+                <option selected="selected">Tesla Model Y (BEV)</option>
+                <option>BMW i4 eDrive40 (BEV)</option>
+                <option>Renault 5 E-Tech (BEV)</option>
+                <option>Škoda Elroq 85 (BEV)</option>
+                <option>Hyundai Ioniq 6 (BEV)</option>
+                <option>Kia EV3 Long Range (BEV)</option>
+                <option>Polestar 4 (BEV)</option>
+                <option>Fiat 500e (BEV)</option>
+                <option>Volvo EX30 (BEV)</option>
+              </optgroup>
+              <optgroup label="Plug-in hybrid · hybrid">
+                <option>Ford Kuga 2.5 PHEV</option>
+                <option>Mercedes GLC 300e (PHEV)</option>
+                <option>BMW X1 xDrive25e (PHEV)</option>
+                <option>Toyota Corolla 1.8 HEV</option>
+                <option>Honda CR-V e:HEV</option>
+              </optgroup>
+              <optgroup label="Petrol · diesel · hydrogen">
+                <option>VW Golf 1.5 eTSI (petrol)</option>
+                <option>Toyota Yaris 1.5 (petrol)</option>
+                <option>VW Passat 2.0 TDI (diesel)</option>
+                <option>Toyota Hilux 2.8 D (diesel)</option>
+                <option>Toyota Mirai (hydrogen)</option>
+                <option>2024 Ford Transit: sold new with its passport</option>
+              </optgroup>
+            </select>
+            <div style="margin-top:9px;padding:10px 12px;border:1px solid rgba(0,74,173,.28)">
+              <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Expect</span>
+              <p style="margin:5px 0 0;font-size:11.5px;line-height:1.5;color:rgba(14,23,38,.78)">All accepted. A new vehicle proves its four claims by construction, keepers 0, nothing on the record yet.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <div style="display:flex;align-items:center;gap:10px;padding:13px 12px;border:1px solid rgba(0,74,173,.28)">
+              <span class="mono" style="font-size:10.5px;color:#004AAD">03</span>
+              <b style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em">VEHICLE &amp; IDENTITY</b>
+              <span style="font-size:10.5px;color:rgba(14,23,38,.5)">6 fields</span>
+              <span class="mono" style="font-size:12px;color:rgba(14,23,38,.45)">+</span>
+            </div>
+            <div style="border:1px solid rgba(0,74,173,.28);border-top:none;padding:12px;display:flex;flex-direction:column;gap:11px">
+              <div><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">VIN</label><input value="5YJYGDEF3SF208934" class="mono" style="width:100%;min-height:44px;padding:8px 10px;font-size:13.5px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+              <div><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Registering authority</label><input value="rdw-veendam" style="width:100%;min-height:44px;padding:8px 10px;font-size:14.5px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid #8B95FF;background:rgba(139,149,255,.14)"><span style="flex:none;font:700 9px Barlow,sans-serif;letter-spacing:.16em;background:#8B95FF;color:#0E1726;padding:3px 7px">BEV</span><span class="mono" style="font-size:11.5px">BPID-EU-001377-2027</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:13px 12px;border:1px solid rgba(0,74,173,.28);border-top:none">
+              <span class="mono" style="font-size:10.5px;color:#004AAD">04</span>
+              <b style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em">RECORD AT REGISTRATION</b>
+              <span style="font-size:10.5px;color:rgba(14,23,38,.5)">slots 0–4</span>
+              <span class="mono" style="font-size:12px;color:rgba(14,23,38,.45)">−</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:13px 12px;border:1px solid rgba(0,74,173,.28);border-top:none">
+              <span class="mono" style="font-size:10.5px;color:#004AAD">05</span>
+              <b style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em">CLAIMS TO PROVE</b>
+              <span style="font-size:10.5px;color:#004AAD">4 of 4 on</span>
+              <span class="mono" style="font-size:12px;color:rgba(14,23,38,.45)">−</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="flex:none;padding:12px 14px 16px;border-top:1px solid rgba(0,74,173,.28);background:#EDE4D8;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(14,23,38,.6)"><span style="width:7px;height:7px;background:#004AAD"></span>Local circuit server found · 6 circuits will run</div>
+          <button style="width:100%;min-height:48px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;cursor:pointer">REGISTER &amp; PROVE</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="2b">
+      <div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Proof explorer · phone · claims as stacked blocks, no sideways scroll</div>
+      <div style="width:393px;height:852px;display:flex;flex-direction:column;overflow:hidden;background:#EDE4D8;color:#0E1726;font-family:Barlow,system-ui,sans-serif;border:1px solid rgba(0,74,173,.28)">
+        <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <img src="../assets/vinpassport-mark.png" alt="VINPassport" style="width:26px;height:26px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:17px;letter-spacing:.06em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+            <span style="font:600 9px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:3px 7px">proofs</span>
+          </div>
+          <span style="display:flex;flex-direction:column;gap:3px;padding:4px"><span style="width:17px;height:1.5px;background:#0E1726"></span><span style="width:17px;height:1.5px;background:#0E1726"></span><span style="width:17px;height:1.5px;background:#0E1726"></span></span>
+        </div>
+
+        <div style="flex:none;padding:14px 14px 12px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Public ledger · read-only</span>
+          <h1 style="margin:3px 0 5px;font-family:'Barlow Condensed',sans-serif;font-size:29px;line-height:1">EVERY CLAIM ON THE LEDGER</h1>
+          <p style="margin:0;font-size:12px;line-height:1.5;color:rgba(14,23,38,.7)">Which vehicle, which field, which bound, never the value.</p>
+        </div>
+
+        <div style="flex:none;display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="padding:10px 14px;border-right:1px solid rgba(0,74,173,.18);border-bottom:1px solid rgba(0,74,173,.18)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;color:#004AAD">2</div><div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">passports</div></div>
+          <div style="padding:10px 14px;border-bottom:1px solid rgba(0,74,173,.18)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;color:#004AAD">5</div><div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">claims</div></div>
+          <div style="padding:10px 14px;border-right:1px solid rgba(0,74,173,.18)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;color:#004AAD">16</div><div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">field updates</div></div>
+          <div style="padding:10px 14px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;color:#004AAD">0</div><div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">values published</div></div>
+        </div>
+
+        <div class="noscroll" style="flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px">
+          <div style="border:1px solid rgba(0,74,173,.28)">
+            <div style="padding:10px 12px;border-bottom:1px solid rgba(0,74,173,.28);display:flex;align-items:baseline;gap:9px">
+              <b style="font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em">VEHICLE A</b>
+              <span style="font-size:11px;color:rgba(14,23,38,.55)">4 claims · all current</span>
+            </div>
+            <div class="mono" style="padding:7px 12px;font-size:9.5px;color:rgba(14,23,38,.5);word-break:break-all;border-bottom:1px solid rgba(0,74,173,.18)">391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357</div>
+            <div style="padding:10px 12px;border-bottom:1px solid rgba(0,74,173,.12);display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:baseline;gap:8px"><b style="flex:1;font-size:14px">Mileage ≤ 150,000 km</b><span style="flex:none;font:600 9.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 8px">current</span></div>
+              <div class="mono" style="font-size:10px;color:rgba(14,23,38,.5)">odometerKm · slot 690615c169…02d86f</div>
+              <div class="mono" style="font-size:10px;color:rgba(14,23,38,.5)">proven against d23fc21635…634fc5</div>
+            </div>
+            <div style="padding:10px 12px;border-bottom:1px solid rgba(0,74,173,.12);display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:baseline;gap:8px"><b style="flex:1;font-size:14px">Write-off category ≤ 0</b><span style="flex:none;font:600 9.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 8px">current</span></div>
+              <div class="mono" style="font-size:10px;color:rgba(14,23,38,.5)">writeOffCategory · slot 1c35bb205d…eace8d</div>
+            </div>
+            <div style="padding:10px 12px;border-bottom:1px solid rgba(0,74,173,.12);display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:baseline;gap:8px"><b style="flex:1;font-size:14px">Reported accidents ≤ 0</b><span style="flex:none;font:600 9.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 8px">current</span></div>
+              <div class="mono" style="font-size:10px;color:rgba(14,23,38,.5)">accidentCount · slot 911f689d64…f095d7</div>
+            </div>
+            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:baseline;gap:8px"><b style="flex:1;font-size:14px">Keepers ≤ 1</b><span style="flex:none;font:600 9.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 8px">current</span></div>
+              <div class="mono" style="font-size:10px;color:rgba(14,23,38,.5)">ownerCount · slot a155446f51…0477e8</div>
+            </div>
+            <a href="#1c" style="display:block;padding:11px 12px;border-top:1px solid rgba(0,74,173,.28);font-size:12.5px;text-decoration:none">Verdict view →</a>
+          </div>
+
+          <div style="border:1px solid rgba(0,74,173,.28)">
+            <div style="padding:10px 12px;border-bottom:1px solid rgba(0,74,173,.28);display:flex;align-items:baseline;gap:9px">
+              <b style="font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em">VEHICLE B</b>
+              <span style="font-size:11px;color:rgba(14,23,38,.55)">1 claim</span>
+            </div>
+            <div class="mono" style="padding:7px 12px;font-size:9.5px;color:rgba(14,23,38,.5);word-break:break-all;border-bottom:1px solid rgba(0,74,173,.18)">c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b</div>
+            <div style="padding:10px 12px;border-bottom:1px solid rgba(0,74,173,.12);display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:baseline;gap:8px"><b style="flex:1;font-size:14px">Mileage ≤ 200,000 km</b><span style="flex:none;font:600 9.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 8px">current</span></div>
+              <div class="mono" style="font-size:10px;color:rgba(14,23,38,.5)">odometerKm · slot ab36d4e730…c6c3db</div>
+            </div>
+            <p style="margin:0;padding:10px 12px;font-size:11.5px;line-height:1.5;color:rgba(14,23,38,.65)">Three clean-history claims were <b>not requested</b>. Absence of a claim is what the verdict page renders, never a quiet “no”.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p class="dv-next">Try next: "expand section 04 in <a class="dv-oid" href="#2a">2a</a>" · "add a superseded claim to <a class="dv-oid" href="#2b">2b</a>" · "add a filter bar to <a class="dv-oid" href="#2b">2b</a>"</p>
+</section>
+
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">VINPassport, rebranded, intake → proofs → verification</span></div>
+  <p style="margin:0 0 22px;font:13px/1.6 Barlow,sans-serif;color:rgba(14,23,38,.65);max-width:860px">Brand blue <span class="mono">#004AAD</span> and periwinkle <span class="mono">#8B95FF</span> on the logo's cream <span class="mono">#EDE4D8</span>, in the Industry system's wireframe grammar: square corners, hairline rules, registration marks, Barlow Condensed over Barlow. All content is real repo data, the 26 demo vehicles from <span class="mono">app/console/demo-vehicles.mjs</span>, slots and rules from <span class="mono">docs/FIELDS.md</span>, ledger state and claim bounds from <span class="mono">app/scan/demo-data.json</span>.</p>
+  <div class="dv-opts">
+
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Intake console · registrar · step 1 is new vs existing, then the vehicle</div>
+      <div style="width:672px;background:#EDE4D8;color:#0E1726;font-family:Barlow,system-ui,sans-serif;border:1px solid rgba(0,74,173,.28)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="../assets/vinpassport-mark.png" alt="VINPassport" style="width:28px;height:28px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:19px;letter-spacing:.06em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+            <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:3px 8px">intake</span>
+          </div>
+          <div style="display:flex;gap:18px;font-size:13px"><a href="#1b" style="text-decoration:none">proofs</a><a href="#1c" style="text-decoration:none">verify</a></div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 18px;border-bottom:1px solid rgba(0,74,173,.28);background:rgba(139,149,255,.16)">
+          <span style="flex:none;font:700 9.5px Barlow,sans-serif;letter-spacing:.18em;background:#8B95FF;color:#0E1726;padding:4px 9px">DEMO</span>
+          <div style="font-size:12.5px;line-height:1.5;color:rgba(14,23,38,.8)"><b>Sample data for evaluation.</b> 26 fictional vehicles. Pick one and the whole form fills itself, then submit and watch the real circuits accept and refuse. Nothing here touches a public network.</div>
+        </div>
+
+        <div style="padding:18px;display:flex;flex-direction:column;gap:22px">
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:6px;margin-bottom:14px">
+              <span class="mono" style="font-size:11px;color:#004AAD">01</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:22px;letter-spacing:.01em">PASSPORT TYPE</h2>
+              <span style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.5)">slot 30 · passportOrigin</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;padding:13px 14px;border:1px solid #004AAD;background:#004AAD;color:#EDE4D8;cursor:pointer">
+                <span style="display:flex;align-items:center;gap:9px"><span style="flex:none;width:14px;height:14px;border:1.5px solid #EDE4D8;border-radius:50%;background:#EDE4D8;box-shadow:inset 0 0 0 3px #004AAD"></span><b style="font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.03em">NEW VEHICLE</b></span>
+                <span style="font-size:11.5px;line-height:1.45;opacity:.8">Passport issued at first placing on the market, the mandatory path from September 2032. Keepers 0, delivery mileage, no history yet.</span>
+                <span class="mono" style="font-size:10.5px;opacity:.7">20 demo vehicles</span>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px;padding:13px 14px;border:1px solid rgba(0,74,173,.28);cursor:pointer">
+                <span style="display:flex;align-items:center;gap:9px"><span style="flex:none;width:14px;height:14px;border:1.5px solid rgba(0,74,173,.45);border-radius:50%"></span><b style="font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.03em;color:#004AAD">EXISTING VEHICLE · RETROFIT</b></span>
+                <span style="font-size:11.5px;line-height:1.45;color:rgba(14,23,38,.65)">Produced before the regulation applies; the passport is added to the fleet that already exists, history and all.</span>
+                <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.45)">6 demo vehicles</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:6px;margin-bottom:14px">
+              <span class="mono" style="font-size:11px;color:#004AAD">02</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:22px;letter-spacing:.01em">DEMONSTRATION VEHICLE</h2>
+              <span style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.5)">filtered by passport type</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start">
+              <div>
+                <label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:5px">Sample vehicle: new</label>
+                <select style="width:100%;min-height:38px;padding:7px 10px;font-size:14px;font-family:inherit;background:#E6DCCE;border:1px solid #004AAD;color:#0E1726">
+                  <option>Choose a vehicle, or fill the form yourself</option>
+                  <optgroup label="Battery electric">
+                    <option>VW ID.7 Pro (BEV)</option>
+                    <option selected="selected">Tesla Model Y (BEV)</option>
+                    <option>BMW i4 eDrive40 (BEV)</option>
+                    <option>Renault 5 E-Tech (BEV)</option>
+                    <option>Škoda Elroq 85 (BEV)</option>
+                    <option>Hyundai Ioniq 6 (BEV)</option>
+                    <option>Kia EV3 Long Range (BEV)</option>
+                    <option>Polestar 4 (BEV)</option>
+                    <option>Fiat 500e (BEV)</option>
+                    <option>Volvo EX30 (BEV)</option>
+                  </optgroup>
+                  <optgroup label="Plug-in hybrid">
+                    <option>Ford Kuga 2.5 PHEV</option>
+                    <option>Mercedes GLC 300e (PHEV)</option>
+                    <option>BMW X1 xDrive25e (PHEV)</option>
+                  </optgroup>
+                  <optgroup label="Hybrid">
+                    <option>Toyota Corolla 1.8 HEV</option>
+                    <option>Honda CR-V e:HEV</option>
+                  </optgroup>
+                  <optgroup label="Petrol · diesel · hydrogen">
+                    <option>VW Golf 1.5 eTSI (petrol)</option>
+                    <option>Toyota Yaris 1.5 (petrol)</option>
+                    <option>VW Passat 2.0 TDI (diesel)</option>
+                    <option>Toyota Hilux 2.8 D (diesel)</option>
+                    <option>Toyota Mirai (hydrogen)</option>
+                    <option>2024 Ford Transit: sold new with its passport</option>
+                  </optgroup>
+                </select>
+                <p style="margin:8px 0 0;font-size:11.5px;line-height:1.5;color:rgba(14,23,38,.6)">Switch to <b>Existing vehicle</b> and the list becomes the six retrofit records, including <span class="mono">2016 Audi A4 2.0 TDI</span>, the odometer-rollback attempt, and <span class="mono">2018 BMW 320d</span>, written off with the clean claims declined.</p>
+              </div>
+              <div style="padding:12px 14px;border:1px solid rgba(0,74,173,.28);display:flex;flex-direction:column;gap:7px">
+                <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Expect</span>
+                <p style="margin:0;font-size:12px;line-height:1.5;color:rgba(14,23,38,.78)">All accepted. A new vehicle proves its four claims by construction, keepers 0, nothing on the record yet.</p>
+                <div style="margin-top:4px;padding-top:8px;border-top:1px solid rgba(0,74,173,.18);display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:7px;height:7px;background:#004AAD"></span>Local circuit server found</div>
+                <div class="mono" style="font-size:10.5px;color:rgba(14,23,38,.45)">attestation-vault-32 · depth 5</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:6px;margin-bottom:14px">
+              <span class="mono" style="font-size:11px;color:#004AAD">03</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:22px;letter-spacing:.01em">VEHICLE &amp; IDENTITY</h2>
+              <span style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.5)">slots 5 · 22–26 · 28</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px 16px">
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">VIN</label><input value="5YJYGDEF3SF208934" class="mono" style="width:100%;min-height:36px;padding:6px 10px;font-size:13px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><small style="display:block;margin-top:4px;font-size:11px;color:rgba(14,23,38,.55)">Hashed before registration, never published.</small></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Registering authority</label><input value="rdw-veendam" style="width:100%;min-height:36px;padding:6px 10px;font-size:14px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><small style="display:block;margin-top:4px;font-size:11px;color:rgba(14,23,38,.55)">Becomes the registrar id, every claim attributable.</small></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Display label <span style="text-transform:none;letter-spacing:0;color:rgba(14,23,38,.45)">optional</span></label><input value="Model Y, midnight silver" style="width:100%;min-height:36px;padding:6px 10px;font-size:14px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><small style="display:block;margin-top:4px;font-size:11px;color:rgba(14,23,38,.55)">This instance's landing list only.</small></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Vehicle category</label><select style="width:100%;min-height:36px;padding:6px 10px;font-size:14px;font-family:inherit;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><option>M1, passenger car</option><option>N1, van (≤3.5t)</option></select></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Powertrain / fuel</label><select style="width:100%;min-height:36px;padding:6px 10px;font-size:14px;font-family:inherit;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><option>Battery electric (BEV)</option></select></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Emissions class</label><select style="width:100%;min-height:36px;padding:6px 10px;font-size:14px;font-family:inherit;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><option>n/a (zero-emission)</option></select></div>
+            </div>
+            <div style="margin-top:13px;padding:12px 14px;border:1px solid #8B95FF;background:rgba(139,149,255,.14);display:grid;grid-template-columns:1fr 1fr;gap:12px 16px">
+              <div style="grid-column:span 2;display:flex;align-items:center;gap:9px"><span style="font:700 9.5px Barlow,sans-serif;letter-spacing:.16em;background:#8B95FF;color:#0E1726;padding:3px 8px">BEV / PHEV ONLY</span><span style="font-size:11.5px;color:rgba(14,23,38,.7)">Slot 29 is the link out to the battery passport, a reference, never a copy of its claims.</span></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Battery passport ID</label><input value="BPID-EU-001377-2027" class="mono" style="width:100%;min-height:36px;padding:6px 10px;font-size:13px;background:#EDE4D8;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+              <div><label style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Battery chemistry</label><input value="LFP" class="mono" style="width:100%;min-height:36px;padding:6px 10px;font-size:13px;background:#EDE4D8;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:6px;margin-bottom:14px">
+              <span class="mono" style="font-size:11px;color:#004AAD">04</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:22px;letter-spacing:.01em">RECORD AT REGISTRATION</h2>
+              <span style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.5)">slots 0–4 · rule: never falls</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);border:1px solid rgba(0,74,173,.28)">
+              <div style="padding:10px 12px;border-right:1px solid rgba(0,74,173,.18)"><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Mileage km</label><input value="22" class="mono" style="width:100%;padding:5px 8px;font-size:13px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+              <div style="padding:10px 12px;border-right:1px solid rgba(0,74,173,.18)"><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Accidents</label><input value="0" class="mono" style="width:100%;padding:5px 8px;font-size:13px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+              <div style="padding:10px 12px;border-right:1px solid rgba(0,74,173,.18)"><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Keepers</label><input value="0" class="mono" style="width:100%;padding:5px 8px;font-size:13px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+              <div style="padding:10px 12px;border-right:1px solid rgba(0,74,173,.18)"><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Write-off cat.</label><select style="width:100%;padding:5px 4px;font-size:12.5px;font-family:inherit;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"><option>0, none</option></select></div>
+              <div style="padding:10px 12px"><label style="display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:rgba(14,23,38,.6);margin-bottom:4px">Services</label><input value="0" class="mono" style="width:100%;padding:5px 8px;font-size:13px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);color:#0E1726"></div>
+            </div>
+            <p style="margin:8px 0 0;font-size:11.5px;color:rgba(14,23,38,.55)">Each field is created under its integrity rule, fixed on the ledger at creation. None of these five may ever fall. Keepers 0 is what says <i>new, never registered</i>.</p>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid rgba(0,74,173,.28);padding-bottom:6px;margin-bottom:14px">
+              <span class="mono" style="font-size:11px;color:#004AAD">05</span>
+              <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:22px;letter-spacing:.01em">CLAIMS TO PROVE</h2>
+              <span style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.5)">proveFieldAtMost × 4</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 14px">
+              <label style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center;margin-top:1px"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span><b style="font-size:13.5px">Never written off</b><small style="display:block;font-size:11px;color:rgba(14,23,38,.6)">writeOffCategory ≤ 0</small></span></label>
+              <label style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center;margin-top:1px"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span><b style="font-size:13.5px">No reported accidents</b><small style="display:block;font-size:11px;color:rgba(14,23,38,.6)">accidentCount ≤ 0</small></span></label>
+              <label style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center;margin-top:1px"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span><b style="font-size:13.5px">One keeper from new</b><small style="display:block;font-size:11px;color:rgba(14,23,38,.6)">ownerCount ≤ 1</small></span></label>
+              <label style="display:flex;gap:10px;align-items:center;padding:9px 11px;border:1px solid #004AAD;background:rgba(0,74,173,.07);cursor:pointer"><span style="flex:none;width:16px;height:16px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg></span><span style="display:flex;align-items:center;gap:7px;font-size:13.5px"><b>Mileage under</b><input value="500" class="mono" style="width:74px;padding:4px 7px;font-size:12.5px;background:#EDE4D8;border:1px solid rgba(0,74,173,.28);color:#0E1726">km</span></label>
+            </div>
+            <p style="margin:10px 0 0;font-size:11.5px;color:rgba(14,23,38,.55)">A claim the record cannot support <b>aborts during proving and writes nothing</b>, verification then shows “not proven”, never a false tick.</p>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:14px;padding-top:4px">
+            <button style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.06em;cursor:pointer;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:11px 26px">REGISTER &amp; PROVE</button>
+            <button style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:.06em;cursor:pointer;background:transparent;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:11px 20px">DOWNLOAD INTAKE FILE</button>
+            <span style="margin-left:auto;font-size:11.5px;color:rgba(14,23,38,.5)">6 circuits will run</span>
+          </div>
+
+          <div style="border:1px solid rgba(0,74,173,.28)">
+            <div style="padding:11px 14px;border-bottom:1px solid rgba(0,74,173,.28);display:flex;align-items:baseline;gap:10px"><h3 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.02em">WHAT THE CIRCUITS DID</h3><span class="mono" style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.5)">5 accepted · 1 refused</span></div>
+            <div style="display:flex;flex-direction:column">
+              <div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><span class="mono" style="flex:none;font-size:10.5px;letter-spacing:.06em;color:#004AAD">OK</span><span class="mono" style="flex:none;font-size:12px;width:132px">registerPassport</span><span style="font-size:12.5px;color:rgba(14,23,38,.75)">passport anchored · registrar rdw-veendam</span></div>
+              <div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><span class="mono" style="flex:none;font-size:10.5px;letter-spacing:.06em;color:#004AAD">OK</span><span class="mono" style="flex:none;font-size:12px;width:132px">initialiseField ×5</span><span style="font-size:12.5px;color:rgba(14,23,38,.75)">slots 0–4 created under rule neverFalls</span></div>
+              <div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><span class="mono" style="flex:none;font-size:10.5px;letter-spacing:.06em;color:#004AAD">OK</span><span class="mono" style="flex:none;font-size:12px;width:132px">proveFieldAtMost</span><span style="font-size:12.5px;color:rgba(14,23,38,.75)">writeOffCategory ≤ 0 · accidentCount ≤ 0 · ownerCount ≤ 1 · odometerKm ≤ 500</span></div>
+              <div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;background:rgba(139,149,255,.18)"><span class="mono" style="flex:none;font-size:10.5px;letter-spacing:.06em;color:#0E1726;font-weight:700">REFUSED</span><span class="mono" style="flex:none;font-size:12px;width:132px">recordField</span><span style="font-size:12.5px;color:rgba(14,23,38,.85)">odometerKm 152,600 → 121,000, <b>value decreased</b>, aborted in-circuit, wrote nothing</span></div>
+            </div>
+            <div style="padding:11px 14px;border-top:1px solid rgba(0,74,173,.28);display:flex;gap:12px"><a href="#1c" style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;text-decoration:none;background:#004AAD;color:#EDE4D8;padding:8px 18px">VIEW THIS PASSPORT</a><a href="#1b" style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;text-decoration:none;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:8px 18px">ALL PROOFS ON THE LEDGER</a></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1b">
+      <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Proof explorer · auditor · the whole claims ledger</div>
+      <div style="width:620px;background:#EDE4D8;color:#0E1726;font-family:Barlow,system-ui,sans-serif;border:1px solid rgba(0,74,173,.28)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="../assets/vinpassport-mark.png" alt="VINPassport" style="width:28px;height:28px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:19px;letter-spacing:.06em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+            <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:3px 8px">proofs</span>
+          </div>
+          <div style="display:flex;gap:18px;font-size:13px"><a href="#1a" style="text-decoration:none">intake</a><a href="#1c" style="text-decoration:none">verify</a></div>
+        </div>
+
+        <div style="padding:18px 18px 14px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Public ledger · read-only</span>
+          <h1 style="margin:4px 0 6px;font-family:'Barlow Condensed',sans-serif;font-size:36px;line-height:1">EVERY CLAIM ON THE LEDGER</h1>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.7);max-width:520px">Which vehicle, which field, which bound, never the value. <b>Superseded</b> means the field has moved on since the proof was made: the claim was true of an earlier version.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="padding:12px 16px;border-right:1px solid rgba(0,74,173,.18)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;line-height:1;color:#004AAD">2</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">passports</div></div>
+          <div style="padding:12px 16px;border-right:1px solid rgba(0,74,173,.18)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;line-height:1;color:#004AAD">5</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">claims</div></div>
+          <div style="padding:12px 16px;border-right:1px solid rgba(0,74,173,.18)"><div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;line-height:1;color:#004AAD">16</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">field updates</div></div>
+          <div style="padding:12px 16px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;line-height:1;color:#004AAD">0</div><div style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(14,23,38,.55)">values published</div></div>
+        </div>
+
+        <div style="padding:18px;display:flex;flex-direction:column;gap:18px">
+          <div style="border:1px solid rgba(0,74,173,.28)">
+            <div style="display:flex;align-items:baseline;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(0,74,173,.28);flex-wrap:wrap">
+              <b style="font-family:'Barlow Condensed',sans-serif;font-size:19px;letter-spacing:.02em">VEHICLE A</b>
+              <span style="font-size:11.5px;color:rgba(14,23,38,.55)">4 claims · all current</span>
+              <a href="#1c" style="margin-left:auto;font-size:12.5px;text-decoration:none">verdict view →</a>
+            </div>
+            <div class="mono" style="padding:8px 14px;font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all;border-bottom:1px solid rgba(0,74,173,.18)">VIN HASH 391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357</div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead><tr>
+                <th style="text-align:left;font:600 9.5px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(14,23,38,.55);padding:7px 14px;border-bottom:1px solid rgba(0,74,173,.18)">Claim</th>
+                <th style="text-align:left;font:600 9.5px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(14,23,38,.55);padding:7px 8px;border-bottom:1px solid rgba(0,74,173,.18)">Proven against</th>
+                <th style="text-align:right;font:600 9.5px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(14,23,38,.55);padding:7px 14px;border-bottom:1px solid rgba(0,74,173,.18)">State</th>
+              </tr></thead>
+              <tbody>
+                <tr><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><b style="font-size:13.5px">Mileage ≤ 150,000 km</b><div class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5)">odometerKm · slot 690615c169…02d86f</div></td><td class="mono" style="padding:9px 8px;border-bottom:1px solid rgba(0,74,173,.12);font-size:11px;color:rgba(14,23,38,.6)">d23fc21635…634fc5</td><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12);text-align:right"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 9px">current</span></td></tr>
+                <tr><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><b style="font-size:13.5px">Write-off category ≤ 0</b><div class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5)">writeOffCategory · slot 1c35bb205d…eace8d</div></td><td class="mono" style="padding:9px 8px;border-bottom:1px solid rgba(0,74,173,.12);font-size:11px;color:rgba(14,23,38,.6)">d362758e70…bf1f5b</td><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12);text-align:right"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 9px">current</span></td></tr>
+                <tr><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><b style="font-size:13.5px">Reported accidents ≤ 0</b><div class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5)">accidentCount · slot 911f689d64…f095d7</div></td><td class="mono" style="padding:9px 8px;border-bottom:1px solid rgba(0,74,173,.12);font-size:11px;color:rgba(14,23,38,.6)">f5ad92ad0b…5c0791</td><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12);text-align:right"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 9px">current</span></td></tr>
+                <tr><td style="padding:9px 14px"><b style="font-size:13.5px">Keepers ≤ 1</b><div class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5)">ownerCount · slot a155446f51…0477e8</div></td><td class="mono" style="padding:9px 8px;font-size:11px;color:rgba(14,23,38,.6)">01d149526c…2261c7</td><td style="padding:9px 14px;text-align:right"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 9px">current</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="border:1px solid rgba(0,74,173,.28)">
+            <div style="display:flex;align-items:baseline;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(0,74,173,.28);flex-wrap:wrap">
+              <b style="font-family:'Barlow Condensed',sans-serif;font-size:19px;letter-spacing:.02em">VEHICLE B</b>
+              <span style="font-size:11.5px;color:rgba(14,23,38,.55)">1 claim · a record it cannot prove clean</span>
+              <a href="#1d" style="margin-left:auto;font-size:12.5px;text-decoration:none">verdict view →</a>
+            </div>
+            <div class="mono" style="padding:8px 14px;font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all;border-bottom:1px solid rgba(0,74,173,.18)">VIN HASH c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b</div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tbody>
+                <tr><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12)"><b style="font-size:13.5px">Mileage ≤ 200,000 km</b><div class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5)">odometerKm · slot ab36d4e730…c6c3db</div></td><td class="mono" style="padding:9px 8px;border-bottom:1px solid rgba(0,74,173,.12);font-size:11px;color:rgba(14,23,38,.6)">b04fda727e…81cb09</td><td style="padding:9px 14px;border-bottom:1px solid rgba(0,74,173,.12);text-align:right"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 9px">current</span></td></tr>
+                <tr><td colspan="3" style="padding:11px 14px;font-size:12.5px;color:rgba(14,23,38,.6)">Three clean-history claims were <b>not requested</b>, the write-off, accident and keeper proofs would have aborted in-circuit. Absence of a claim is what the verdict page renders, never a quiet “no”.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 14px;border:1px solid rgba(0,74,173,.28)">
+            <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(14,23,38,.55)">Legend</span>
+            <span style="display:flex;align-items:center;gap:7px;font-size:12px"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#004AAD;color:#EDE4D8;padding:3px 9px">current</span>commitment still matches the field</span>
+            <span style="display:flex;align-items:center;gap:7px;font-size:12px"><span style="font:600 10.5px Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;background:#8B95FF;color:#0E1726;padding:3px 9px">superseded</span>field has moved on since</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1c">
+      <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Verification · buyer's phone · Vehicle A, four claims proven</div>
+      <div style="width:392px;background:#EDE4D8;color:#0E1726;font-family:Barlow,system-ui,sans-serif;border:1px solid rgba(0,74,173,.28)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="display:flex;align-items:center;gap:9px">
+            <img src="../assets/vinpassport-mark.png" alt="VINPassport" style="width:28px;height:28px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:19px;letter-spacing:.06em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+          </div>
+          <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#004AAD;border:1px solid rgba(0,74,173,.4);padding:3px 8px">verify</span>
+        </div>
+
+        <div style="padding:16px 16px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:1px solid rgba(0,74,173,.16)">
+          <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Vehicle passport · Reg (EU) 2026/1738</span>
+          <h1 style="margin:2px 0 0;font-family:'Barlow Condensed',sans-serif;font-size:32px;line-height:1">2019 GOLF, SILVER</h1>
+          <span class="mono" style="font-size:10px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH 391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357</span>
+        </div>
+
+        <div style="margin:16px;padding:14px 16px;background:#004AAD;color:#EDE4D8;display:flex;align-items:center;gap:14px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:46px;line-height:.9">4<span style="opacity:.55;font-size:24px">/4</span></div>
+          <div>
+            <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.03em">BUYER QUESTIONS PROVEN</b>
+            <span style="font-size:11.5px;line-height:1.45;opacity:.78">Each tick is a zero-knowledge proof on the ledger. No value was ever published, not to us, not to the chain.</span>
+          </div>
+        </div>
+
+        <div style="padding:0 16px">
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg></span>
+            <div style="flex:1"><b style="display:block;font-size:15px">Never written off</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">writeOffCategory ≤ 0 · proven against the current record</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">+</span>
+          </div>
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg></span>
+            <div style="flex:1"><b style="display:block;font-size:15px">No reported accidents</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">accidentCount ≤ 0 · proven against the current record</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">+</span>
+          </div>
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg></span>
+            <div style="flex:1"><b style="display:block;font-size:15px">One keeper from new</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">ownerCount ≤ 1 · proven against the current record</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">+</span>
+          </div>
+          <div style="border-top:1px solid rgba(0,74,173,.16);background:rgba(0,74,173,.05);margin:0 -16px;padding:0 16px">
+            <div style="display:flex;gap:12px;padding:13px 0;align-items:flex-start">
+              <span style="flex:none;width:26px;height:26px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg></span>
+              <div style="flex:1"><b style="display:block;font-size:15px">Mileage under 150,000 km</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">odometerKm ≤ 150,000 · proven against the current record</span></div>
+              <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">−</span>
+            </div>
+            <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8">
+              <p style="margin:0 0 10px;font-size:12.5px;line-height:1.5;color:rgba(14,23,38,.75)">A zero-knowledge proof was accepted on the ledger. It could not have been produced unless the hidden reading satisfied the bound, and the reading itself was never published.</p>
+              <div class="mono" style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:10.5px">
+                <span style="color:rgba(14,23,38,.45)">claim</span><span>odometerKm ≤ 150,000 km</span>
+                <span style="color:rgba(14,23,38,.45)">field key</span><span>2dd69ded11…a92fe7</span>
+                <span style="color:rgba(14,23,38,.45)">proven against</span><span>d23fc21635…634fc5</span>
+                <span style="color:rgba(14,23,38,.45)">ledger slot</span><span>690615c169…02d86f</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px;border-top:1px solid rgba(0,74,173,.28);display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(14,23,38,.6)"><span>Registered by</span><span class="mono">48735664c0…53e6a1</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(14,23,38,.6)"><span>Claims on the ledger</span><span class="mono">4</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(14,23,38,.6)"><span>Battery passport</span><span class="mono">— not an EV</span></div>
+        </div>
+
+        <div style="padding:14px 16px;border-top:1px solid rgba(0,74,173,.28);background:rgba(0,74,173,.05)">
+          <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:.02em;margin-bottom:6px">WHAT A TICK DOES · AND DOES NOT · MEAN</b>
+          <p style="margin:0;font-size:11.5px;line-height:1.55;color:rgba(14,23,38,.7)">Proven against the anchored record, attributable to a named registrar, tamper-evident. Not a guarantee that the record matched physical reality when it was written, that is the registrar's word, which is why every passport names one.</p>
+          <p style="margin:10px 0 0;font-size:11px;color:rgba(14,23,38,.5)"><a href="https://github.com/VINPassport/VINPassport" target="_blank" rel="noopener" style="text-decoration:none">Source</a> · <a href="https://midnight.network" target="_blank" rel="noopener" style="text-decoration:none">Midnight Network</a> · Reg (EU) 2026/1738</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1d">
+      <div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Verification · Vehicle B · the honest “not proven” rendering</div>
+      <div style="width:392px;background:#EDE4D8;color:#0E1726;font-family:Barlow,system-ui,sans-serif;border:1px solid rgba(0,74,173,.28)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid rgba(0,74,173,.28)">
+          <div style="display:flex;align-items:center;gap:9px">
+            <img src="../assets/vinpassport-mark.png" alt="VINPassport" style="width:28px;height:28px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:19px;letter-spacing:.06em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+          </div>
+          <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#004AAD;border:1px solid rgba(0,74,173,.4);padding:3px 8px">verify</span>
+        </div>
+
+        <div style="padding:16px 16px 12px;display:flex;flex-direction:column;gap:3px;border-bottom:1px solid rgba(0,74,173,.16)">
+          <span style="font:600 10px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD">Vehicle passport · Reg (EU) 2026/1738</span>
+          <h1 style="margin:2px 0 0;font-family:'Barlow Condensed',sans-serif;font-size:32px;line-height:1">2018 320d, GREY</h1>
+          <span class="mono" style="font-size:10px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b</span>
+        </div>
+
+        <div style="margin:16px;padding:14px 16px;border:1px solid #8B95FF;background:rgba(139,149,255,.18);display:flex;align-items:center;gap:14px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:46px;line-height:.9;color:#004AAD">1<span style="opacity:.5;font-size:24px">/4</span></div>
+          <div>
+            <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.03em">ONE QUESTION PROVEN</b>
+            <span style="font-size:11.5px;line-height:1.45;color:rgba(14,23,38,.75)">Three carry no claim. That is not a “no”, it is the absence of a proof, and the difference matters.</span>
+          </div>
+        </div>
+
+        <div style="padding:0 16px">
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;background:#004AAD;color:#EDE4D8;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg></span>
+            <div style="flex:1"><b style="display:block;font-size:15px">Mileage under 200,000 km</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">odometerKm ≤ 200,000 · proven against the current record</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">+</span>
+          </div>
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;border:1px dashed rgba(14,23,38,.4);display:grid;place-items:center;color:rgba(14,23,38,.5);font-size:15px">—</span>
+            <div style="flex:1"><b style="display:block;font-size:15px;color:rgba(14,23,38,.75)">Never written off</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">No claim on the ledger. Not proven: not a no.</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">−</span>
+          </div>
+          <div style="margin:0 0 4px;padding:12px 14px;border:1px solid rgba(0,74,173,.3)">
+            <p style="margin:0 0 10px;font-size:12.5px;line-height:1.5;color:rgba(14,23,38,.75)">Nothing on the ledger answers this question. A failed proof writes nothing, and no proof was recorded, so the honest rendering is “not proven”. Ask the seller for it: if the claim is true of the record, producing it costs one transaction.</p>
+            <button style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:8px 16px;cursor:pointer">REQUEST THIS PROOF</button>
+          </div>
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;border:1px dashed rgba(14,23,38,.4);display:grid;place-items:center;color:rgba(14,23,38,.5);font-size:15px">—</span>
+            <div style="flex:1"><b style="display:block;font-size:15px;color:rgba(14,23,38,.75)">No reported accidents</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">No claim on the ledger. Not proven: not a no.</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">+</span>
+          </div>
+          <div style="display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(0,74,173,.16);align-items:flex-start">
+            <span style="flex:none;width:26px;height:26px;border:1px dashed rgba(14,23,38,.4);display:grid;place-items:center;color:rgba(14,23,38,.5);font-size:15px">—</span>
+            <div style="flex:1"><b style="display:block;font-size:15px;color:rgba(14,23,38,.75)">One keeper from new</b><span style="font-size:11.5px;color:rgba(14,23,38,.55)">No claim on the ledger. Not proven: not a no.</span></div>
+            <span class="mono" style="font-size:11px;color:rgba(14,23,38,.4)">+</span>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;padding:14px 16px;border-top:1px solid rgba(0,74,173,.28);display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(14,23,38,.6)"><span>Registered by</span><span class="mono">48735664c0…53e6a1</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(14,23,38,.6)"><span>Claims on the ledger</span><span class="mono">1</span></div>
+          <a href="#1b" style="font-size:12px;text-decoration:none">See this vehicle in the proof explorer →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p class="dv-next">Try next: "in <a class="dv-oid" href="#1a">1a</a> show the retrofit list with the Audi rollback selected" · "give <a class="dv-oid" href="#1c">1c</a> a QR-scan landing state" · "expose all 26 slots as a panel view in <a class="dv-oid" href="#1a">1a</a>"</p>
+</section>
+</div>
+</body>
+</html>
