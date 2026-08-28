@@ -93,3 +93,14 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{
   .vid-desktop{display:none!important}
   .vid-mobile{display:block!important}
 }
+
+/* Mobile nav: brand and the action button only; section links are desktop. */
+@media (max-width:700px){
+  .nav-sec{display:none}
+}
+
+/* Footer meta: right-aligned on wide screens; on mobile it wraps, so let it
+   sit flush left under the brand line instead of floating mid-air. */
+@media (max-width:700px){
+  .ft-meta{margin-left:0!important;flex-basis:100%}
+}
