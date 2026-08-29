@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-08-29",
+  "dataset": "sample",
+  "note": "Two illustrative groups so the interface runs without the project's private brand database. Facts are public knowledge; the full dataset lives outside this repository.",
+  "filterVocabulary": {
+    "powertrains": ["BEV", "PHEV", "HEV", "petrol", "diesel", "hydrogen"],
+    "segments": ["budget", "mainstream", "premium", "luxury", "sports"],
+    "euMarketStatus": ["active", "entering", "exiting", "niche"]
+  },
+  "groups": [
+    {
+      "parent": "Volkswagen Group",
+      "parentHq": "Germany",
+      "brands": [
+        {
+          "name": "Volkswagen",
+          "hq": "Germany",
+          "euMarketStatus": "active",
+          "powertrains": ["BEV", "PHEV", "HEV", "petrol", "diesel"],
+          "segments": ["mainstream"],
+          "manufacturing": [
+            { "country": "Germany", "plant": "Wolfsburg" },
+            { "country": "Germany", "plant": "Zwickau" }
+          ]
+        },
+        {
+          "name": "Audi",
+          "hq": "Germany",
+          "euMarketStatus": "active",
+          "powertrains": ["BEV", "PHEV", "petrol", "diesel"],
+          "segments": ["premium"],
+          "manufacturing": [
+            { "country": "Germany", "plant": "Ingolstadt" },
+            { "country": "Hungary", "plant": "Győr" }
+          ]
+        }
+      ]
+    },
+    {
+      "parent": "Renault Group",
+      "parentHq": "France",
+      "brands": [
+        {
+          "name": "Renault",
+          "hq": "France",
+          "euMarketStatus": "active",
+          "powertrains": ["BEV", "HEV", "petrol"],
+          "segments": ["mainstream"],
+          "manufacturing": [
+            { "country": "France", "plant": "Douai" },
+            { "country": "Spain", "plant": "Palencia" }
+          ]
+        },
+        {
+          "name": "Dacia",
+          "hq": "Romania",
+          "euMarketStatus": "active",
+          "powertrains": ["BEV", "HEV", "petrol"],
+          "segments": ["budget"],
+          "manufacturing": [
+            { "country": "Romania", "plant": "Mioveni" }
+          ]
+        }
+      ]
+    }
+  ]
+}
