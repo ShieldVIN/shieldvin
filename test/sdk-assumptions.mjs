@@ -1,6 +1,8 @@
 /**
  * Regression guard for docs/FIELDS.md.
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Every claim our field registry depends on, asserted against the ACTUALLY
  * INSTALLED @odatano/dpp-sdk rather than its published source. ODATANO ships
  * breaking changes on a 0.x line roughly weekly, so re-run this after ANY
