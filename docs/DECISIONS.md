@@ -343,6 +343,43 @@ grant slot and a migration; on 2026-08-27 it meant a recompile and a green test 
 One identifier deliberately keeps the old name: ODATANO's agent grant is `shieldvin-w1`.
 That string is their record key, not our brand, and renaming it is not ours to do.
 
+### D23 — Wave 1 contract limits, stated rather than hidden · 2026-08-30
+
+An adversarial security review of the deployed contract confirmed the commitment-opening pattern,
+the ledger-pinned integrity rules and the domain separation are all correct. It also surfaced four
+properties of the Wave 1 contract that we record here plainly, because a limitation a judge can
+disprove costs more than one we name ourselves. The contract is deployed and immutable, so these are
+disclosures for Wave 1 and fixes for Wave 2, not pre-submission patches.
+
+1. **No access control on `registerPassport` or `initialiseField`.** Both are insert-once and
+   neither checks the caller. Because `vinHash = blake2b(VIN)` is publicly derivable, any party can
+   pre-register a VIN (fixing its `registrarId` and `contentRoot`) or seize a still-uninitialised
+   field of a registered passport (fixing its value, salt and monotonicity rule) — permanently, with
+   no recovery circuit. This is a *liveness and integrity* gap, distinct from the already-documented
+   *attribution* gap that the registrar string is unauthenticated. Wave 2 gates both circuits on a
+   registrar identity derived in-circuit from a witness secret and compared to pinned ledger state
+   (never `ownPublicKey()`).
+
+2. **The VIN namespace is first-come and unrecoverable in Wave 1.** A corollary of (1): the first
+   registration of a VIN is also the only one, forever. `BATCH-INTAKE.md` presents insert-once as a
+   safety property, which it is — but the namespace has no allowlist yet, so first-come is also
+   first-and-only. Wave 2: an allowlist of registrar identities pinned at deploy.
+
+3. **Field commitments are not bound in-circuit to the anchored `contentRoot`.** No circuit reads
+   the `contentRoot` value; proofs bind a value to its `fieldCommitment`, not to the anchored
+   document. `ARCHITECTURE.md`'s trust-gap section now states this precisely. Wave 2 anchors field
+   commitments as leaves of the same root, or proves inclusion.
+
+4. **`vinHash` is public and its per-slot updates are an observable side channel.** `vinHash` is a
+   cleartext key on the ledger and `slotOf(vinHash, fieldKey)` is reproducible off-chain from
+   published constants, so an observer holding a VIN can enumerate its slots and see *which* field
+   changed on each `recordField` — an event disclosure without a value disclosure. Since a same-value
+   rewrite is permitted, scheduled cover-traffic rewrites decorrelate a write from an event; this is
+   noted for Wave 2, not implemented in Wave 1. This corrects the earlier assumption (old D19 phrasing
+   and a test comment) that an observer does not know the VIN — the interested party always does.
+
+The demo-data generator's salts are a separate, off-contract item tracked in the open-issues list.
+
 ## Reversed
 
 Recorded so they are not accidentally reinstated.

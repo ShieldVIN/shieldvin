@@ -71,7 +71,7 @@ a re-anchor but no reordering.
 
 | # | Field | Serves | Note |
 |---|---|---|---|
-| 22 | `vinHash` | Fraud | Identity; disclosed only at authority tier |
+| 22 | `vinHash` | Fraud | Identity. **Public on-chain and VIN-reversible**: `vinHash = blake2b(VIN)`, unsalted, and a VIN is on the windscreen. It is the passport's public address, not a confidential field — tiered disclosure applies to the *values*, not to the VIN key. See [D23](DECISIONS.md#settled) |
 | 23 | `vehicleCategory` | Art 46 | M1 / N1 / etc. |
 | 24 | `euTypeApprovalNumber` | Art 46 | Binds to type approval |
 | 25 | `manufacturerBPN` | Supply chain | Business partner number |

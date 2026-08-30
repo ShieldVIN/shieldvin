@@ -89,7 +89,7 @@ identities are `sha256(did)` — a pseudonym, never PII.
 | Never had a reported accident | `proveFieldAtMost` — `accidentCount ≤ 0` | A clean-history claim that discloses nothing about incidents |
 | One keeper from new | `proveFieldAtMost` — `ownerCount ≤ 1` | Provenance, without naming anybody |
 | Mileage has never decreased | `recordField` under `neverFalls` | The fraud everyone recognises, proven without revealing a reading |
-| Nothing changed but the service fields | `documentComparison` across anchor versions | The general detector: catches the frauds nobody thought to ask about |
+| Nothing changed but the service fields | `documentComparison` across anchor versions | The general detector: catches the frauds nobody thought to ask about — **Wave 2: needs ≥2 anchored roots per vehicle; the Wave 1 `vinpassport` contract stores one immutable `contentRoot`, so this predicate is not buildable on it yet** |
 | Recycled content meets threshold | `proveFieldAtMost` / `AtLeast` on slots 8–11 | Compliance proof that does not leak supplier economics |
 
 **Build the write-off and accident claims first.** They are one circuit call each, they are what a
@@ -116,8 +116,14 @@ same attester builds both from the same content at anchor time.
 
 So:
 
-> **The producer is trusted to input truthful values.** A ZK proof shows a value is *the anchored
-> one* and satisfies a bound. It shows nothing about whether that value matches physical reality.
+> **The producer is trusted to input truthful values.** A ZK proof shows a value *opens the
+> commitment previously recorded for that vehicle and field* and satisfies a bound. Two things it
+> does **not** show. First, nothing about whether that value matches physical reality. Second — and
+> this is a property of the contract, not of physics — the per-field commitments and the anchored
+> `contentRoot` are written by independent circuit calls, and no circuit cross-checks them; so a
+> proof binds a value to its field commitment, not to the anchored document. Consistency between the
+> two is the producer's responsibility in Wave 1, not a property the contract enforces (see
+> [D23](DECISIONS.md#settled)).
 
 For batteries this is tolerable — a manufacturer declaring its own carbon footprint is the assumed
 model, and the regulation is built around accountable self-declaration.
