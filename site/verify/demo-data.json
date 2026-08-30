@@ -1,24 +1,24 @@
 {
   "source": "vinpassport, compiled circuits run locally by scripts/export-demo-state.mjs",
-  "note": "Real public ledger state. Values and salts never leave the generating process.",
+  "note": "Real public ledger state. Values, and the secret salt seed that hides them, never leave the generating process; the published commitments do not disclose their values.",
   "passports": {
-    "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "41320693d75fd7edc4d6b75082e3dd05cf25e24868389e00627209e8976e0a0b",
-    "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "3f00580b1209cc22019a6a23a01ac081fd5664f8c98b51c64e14df5e031728ad"
+    "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "76d52db3533c658cf2750da90c56fb0cd466ec2e5b80f28f511ebb0718357835",
+    "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "1c7d6b83945ae86e2b6e1d60cb79be4702776db1176f7be8008c590774f0747f"
   },
   "registrar": {
     "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357": "a7a0d07f02b4f1ef2d8afab2f017f13e229f69553ffd14cff6b863dd969ff9f7",
     "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b": "a7a0d07f02b4f1ef2d8afab2f017f13e229f69553ffd14cff6b863dd969ff9f7"
   },
   "fieldCommitment": {
-    "4f4564578b3b95354a47ebe888a3572e679ce080c68ea68bd76e3c46aa3c3e02": "d23fc2163578f3363f4632895d80d4e6c1f6c626fb79240c2f5db2c544634fc5",
-    "9c070bd679a6e5b0164ea3637cc513b805f25ebc04491a1254499fc13fdc80c2": "01d149526c33ed2ae9bafd025604bf3e8b5648c563a56b0d92a072669f2261c7",
-    "31f01f60bf4cafddf2f2fa49c2d06e5d3becc40da7d0d030c552fe73f779835d": "d362758e70221a3d374987355c7bbb501b05d577e12bb9507c02ebc789bf1f5b",
-    "fb31bb31cd7f14f280ad3a859ccbe1e08149af80272a96153457e70cf4b6027e": "b04fda727e4aa710a34f65dae9244ee6df02411db82dbc176da47aa79e81cb09",
-    "c92a4a81fda014249cf69e3e2712d2440d278049687726d646a7295f5c90b6fb": "1d72984de1bb5cfa3fc9c206a98134ae802452da31d55929bdc852efe379145d",
-    "b70c777bfea15f69578ce90ce96166bccbf84372e1a3820c5507fe7f704ad5a2": "f5ad92ad0bcc165cf5a131541273264d3b2586635b305bd2e768917d275c0791",
-    "52fda9034507b2da89e62eee476483f3dfd1461a2e426c9e40eb3f361aa28eaa": "60cc9dccf1584f4660b813b0bf5ece6fe5d35e4dfafaaca7b083ff93ba2c3804",
-    "6f8feb932c80a51c326e3b0ccb0a14fdefc91728499f89efd78b71baed9a71d9": "a0a2752285a24a7c15fdbe4e1679db161cd93e086f4a2c328fa9995dba0da7a9",
-    "b0167ddf7ce367d13e7004d75041ba40a87a20b012a00fe791f38d49d2b17ff3": "0cd644a6024d1d4e41a3e1db5f2b336e2c9c12dfc535f84dab2831466fad66d9"
+    "4f4564578b3b95354a47ebe888a3572e679ce080c68ea68bd76e3c46aa3c3e02": "4a74426cbf117458989a30ca4fdb57bc9fb88bc0ba8cb3ce6d71e3ae379bc911",
+    "9c070bd679a6e5b0164ea3637cc513b805f25ebc04491a1254499fc13fdc80c2": "acece63a50d12574298efec882b9c147c93ae04a00f0c781ee74e26541cbc437",
+    "31f01f60bf4cafddf2f2fa49c2d06e5d3becc40da7d0d030c552fe73f779835d": "0d2e9de929dc34cea90300131c3fe29c64036a087e20031da01eaf9ef7a9842a",
+    "fb31bb31cd7f14f280ad3a859ccbe1e08149af80272a96153457e70cf4b6027e": "50a8e70cdc9d1b2ee029653e4c6d079277f94a74c4bebc1596742159492e9be1",
+    "c92a4a81fda014249cf69e3e2712d2440d278049687726d646a7295f5c90b6fb": "ff8282b8c5a7b4a7bec276509357f100518bd18f9a1ef6fef5ce4d3a6c7313e7",
+    "b70c777bfea15f69578ce90ce96166bccbf84372e1a3820c5507fe7f704ad5a2": "c4cb8b0f9f868f1710ea6e1149e227c3d518a1fc3a0bbfef2f421abcf7403c7e",
+    "52fda9034507b2da89e62eee476483f3dfd1461a2e426c9e40eb3f361aa28eaa": "4870e004cd15a6933ebf0b7c6591c13d46e05a98ea7b09dc04eea32f5dfbf535",
+    "6f8feb932c80a51c326e3b0ccb0a14fdefc91728499f89efd78b71baed9a71d9": "5dec2301da15879451ad3812f35da707e4b0656493ba943dd8f4b1386a2e072c",
+    "b0167ddf7ce367d13e7004d75041ba40a87a20b012a00fe791f38d49d2b17ff3": "4925ec96b49629164bd7cc141ca9a3982879e25711a0863e2c7cbd950e8841ea"
   },
   "fieldRule": {
     "4f4564578b3b95354a47ebe888a3572e679ce080c68ea68bd76e3c46aa3c3e02": 0,
@@ -33,48 +33,48 @@
   },
   "claims": [
     {
-      "key": "d1b023c43ec58f13b4a24a69cc88fb1476387def837e3851b90626fc3b2b200f",
-      "slot": "31f01f60bf4cafddf2f2fa49c2d06e5d3becc40da7d0d030c552fe73f779835d",
-      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
-      "fieldKey": "177d70535ec71b35583722c2d5f1ec963e3b32b7553dce868e547c0c5140e3c0",
-      "commitment": "d362758e70221a3d374987355c7bbb501b05d577e12bb9507c02ebc789bf1f5b",
-      "bound": "0",
-      "atMost": true
-    },
-    {
-      "key": "65dc0a43a1b39e1b8eac1b66fb99c25b6a9eb1fa2d342f2b5692b0f4e0890cfe",
-      "slot": "fb31bb31cd7f14f280ad3a859ccbe1e08149af80272a96153457e70cf4b6027e",
-      "vinHash": "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b",
-      "fieldKey": "2dd69ded11554ddb3306be039e80f3f82824b0d4af96b9bc287055558ea92fe7",
-      "commitment": "b04fda727e4aa710a34f65dae9244ee6df02411db82dbc176da47aa79e81cb09",
-      "bound": "200000",
-      "atMost": true
-    },
-    {
-      "key": "1eeef57a3a7f261b1e1f242f904465598ee7a62129194e73ff83515ab7cf8c59",
+      "key": "69ae0b615cf01723cd0dc3d6f17356abe0f7ccf6db0027bdbf52c7f72a0d065e",
       "slot": "9c070bd679a6e5b0164ea3637cc513b805f25ebc04491a1254499fc13fdc80c2",
       "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
       "fieldKey": "7567eb36429241cb257b43d05709400ac5e7400e088048071b387d7d0548b25c",
-      "commitment": "01d149526c33ed2ae9bafd025604bf3e8b5648c563a56b0d92a072669f2261c7",
+      "commitment": "acece63a50d12574298efec882b9c147c93ae04a00f0c781ee74e26541cbc437",
       "bound": "1",
       "atMost": true
     },
     {
-      "key": "e14d8b31e471ba3638b75db5f9c1b7969ce52778deed3c6a8514011bfc874876",
-      "slot": "b70c777bfea15f69578ce90ce96166bccbf84372e1a3820c5507fe7f704ad5a2",
+      "key": "26e6df1c3b90ca5f577c3d0efbf76de87751f67cddc398f214f7371392c6051f",
+      "slot": "4f4564578b3b95354a47ebe888a3572e679ce080c68ea68bd76e3c46aa3c3e02",
       "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
-      "fieldKey": "aeb322aa379bd01ecb61ca57719f40e3c4a0368533dd62b1c7b5d2d995da98eb",
-      "commitment": "f5ad92ad0bcc165cf5a131541273264d3b2586635b305bd2e768917d275c0791",
+      "fieldKey": "2dd69ded11554ddb3306be039e80f3f82824b0d4af96b9bc287055558ea92fe7",
+      "commitment": "4a74426cbf117458989a30ca4fdb57bc9fb88bc0ba8cb3ce6d71e3ae379bc911",
+      "bound": "150000",
+      "atMost": true
+    },
+    {
+      "key": "c9baf6a1b628a77e9ce9f828d110dfb2ac4d1fad472f4aad41bbad3c5834377b",
+      "slot": "31f01f60bf4cafddf2f2fa49c2d06e5d3becc40da7d0d030c552fe73f779835d",
+      "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "fieldKey": "177d70535ec71b35583722c2d5f1ec963e3b32b7553dce868e547c0c5140e3c0",
+      "commitment": "0d2e9de929dc34cea90300131c3fe29c64036a087e20031da01eaf9ef7a9842a",
       "bound": "0",
       "atMost": true
     },
     {
-      "key": "b88211dc6c8dac24f1d8cedd050cd7cb7398cf76d900144a107b8bccc59eebd1",
-      "slot": "4f4564578b3b95354a47ebe888a3572e679ce080c68ea68bd76e3c46aa3c3e02",
+      "key": "580d2b3dfca28c9e9d1b0e011e23f069efb82e6f1ecfc55cedc95d5359296881",
+      "slot": "b70c777bfea15f69578ce90ce96166bccbf84372e1a3820c5507fe7f704ad5a2",
       "vinHash": "391ce048e0feacde85e7978c2c8320b3763a6c5ed5b2aacc7ca524469bafe357",
+      "fieldKey": "aeb322aa379bd01ecb61ca57719f40e3c4a0368533dd62b1c7b5d2d995da98eb",
+      "commitment": "c4cb8b0f9f868f1710ea6e1149e227c3d518a1fc3a0bbfef2f421abcf7403c7e",
+      "bound": "0",
+      "atMost": true
+    },
+    {
+      "key": "f968217bde8529dd06c8120da36a2511040e0de377c7543ec2764e941cf20c69",
+      "slot": "fb31bb31cd7f14f280ad3a859ccbe1e08149af80272a96153457e70cf4b6027e",
+      "vinHash": "c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b",
       "fieldKey": "2dd69ded11554ddb3306be039e80f3f82824b0d4af96b9bc287055558ea92fe7",
-      "commitment": "d23fc2163578f3363f4632895d80d4e6c1f6c626fb79240c2f5db2c544634fc5",
-      "bound": "150000",
+      "commitment": "50a8e70cdc9d1b2ee029653e4c6d079277f94a74c4bebc1596742159492e9be1",
+      "bound": "200000",
       "atMost": true
     }
   ],

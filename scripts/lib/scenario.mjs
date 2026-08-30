@@ -9,6 +9,7 @@
 import { PassportSimulator, Rule, fieldKey, bytes32, hex } from '../../test/passport-simulator.mjs';
 import { buildTree, padToWidth } from '@odatano/dpp-sdk/merkle';
 import { blake2b } from '@noble/hashes/blake2';
+import { randomBytes } from 'node:crypto';
 
 export { PassportSimulator, Rule, fieldKey, bytes32, hex };
 
@@ -55,6 +56,19 @@ export const PANEL = {
 const VALUE_SCALE = 1000;   // matches @odatano/dpp-sdk VALUE_SCALE
 const b2b = (data) => blake2b(data, { dkLen: 32 });
 const utf8 = (s) => new TextEncoder().encode(s);
+
+// The secret that makes the salted commitments hiding. persistentCommit only
+// conceals a value if its salt is unguessable, so every salt in this module -
+// both the per-field commitment salts and the content-root leaf salts - is
+// derived from 32 bytes of real entropy, generated per run and NEVER committed
+// or exported. Reproducibility, when wanted, comes from setting the SEED, not
+// from a public formula: the seed is the secret, the formula is not.
+// (Old behaviour derived salts from a counter mod 251 and from the VIN, both
+// public - which made the demo commitments brute-force invertible. See D23.)
+const SALT_SEED = process.env.VINPASSPORT_SALT_SEED
+    ? Uint8Array.from(Buffer.from(process.env.VINPASSPORT_SALT_SEED, 'hex'))
+    : randomBytes(32);
+const saltFrom = (label) => b2b(Uint8Array.from([...SALT_SEED, ...utf8(label)]));
 const nodeHash = (l, r) => b2b(Uint8Array.from([...l, ...r]));
 
 /**
@@ -67,16 +81,16 @@ const nodeHash = (l, r) => b2b(Uint8Array.from([...l, ...r]));
  * two roots cannot tell which slots are filled - absence is as private as
  * presence (FIELDS.md: "absent leaves are still salted and still anchored").
  *
- * DEMO-ONLY SALTS: derived from the VIN so a scenario reproduces exactly.
- * Real operation derives them from a managed contentSaltSeed whose loss makes
- * the root permanently unprovable - BUILD-SCOPE carries that risk by name.
+ * Leaf salts come from the secret SALT_SEED (see above), so the anchored root
+ * does not leak its values to anyone who merely knows the VIN. Losing the seed
+ * makes the root permanently unprovable - BUILD-SCOPE carries that risk by name.
  */
 export const contentRoot = (vin, fields, panel = {}) => {
     const values = { ...panel, ...fields, vinHash: hex(vinHash(vin)) };
     const leaves = [];
     for (let slot = 0; slot < 32; slot++) {
         const name = Object.keys(PANEL).find((n) => PANEL[n][0] === slot);
-        const slotSalt = b2b(utf8(`vinpassport:leafsalt:v0:${vin}:${slot}`));
+        const slotSalt = saltFrom(`:leafsalt:v0:${vin}:${slot}`);
         let valueDigest = b2b(utf8(''));                       // absent / reserved
         if (name && values[name] !== undefined && values[name] !== '') {
             const kind = PANEL[name][1];
@@ -97,10 +111,12 @@ export const registrarId = (name) => fieldKey(`vinpassport:registrar:${name}`);
 
 // ---------------------------------------------------------------- salts
 
-/** Deterministic salt stream so a scenario is reproducible run to run. */
+/** Salt stream for per-field commitments: each salt is 32 bytes derived from
+ *  the secret SALT_SEED, so a published commitment does not disclose its value.
+ *  Reproducible only to a holder of the same seed (set VINPASSPORT_SALT_SEED). */
 export const saltStream = () => {
     let n = 0;
-    return () => bytes32(++n % 251 || 1);
+    return () => saltFrom(`:salt:${++n}`);
 };
 
 // ---------------------------------------------------------------- intake
@@ -217,7 +233,7 @@ export function exportLedger(sim, sourceNote) {
     }
     return {
         source: sourceNote,
-        note: 'Real public ledger state. Values and salts never leave the generating process.',
+        note: 'Real public ledger state. Values, and the secret salt seed that hides them, never leave the generating process; the published commitments do not disclose their values.',
         passports: mapToObj(l.passports, hex),
         registrar: mapToObj(l.registrar, hex),
         fieldCommitment: mapToObj(l.fieldCommitment, hex),

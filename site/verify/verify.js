@@ -28,6 +28,7 @@ const qLabel = (q, claim) =>
 
 const qSub = (a) => {
     if (a.status === 'not-proven') return 'No claim on the ledger. Not proven, not a no.';
+    if (a.invalid) return `Field key ${short(a.claim.fieldKey)} is not a canonical VINPassport field. A claim on an unrecognised key proves nothing about this vehicle; treat it as invalid.`;
     const bound = `${a.meta?.name ?? a.field} ${a.atMost ? '≤' : '≥'} ${fmt(a.claim.bound)}`;
     return a.status === 'proven'
         ? `${bound} · proven against the current record`
@@ -42,7 +43,7 @@ function detailBlock(a, open) {
     </div>`;
     }
     const c = a.claim;
-    const cname = a.meta?.name ?? a.field ?? 'field';
+    const cname = a.invalid ? 'unrecognised field key' : (a.meta?.name ?? a.field ?? 'field');
     return `<div class="vp-detail"${open ? '' : ' hidden'} style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8">
       <p style="margin:0 0 11px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.78)">A zero-knowledge proof was accepted on the ledger. It could not have been produced unless the hidden value satisfied the bound, and the value itself was never published.</p>
       <div class="mono" style="display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:10.5px">
@@ -57,7 +58,13 @@ function detailBlock(a, open) {
 function rowsFor(view, secondary = false) {
     const extras = (view.extras ?? []).map((x) => ({
         field: x.meta?.name, atMost: x.claim.atMost, meta: x.meta,
-        label: `${x.meta?.label ?? 'Field'} ${x.claim.atMost ? 'at most' : 'at least'} ${fmt(x.claim.bound)}`,
+        // A claim whose fieldKey is not in the canonical vocabulary is not a
+        // recognised VINPassport field: render it as invalid, never as a
+        // friendly-labelled claim (a forged key must not read as legitimate).
+        invalid: !x.meta,
+        label: x.meta
+            ? `${x.meta.label} ${x.claim.atMost ? 'at most' : 'at least'} ${fmt(x.claim.bound)}`
+            : 'Unrecognised field key — not a canonical VINPassport claim',
         status: x.status, claim: x.claim
     }));
     const all = view.answers.concat(extras);
