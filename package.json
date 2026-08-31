@@ -1,7 +1,7 @@
 {
   "name": "@vinpassport/passport",
   "version": "0.0.0",
-  "description": "VINPassport \u2014 a Digital Circularity Vehicle Passport (Reg. (EU) 2026/1738) on Midnight, built on @odatano/nightgate",
+  "description": "VINPassport — a Digital Circularity Vehicle Passport (Reg. (EU) 2026/1738) on Midnight, built on @odatano/nightgate",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
@@ -25,6 +25,7 @@
     "vitest": "^4.1.11"
   },
   "scripts": {
+    "prepare": "node scripts/check-disclosure.mjs --install",
     "test": "vitest run && node --test \"test/app/*.test.mjs\" && node test/sdk-assumptions.mjs",
     "test:contract": "vitest run",
     "test:watch": "vitest",

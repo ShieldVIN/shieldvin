@@ -107,6 +107,14 @@ const args = process.argv.slice(2);
 const mode = args[0] ?? '--staged';
 
 if (mode === '--install') {
+    // Runs from package.json's `prepare`, so it must be silent and successful
+    // wherever there is no repository to hook - a tarball, a vendored copy, a
+    // CI checkout without .git. Nothing to install is a normal outcome, not a
+    // reason to fail someone's `npm install`.
+    if (!existsSync(join(ROOT, '.git'))) {
+        console.log('disclosure check: no .git here, nothing to install');
+        process.exit(0);
+    }
     const hooks = join(ROOT, '.git', 'hooks');
     mkdirSync(hooks, { recursive: true });
     const pre = '#!/bin/sh\n[ "$SKIP_DISCLOSURE_CHECK" = "1" ] && exit 0\nexec node scripts/check-disclosure.mjs --staged\n';
