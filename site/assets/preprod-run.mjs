@@ -185,20 +185,49 @@ export function renderJob(host, job, base) {
  * Follow a job to its end, painting every poll. Resolves with the finished
  * job; a failed run resolves too, because a failure is a result to read, not
  * an exception to swallow.
+ *
+ * A poll that times out is EXPECTED, not an error: proving a circuit is
+ * synchronous WASM work that blocks the server for tens of seconds at a
+ * time, so the very thing the visitor is waiting for is what stops the
+ * server answering. Treating the first timeout as lost contact would
+ * abandon a run that is going perfectly. So a missed poll keeps the last
+ * good render, says quietly that the server is busy, and carries on; only a
+ * long silence is reported as a real loss.
  */
+const QUIET_AFTER = 3;      // missed polls before we mention it
+const GIVE_UP_AFTER = 40;   // ~2 minutes of silence, then it is real
+
 export async function followJob(base, jobId, host, onChange) {
+    let missed = 0;
+    let lastJob = null;
     for (; ;) {
-        let job;
-        try { job = await call(base, `/api/demo/job?id=${encodeURIComponent(jobId)}`); }
-        catch (e) {
-            host.innerHTML = `<p style="margin:0;font-size:13.5px;color:rgba(14,23,38,.72)">Lost contact with the run: ${esc(e.message)}. It is still going on the server; reload to pick it up.</p>`;
-            throw e;
+        let job = null;
+        try {
+            job = await call(base, `/api/demo/job?id=${encodeURIComponent(jobId)}`, undefined, 20000);
+            missed = 0;
+        } catch (e) {
+            missed += 1;
+            if (missed >= GIVE_UP_AFTER) {
+                host.innerHTML = `<p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(14,23,38,.72)">Lost contact with the run: ${esc(e.message)}. It is still going on the server - reload this page to pick it up again.</p>`;
+                throw e;
+            }
+            if (missed >= QUIET_AFTER) paintBusy(host, lastJob, base);
         }
-        renderJob(host, job, base);
-        onChange?.(job);
-        if (job.status !== 'queued' && job.status !== 'running') return job;
+        if (job) {
+            lastJob = job;
+            renderJob(host, job, base);
+            onChange?.(job);
+            if (job.status !== 'queued' && job.status !== 'running') return job;
+        }
         await new Promise((r) => setTimeout(r, POLL_MS));
     }
+}
+
+/** Keep the last good render and add one honest line above it. */
+function paintBusy(host, lastJob, base) {
+    const note = `<p style="margin:0 0 12px;padding:10px 13px;border:1px solid #8B95FF;background:rgba(139,149,255,.16);font-size:12.5px;line-height:1.55">The server has gone quiet for a moment. That is usually the proof itself: generating one blocks the server until it is done. Still following this run.</p>`;
+    if (lastJob) { renderJob(host, lastJob, base); host.insertAdjacentHTML('afterbegin', note); }
+    else host.innerHTML = note;
 }
 
 /** One line describing today's remaining capacity, for a status strip. */

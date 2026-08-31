@@ -364,7 +364,7 @@ ppWrap.addEventListener('click', () => {
     } else if (status?.enabled && status?.remaining <= 0) {
         ppNote.textContent = "Today's preprod runs are used; the count resets at 00:00 UTC. The circuits below still run here.";
     } else if (status === 'unreachable') {
-        ppNote.textContent = 'The preprod engine is starting up: it restores its signing wallet first. Reload in a minute to submit to the chain. The circuits below run here either way.';
+        ppNote.textContent = 'The preprod engine is not answering right now: it blocks while it restores its wallet, and again while it generates a proof for someone else. Reload shortly to submit to the chain. The circuits below run here either way.';
     } else {
         ppNote.textContent = 'Preprod submission is not available from this server. The circuits below still run here, against an in-process ledger.';
     }

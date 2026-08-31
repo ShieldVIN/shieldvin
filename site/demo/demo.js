@@ -43,10 +43,10 @@ function paintStatus(status) {
     // feature being off, and the page must not confuse the two.
     if (status?.unreachable) {
         capDot.style.background = '#8B95FF';
-        capState.textContent = 'Preprod engine starting';
-        capLine.textContent = 'The signing wallet is being restored. This page enables itself when it is ready.';
+        capState.textContent = 'Preprod engine busy';
+        capLine.textContent = 'Not answering right now: it blocks while it restores its wallet, and again while it generates a proof. This page enables itself once it replies.';
         if (!busy) {
-            disable('The preprod engine is still starting.');
+            disable('The preprod engine is not answering yet.');
             goNote.textContent = 'checking again every 20 seconds';
         }
         return;
