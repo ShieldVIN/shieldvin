@@ -16,6 +16,11 @@
 import { resolveApiBase } from './sources.mjs?v=3';
 
 const POLL_MS = 3000;
+// Preprod's block explorer. Paths verified against a real run's transaction on
+// 2026-08-31: /transactions/<hash>, /blocks/<height> and /contracts/<address>
+// all resolve, and all 404 on a value that does not exist - so a live link is
+// worth something. No trailing slash.
+const EXPLORER = 'https://preprod.midnightexplorer.com';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const short = (h) => `${String(h).slice(0, 12)}…${String(h).slice(-8)}`;
@@ -120,8 +125,17 @@ const MARK = {
 function stepRow(step) {
     const m = MARK[step.status] ?? MARK.pending;
     const running = step.status === 'running';
+    // The confirm step's detail reads "tx <hash> in block <n>". Linking it as
+    // it streams means a visitor can open the transaction while the run is
+    // still going, rather than waiting for the receipt at the end. Escape
+    // first, then linkify the escaped text, so this stays injection-safe.
+    const linkify = (s) => esc(s)
+        .replace(/\btx ([0-9a-f]{64})\b/gi,
+            (_, h) => `tx <a href="${EXPLORER}/transactions/${h}" target="_blank" rel="noopener noreferrer" style="color:#004AAD">${h}</a>`)
+        .replace(/\bblock (\d+)\b/g,
+            (_, n) => `block <a href="${EXPLORER}/blocks/${n}" target="_blank" rel="noopener noreferrer" style="color:#004AAD">${n}</a>`);
     const detail = step.detail
-        ? `<div class="mono" style="margin-top:3px;font-size:10.5px;line-height:1.5;color:rgba(14,23,38,.55);overflow-wrap:anywhere">${esc(step.detail)}</div>`
+        ? `<div class="mono" style="margin-top:3px;font-size:10.5px;line-height:1.5;color:rgba(14,23,38,.55);overflow-wrap:anywhere">${linkify(step.detail)}</div>`
         : '';
     // A finished step reports what it took; the running one counts up. Only
     // the running clock carries data-vp-since, so the ticker stops on its own
@@ -148,13 +162,23 @@ function stepRow(step) {
 function receiptPanel(job, base) {
     const r = job.receipt;
     if (!r) return '';
-    // The hash is shown, not linked: preprod has no block explorer to send
-    // anyone to, and the honest way to check is the indexer query the page
-    // prints in full. The title carries the untruncated hash for copying.
+    // Hashes are links now. They used to be inert text because preprod had no
+    // explorer to send anyone to; preprod.midnightexplorer.com covers preprod
+    // as of 2026-08-31, and every url below was checked against a real
+    // transaction from a real run - a hash that does not exist 404s there,
+    // so a link that resolves is evidence rather than decoration.
+    //
+    // The indexer query stays printed in full underneath regardless: an
+    // explorer is somebody else's website, and "check it yourself" should not
+    // depend on one staying up.
     const txRows = (r.onChain ?? []).map((t) => `<div style="display:flex;flex-wrap:wrap;gap:3px 12px;padding:9px 15px;border-top:1px solid rgba(0,74,173,.12)">
         <span style="flex:1 1 200px;min-width:0;font-size:13px">${esc(t.label)}</span>
-        <span class="mono" style="flex:none;font-size:10.5px;color:#004AAD" title="${esc(t.txHash)}">${esc(short(t.txHash))}</span>
-        <span class="mono" style="flex:none;font-size:10.5px;color:rgba(14,23,38,.5)">block ${esc(t.blockHeight)}</span>
+        <a class="mono" href="${EXPLORER}/transactions/${encodeURIComponent(t.txHash)}" target="_blank" rel="noopener noreferrer"
+           style="flex:none;font-size:10.5px;color:#004AAD;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px"
+           title="View ${esc(t.txHash)} on the preprod explorer">${esc(short(t.txHash))}&#8239;<span aria-hidden="true">&#8599;</span></a>
+        <a class="mono" href="${EXPLORER}/blocks/${encodeURIComponent(t.blockHeight)}" target="_blank" rel="noopener noreferrer"
+           style="flex:none;font-size:10.5px;color:rgba(14,23,38,.5);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px"
+           title="View block ${esc(t.blockHeight)} on the preprod explorer">block ${esc(t.blockHeight)}</a>
       </div>`).join('');
 
     const claimRows = (r.claims ?? []).map((c) => {

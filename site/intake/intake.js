@@ -348,7 +348,7 @@ ppWrap.addEventListener('click', () => {
 (async () => {
     let status = null;
     try {
-        const { apiBase: resolveBase, getStatus } = await import('../assets/preprod-run.mjs?v=2');
+        const { apiBase: resolveBase, getStatus } = await import('../assets/preprod-run.mjs?v=3');
         status = await getStatus(await resolveBase());
     } catch (e) {
         // Not answering is not the same as not offered: the engine restores a
@@ -378,7 +378,7 @@ registerBtn.addEventListener('click', async () => {
     registerBtn.textContent = preprod ? 'SUBMITTING…' : 'PROVING…';
     try {
         if (preprod) {
-            const { startManual, followJob } = await import('../assets/preprod-run.mjs?v=2');
+            const { startManual, followJob } = await import('../assets/preprod-run.mjs?v=3');
             const started = await startManual(apiBase, buildIntake());
             registerBtn.textContent = 'RUNNING ON PREPROD…';
             ppRun.scrollIntoView({ behavior: 'smooth', block: 'start' });

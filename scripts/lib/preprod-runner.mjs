@@ -417,8 +417,10 @@ export async function createRunner({ log = console.log } = {}) {
                     if (m.id !== 1) return;
                     clearTimeout(timer); try { ws.close(); } catch { }
                     // error.data carries the ledger's sub-code, and the
-                    // sub-code is the whole diagnosis: 188 is the sequencing
-                    // (causality) refusal, the dust codes are 117/170.
+                    // sub-code is the whole diagnosis - see the table above
+                    // isStaleDustProof for what each one actually means.
+                    // Keep it in the message: without it a rejection is just
+                    // "1010 Invalid Transaction", which says nothing.
                     if (m.error) reject(new Error(`node rejected: ${m.error.code} ${m.error.message}${m.error.data ? ' | ' + JSON.stringify(m.error.data) : ''}`));
                     else resolve(String(m.result));
                 };

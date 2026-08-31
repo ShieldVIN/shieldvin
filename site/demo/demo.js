@@ -11,7 +11,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-import { apiBase, getStatus, startGuided, followJob, capacityLine } from '../assets/preprod-run.mjs?v=2';
+import { apiBase, getStatus, startGuided, followJob, capacityLine } from '../assets/preprod-run.mjs?v=3';
 
 const $ = (id) => document.getElementById(id);
 const goBtn = $('go');
@@ -65,7 +65,13 @@ function paintStatus(status) {
                 : broke ? 'Out of dust'
                     : spent ? "Today's runs are used"
                         : 'Connected to preprod';
-    if (status?.contractAddress) $('addr').textContent = status.contractAddress;
+    if (status?.contractAddress) {
+        $('addr').textContent = status.contractAddress;
+        // Point the explorer link at THIS contract rather than the explorer's
+        // front page, so "read it in a browser" lands on our contract's calls.
+        const link = $('explorerlink');
+        if (link) link.href = `https://preprod.midnightexplorer.com/contracts/${encodeURIComponent(status.contractAddress)}`;
+    }
 
     if (busy) return;
     if (!ready) {
