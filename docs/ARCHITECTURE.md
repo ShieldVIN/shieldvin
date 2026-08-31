@@ -8,10 +8,12 @@ may claim.
 ## Shape
 
 > **What Wave 1 actually ships is smaller than the diagram below.** Per
-> [D20](DECISIONS.md#settled), the 2 September submission deploys and calls `vinpassport`
-> through **`@odatano/nightgate-tx`**, with ODATANO's hosted NIGHTGATE sponsoring the preprod fees.
-> Transactions are built, proven and signed locally; NIGHTGATE pays and submits and never sees a
-> witness. There is no CAP application — the `@odatano/nightgate` *plugin* below is Wave 2 work.
+> [D20](DECISIONS.md#settled), the submission deploys and calls `vinpassport` through
+> **`@odatano/nightgate-tx`** — transactions are built, batched, proven and signed locally.
+> Per [D24](DECISIONS.md#settled), the fee is then balanced from **our own DUST** and submitted
+> straight to the public preprod node; ODATANO's hosted NIGHTGATE sponsored the *deployment* only,
+> and is not in the runtime path. Either way no witness ever leaves the process. There is no CAP
+> application — the `@odatano/nightgate` *plugin* below is Wave 2 work.
 > The target architecture is unchanged; this note exists so nobody reads the diagram as a
 > description of what is running today.
 

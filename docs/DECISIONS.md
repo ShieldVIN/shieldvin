@@ -264,6 +264,11 @@ ceiling from a floor.
 
 ### D20 — `@odatano/nightgate-tx` with sponsored fees; no CAP for Wave 1 · 2026-08-27
 
+> **Amended 2026-08-31 by [D24](#settled): the sponsored-fee half no longer holds.** We fund and
+> submit our own transactions now. The library half — `nightgate-tx` for building, batching and
+> proving — is unchanged and still on every run. Read the attribution paragraph below as history:
+> it was accurate when written, and D24 carries the current wording.
+
 VINPassport deploys and calls `vinpassport` through **`@odatano/nightgate-tx` 0.4.0**, with
 ODATANO's hosted NIGHTGATE sponsoring the preprod fees. No SAP CAP application, no Postgres, no
 proof server, and no wallet of our own to fund. [D16](#settled) is **deferred, not reversed**.
@@ -276,7 +281,9 @@ your own key"* — no CAP, no database, wasm proving in process. Our own `nightg
 already depended on it. The original plan (midnight-js plus a faucet-funded wallet) was more work
 than this for a weaker result, and is kept only as the fallback below.
 
-**Why:** Wave 1 closes **2 September 2026**. This path needs no infrastructure, and sponsored
+**Why:** Wave 1 was believed to close 2 September 2026 when this was written — the Buildathon has
+since moved it to **16 September 2026, 23:00**, so read the urgency here as historical.
+This path needs no infrastructure, and sponsored
 deploys shipped in NIGHTGATE 0.21.0 on 25 August, so the deploy is ours to run rather than something
 we wait on ODATANO to do for us. Agent grants never used to include deploys; grant `shieldvin-w1`
 carries `allowDeploy: true`, `maxDeploys: 2`, 200 sponsored jobs per UTC day.
@@ -379,6 +386,38 @@ disclosures for Wave 1 and fixes for Wave 2, not pre-submission patches.
    and a test comment) that an observer does not know the VIN — the interested party always does.
 
 The demo-data generator's salts are a separate, off-contract item tracked in the open-issues list.
+
+### D24 — We pay our own fees; the sponsor path is retired · 2026-08-31
+
+The live demo funds its own transactions. Fees are balanced from DUST held in a VINPassport wallet
+and submitted straight to the public preprod node with `author_submitExtrinsic`. ODATANO's hosted
+NIGHTGATE is no longer in the runtime path at all: no token, no sponsor session, no
+`api.nightgate.dev` call. [D20](#settled) is **amended, not reversed** — its library half stands.
+
+**Why:** two reasons. The 503 on 25 August showed that a demo a judge runs on their own time cannot
+have a hosted single point of failure in its critical path. And DUST turns out to be self-renewing:
+it regenerates from NIGHT that is *registered for dust generation*, so a funded wallet refills
+itself between runs rather than needing a faucet or a sponsor. Nine registered UTxOs currently
+carry enough DUST for roughly two thousand runs against a self-imposed cap of five per day.
+
+**This is the fallback D20 wrote down in advance**, not an improvisation: *"because the transaction
+is signed before it leaves us, a sponsor outage is survivable by submitting it ourselves from a
+funded wallet. That is a change to the final step, not a rebuild."* It cost one function.
+
+**What still comes from ODATANO, and must keep being said:** the field panel's derivation
+(`@odatano/dpp-sdk`), and local transaction building plus batch segment ordering
+(`@odatano/nightgate-tx`) — both on every single run. The **contract deployment on 28 August was
+genuinely sponsored** under grant `shieldvin-w1`, and that stays in the attribution permanently.
+What we must no longer claim is ongoing fee sponsoring: [D20](#settled)'s attribution paragraph was
+written when that was true and is now an *over*-claim of a partner's involvement, which is worse
+than an under-claim. README, org profile and ARCHITECTURE.md corrected the same day.
+
+**Unchanged:** the privacy boundary. Every transaction was already built, proven and signed locally;
+NIGHTGATE never saw a witness when it paid, and there is no witness to see now. [D13](#settled)
+holds too — no end user touches a wallet; this is our treasury paying, which is exactly the model.
+
+**Where NIGHTGATE returns:** disclosure grants in Phase 1. Self-funding fees was a resilience
+decision for one demo, not a direction of travel.
 
 ## Reversed
 

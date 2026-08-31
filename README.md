@@ -77,9 +77,9 @@ A buyer scans a QR code and sees a verdict, *never written off · no reported ac
 keeper*, with no app, no account, and no login. A dealer signs in with an email and a password. Neither ever holds a key, a
 token, or any cryptocurrency.
 
-Every transaction fee is sponsored. Every customer payment is ordinary fiat: card, direct debit or
-invoice. The blockchain is an implementation detail, and it is meant to stay one. See
-[BUILD-SCOPE.md](docs/BUILD-SCOPE.md).
+Every transaction fee is paid by VINPassport, never by the customer. Every customer payment is
+ordinary fiat: card, direct debit or invoice. The blockchain is an implementation detail, and it is
+meant to stay one. See [BUILD-SCOPE.md](docs/BUILD-SCOPE.md).
 
 ## Quick start
 
@@ -332,8 +332,9 @@ full in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | Contract test suite | **Done.** 67 tests; integrity rules and the claim write both mutation-checked |
 | SDK assumption guard | **Done.** 24 assertions against `@odatano/dpp-sdk` 0.2.0 |
 | Provable-field registry, 32 slots | **Settled** ([FIELDS.md](docs/FIELDS.md)). 26 in use, reserve 17–21 and 31; not yet wired |
-| Deployment to Midnight preprod | **Done (28 Aug 2026).** Built, proven and signed locally; fee-sponsored via `@odatano/nightgate-tx` ([D20](docs/DECISIONS.md#settled)). Address and tx committed at [`deploy/preprod.json`](deploy/preprod.json) |
-| Frontend: verification, intake console, proof explorer | **Done.** Three surfaces against the compiled circuits (`npm run app`), live for anyone at [passport.vin](https://passport.vin/); the pages read demo state, and full preprod wiring is the named Wave 2 delta |
+| Deployment to Midnight preprod | **Done (28 Aug 2026).** Built, proven and signed locally; the deploy fee was sponsored by ODATANO ([D20](docs/DECISIONS.md#settled)). Address and tx committed at [`deploy/preprod.json`](deploy/preprod.json) |
+| Frontend: verification, intake console, proof explorer | **Done.** Three surfaces against the compiled circuits (`npm run app`), live for anyone at [passport.vin](https://passport.vin/) |
+| Live preprod runs from the browser | **Done.** `/demo/` and the intake console write real transactions to the deployed contract, paying their own DUST ([D24](docs/DECISIONS.md#settled)); capped per UTC day, every hash links to the [preprod explorer](https://preprod.midnightexplorer.com) |
 | CAP service layer, tier redaction | **Not in this submission.** Wave 2: see [D20](docs/DECISIONS.md#settled) |
 
 ## Repository map
@@ -355,23 +356,30 @@ test/
 |---|---|
 | [Midnight Network](https://midnight.network) | Zero-knowledge blockchain; ledger 8, Compact 0.31.1 |
 | [`@odatano/dpp-sdk`](https://github.com/ODATANO) | Salted-Merkle field panel: key derivation, value scaling, tree construction |
-| [`@odatano/nightgate-tx`](https://github.com/ODATANO/NIGHTGATE) | Local transaction building and proving; sponsored submission |
+| [`@odatano/nightgate-tx`](https://github.com/ODATANO/NIGHTGATE) | Local transaction building, batch segment ordering, in-process wasm proving |
 
 **Where the line falls.** VINPassport's Compact contract is its own work: five circuits, its own
 ledger, its own integrity rules. It is not a fork, and it does not extend NIGHTGATE's
 `attestation-vault`. The 32-slot field panel is ours too: the slot layout is a vehicle-domain
 design, built on `@odatano/dpp-sdk` for key derivation, value scaling and Merkle construction.
 
-VINPassport builds on ODATANO in three ways. The field panel uses `@odatano/dpp-sdk`.
-`@odatano/nightgate-tx` builds and proves transactions locally against our own key. And ODATANO's
-hosted NIGHTGATE sponsors our preprod transaction fees under a metered grant: every transaction
-is built, proven and signed on our side; **NIGHTGATE pays and submits, and never sees a witness.**
+VINPassport builds on ODATANO in three ways, two of them on every single run. The field panel uses
+`@odatano/dpp-sdk` for key derivation, value scaling and Merkle construction. `@odatano/nightgate-tx`
+builds, batches and proves every transaction locally against our own key. And ODATANO's hosted
+NIGHTGATE **sponsored the contract deployment** on 28 August 2026 under a metered grant.
+
+**Ongoing fees are no longer sponsored.** Since [D24](docs/DECISIONS.md#settled) the demo pays its
+own DUST from a wallet we fund and submits to the public preprod node itself — no token, no sponsor
+session, no hosted call in the runtime path. That was the fallback [D20](docs/DECISIONS.md#settled)
+anticipated after a sponsor outage on 25 August, and it cost one function precisely because every
+transaction was *already* built, proven and signed on our side. **NIGHTGATE never saw a witness when
+it paid, and there is no witness to see now.**
 
 VINPassport does not use NIGHTGATE's CAP service, its OData layer, its `attestation-vault` contract,
-or its disclosure grants. Those are on the roadmap, not in this submission, see
-[D20](docs/DECISIONS.md#settled).
+or its disclosure grants. Those are on the roadmap — disclosure grants are the piece Phase 1
+actually needs — not in this submission. See [D20](docs/DECISIONS.md#settled).
 
-Thanks to **[ODATANO](https://github.com/ODATANO)** for the SDK, for the sponsoring grant, for
+Thanks to **[ODATANO](https://github.com/ODATANO)** for the SDK, for the deployment grant, for
 review, and for the [reference integration](https://github.com/maxalexweber1/VINPassport-NIGHTGATE-DEMO)
 that implements this panel end-to-end on Midnight preprod.
 

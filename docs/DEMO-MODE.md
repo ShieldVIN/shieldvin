@@ -60,7 +60,18 @@ transactions rather than from any signature:
 
 **A call that updates an already-populated cell must be last in its
 transaction.** The ledger's sequencing check refuses such a call when a later
-intent follows it, and the node reports only a bare `1010` (sub-code 188).
+intent follows it, and the node reports only a bare `1010`.
+
+> **Sub-code note, corrected 2026-08-31.** This originally read "sub-code 188". Code 188
+> (`SequencingCheckFailure`) is **retired** — the current ledger never emits it and keeps the number
+> reserved so it cannot be reused. Live sequencing refusals arrive as **219–224**
+> (`CallSequencingViolation` through `CallHasEmptyTranscripts`; causality is **223**). Separately,
+> **170 is `InvalidDustSpendProof`** — a refused *fee proof*, usually from proving against a dust
+> root the node has moved past — and **not** an out-of-dust condition. Treating it as one cost us a
+> run: the wallet held 1.06e19 SPECKs while the message said it was empty. Genuine
+> out-of-dust is **138** (`BalanceCheckOverspend`, DUST side). Verified against
+> `midnightntwrk/midnight-node`, `ledger/src/versions/common/types.rs`; the runner's table lives
+> beside `isStaleDustProof` in `scripts/lib/preprod-runner.mjs`.
 Reading our own circuits tells you which calls those are:
 
 | Circuit | Writes | Populated cell? |
