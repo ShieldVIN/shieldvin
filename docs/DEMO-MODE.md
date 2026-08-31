@@ -1,8 +1,9 @@
 # Demo mode: real preprod runs, for anyone
 
-Wave 1 status: **engine and API built and proven; public UI ships in Wave 2's
-"full preprod wiring" milestone.** Everything below runs today behind
-`VINPASSPORT_PREPROD=1`.
+Wave 1 status: **shipped, public and live.** Engine, API and the visitor-facing
+UI all landed in Wave 1: anyone can start a real preprod run at
+[passport.vin/demo/](https://passport.vin/demo/), capped per UTC day. Everything
+below runs behind `VINPASSPORT_PREPROD=1`, which is on in production.
 
 The site's intake console runs the real compiled circuits in-process, which
 proves the contract logic but not the chain. Demo mode closes that gap: a
