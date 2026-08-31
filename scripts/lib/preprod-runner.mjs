@@ -774,6 +774,10 @@ export async function createRunner({ log = console.log } = {}) {
                 // about six seconds apart, so a ten-second poll added its own
                 // latency on top of the chain's.
                 const ids = submitted.ids ?? [];
+                // Say which path is confirming. Without this the fallback is
+                // silent, and "it confirmed" would not tell us whether it
+                // confirmed OUR transaction or merely a new one.
+                log(`demo: stage ${n} confirming by ${ids.length ? `identifier (${ids.length})` : 'BASELINE fallback - no identifiers'}`);
                 for (; ;) {
                     // By identity when we have one. The baseline comparison
                     // stays only as a fallback for the case where the ledger
