@@ -38,6 +38,13 @@ Three rules follow, and they bind every consumer-facing surface:
 
 ## Sponsoring model
 
+> **Scope: this is the product design, not the Wave 1 build.** Wave 1 signs every transaction with
+> a single VINPassport wallet and pays the fee from its own DUST ([D24](DECISIONS.md#settled)) — no
+> per-organisation sessions, no `sponsorSessionId`, no lease pool. Everything below describes where
+> custody and sponsoring are going once organisations onboard; treat the present tense as intent.
+> The distinction matters for attribution: today the record says VINPassport asserted the fact,
+> which is exactly Model A, and Model A is rejected below. Reaching Model B is Phase 1 work.
+
 Three custody models were considered. The distinction is not cosmetic — it decides who the record
 says asserted a fact.
 
@@ -52,9 +59,9 @@ a false accident count and the record says *we* claimed it. That transfers liabi
 cannot verify onto the party least able to verify it, and it destroys the traceability that Phases
 0–1 exist to provide.
 
-**Model B, as built.** VINPassport custodies one wallet session per organisation. A treasury **pool**
-pays every fee via NIGHTGATE's `sponsorSessionId`. The dealer authenticates with an email and a
-password, and their name lands on the record.
+**Model B, as designed** (not yet built — see the scope note above). VINPassport custodies one wallet
+session per organisation. A treasury **pool** pays every fee via NIGHTGATE's `sponsorSessionId`. The
+dealer authenticates with an email and a password, and their name lands on the record.
 
 ### The treasury is a pool, not a wallet
 

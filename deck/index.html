@@ -206,7 +206,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <text x="150" y="125" text-anchor="middle" font-size="14" fill="#44536F">intake console → compiled circuits</text>
     <text x="150" y="150" text-anchor="middle" font-size="14" fill="#44536F">values &amp; VIN stay here</text>
     <text x="150" y="180" text-anchor="middle" font-size="14" fill="#8C2F26">a rollback is refused in-circuit</text>
-    <text x="150" y="205" text-anchor="middle" font-size="14" fill="#44536F">fees sponsored, no wallet shown</text>
+    <text x="150" y="205" text-anchor="middle" font-size="14" fill="#44536F">we pay the fee, no wallet shown</text>
 
     <rect x="380" y="60" width="280" height="180" rx="10" fill="#DCE3F7" stroke="#004AAD"/>
     <text x="520" y="95" text-anchor="middle" font-size="17" font-weight="700" fill="#003C8F">Midnight ledger</text>
@@ -332,9 +332,9 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       <h3>ODATANO, in three ways</h3>
       <ul>
         <li><code>@odatano/dpp-sdk</code>: panel key derivation, value scaling, Merkle construction</li>
-        <li><code>@odatano/nightgate-tx</code>: local transaction building and proving, our own key</li>
-        <li>Hosted NIGHTGATE <strong>sponsors our preprod fees</strong> under a metered grant: every transaction built, proven and signed on our side; <strong>NIGHTGATE pays and submits, and never sees a witness</strong></li>
-        <li>That grant carried our deploy: <strong>live on preprod since 28 Aug</strong>, contract <code>72e52488…d553a</code>, recorded at <code>deploy/preprod.json</code></li>
+        <li><code>@odatano/nightgate-tx</code>: local transaction building, batch ordering and in-process proving, against our own key</li>
+        <li>Hosted NIGHTGATE <strong>sponsored our deploy</strong> under a metered grant: <strong>live on preprod since 28 Aug</strong>, contract <code>72e52488…d553a</code>, recorded at <code>deploy/preprod.json</code></li>
+        <li>Running fees are <strong>no longer sponsored</strong>: the demo pays its own DUST and submits to the public node itself. A one-step change, because every transaction was already built, proven and signed on our side: <strong>no witness ever leaves the process</strong></li>
       </ul>
       <p>Not used: NIGHTGATE's CAP service, OData layer, attestation-vault, disclosure grants: that is the Wave 2 delta, stated in advance.</p>
     </div>
