@@ -139,6 +139,44 @@ async function handleIntake(req, res) {
     json(res, 200, result);
 }
 
+// Per-caller share of the daily cap.
+//
+// Starting a run is deliberately unauthenticated - the whole point is that a
+// stranger can click it - but that also means one `curl` loop can spend the
+// day's runs before anyone else arrives, and CORS does not stop curl. So the
+// global cap keeps a per-caller share underneath it: enough for a visitor to
+// try the guided run and one intake of their own, not enough to clear the
+// board. (ODATANO's minor finding.)
+const PER_IP_RUNS = Number(process.env.VINPASSPORT_PER_IP_RUNS ?? 2);
+const ipRuns = new Map();          // ip -> { date, used }
+
+const callerIp = (req) => {
+    // Behind a proxy the socket is the proxy. Take the FIRST hop of
+    // X-Forwarded-For, which is the one the proxy itself observed; the rest of
+    // the header is caller-supplied and worth nothing.
+    const fwd = String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim();
+    return fwd || req.socket?.remoteAddress || 'unknown';
+};
+
+function takeIpSlot(req) {
+    const today = new Date().toISOString().slice(0, 10);
+    const ip = callerIp(req);
+    const rec = ipRuns.get(ip);
+    const cur = rec && rec.date === today ? rec : { date: today, used: 0 };
+    if (cur.used >= PER_IP_RUNS) {
+        throw Object.assign(
+            new Error(`you have started ${cur.used} runs today; each run writes permanent public state, ` +
+                'so the rest of the day\'s runs are left for other visitors. The counter resets at 00:00 UTC.'),
+            { code: 'CAP' });
+    }
+    cur.used += 1;
+    ipRuns.set(ip, cur);
+    if (ipRuns.size > 5000) {      // bounded: drop the oldest entry
+        ipRuns.delete(ipRuns.keys().next().value);
+    }
+    return () => { cur.used -= 1; };   // give it back if the run never started
+}
+
 // The preprod demo API. Every route degrades honestly: disabled mode says so,
 // a warming wallet says so, a spent daily cap says so with the reset time.
 async function handleDemo(req, res, url) {
@@ -157,10 +195,15 @@ async function handleDemo(req, res, url) {
         let body;
         try { body = await readJson(req); }
         catch (e) { return json(res, e.code ?? 400, { error: e.message }); }
+        let giveBack;
+        try { giveBack = takeIpSlot(req); }
+        catch (e) { return json(res, 429, { error: String(e.message ?? e) }); }
         try {
             const job = path === '/api/demo/run' ? runner.runGuided() : runner.runManual(body);
             return json(res, 202, { jobId: job.id, status: job.status, remaining: runner.status().remaining });
         } catch (e) {
+            // The run never started, so it should not count against them.
+            giveBack();
             const code = e.code === 'CAP' ? 429 : e.code === 'TOO_LARGE' ? 400 : 400;
             return json(res, code, { error: String(e.message ?? e) });
         }
@@ -219,11 +262,23 @@ const server = createServer(async (req, res) => {
 
 // A busy port greets nobody with a stack trace: walk forward a few ports -
 // the previous run, or another tool, may still be holding the default.
+//
+// NOT in preprod mode. There the busy port is the signal that matters: it
+// means an instance is already running, and walking past it starts a SECOND
+// one on the same wallet state - two facades spending the same dust notes,
+// two snapshot writers racing each other, and a daily counter read and
+// written by both. The convenience is worth a stack trace; the second wallet
+// is not. (ODATANO's finding 5.)
 let port = PORT;
 server.on('error', (e) => {
-    if (e.code === 'EADDRINUSE' && port < PORT + 10) {
+    if (e.code === 'EADDRINUSE' && !DEMO_ENABLED && port < PORT + 10) {
         console.log(`port ${port} is in use, trying ${port + 1}…`);
         server.listen(++port);
+    } else if (e.code === 'EADDRINUSE' && DEMO_ENABLED) {
+        console.error(`port ${port} is already in use, and VINPASSPORT_PREPROD=1.`);
+        console.error('Refusing to start a second instance against the same wallet state.');
+        console.error('Stop the running instance first (systemctl stop vinpassport-demo).');
+        process.exit(1);
     } else {
         console.error(e.message);
         process.exit(1);

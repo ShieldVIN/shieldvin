@@ -26,7 +26,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, existsSync, unlinkSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { randomBytes, randomUUID } from 'node:crypto';
@@ -123,6 +123,42 @@ export async function createRunner({ log = console.log } = {}) {
         writeFileSync(tmp, data);
         renameSync(tmp, blobPath(n));
     };
+    // ---- one process per wallet, enforced ----------------------------------
+    //
+    // The port check in app-server catches the common case, but only the
+    // common one: a second instance on a different port, or a stray script
+    // pointed at the same VINPASSPORT_STATE_DIR, walks straight past it. Two
+    // processes on one wallet means two facades spending the same dust notes
+    // and two snapshot writers overwriting each other - the snapshots are
+    // written atomically against a partial write, not against a neighbour.
+    //
+    // A stale lock from a killed process must not brick the demo, so the lock
+    // records a pid and is taken over when that pid is gone.
+    const lockPath = join(stateDir, 'runner.lock');
+    (function takeLock() {
+        const mine = JSON.stringify({ pid: process.pid, since: new Date().toISOString() });
+        try {
+            writeFileSync(lockPath, mine, { flag: 'wx' });
+        } catch (e) {
+            if (e.code !== 'EEXIST') throw e;
+            let held = null;
+            try { held = JSON.parse(readFileSync(lockPath, 'utf8')); } catch { /* unreadable = stale */ }
+            const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+            if (held?.pid && held.pid !== process.pid && alive(held.pid)) {
+                throw new Error(
+                    `another process (pid ${held.pid}, since ${held.since}) is already using ${stateDir}. ` +
+                    'Two processes on one wallet corrupt each other; stop that one first.');
+            }
+            log(`demo: taking over a stale lock from pid ${held?.pid ?? 'unknown'}`);
+            writeFileSync(lockPath, mine);
+        }
+    })();
+    const dropLock = () => { try { unlinkSync(lockPath); } catch { /* already gone */ } };
+    process.once('exit', dropLock);
+    for (const sig of ['SIGINT', 'SIGTERM']) {
+        process.once(sig, () => { dropLock(); process.exit(0); });
+    }
+
     const restore = { shielded: loadBlob('shielded'), unshielded: loadBlob('unshielded'), dust: loadBlob('dust') };
     if (!restore.dust) throw new Error(`no dust snapshot in ${stateDir}; run the dust sync first`);
 
