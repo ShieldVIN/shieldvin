@@ -295,7 +295,20 @@ export async function createRunner({ log = console.log } = {}) {
         return out;
     }
 
+    // Set by a node reject. A reject leaves dust atoms pending inside the
+    // facade, and while `revert` should hand them back, persisting the state
+    // is what turns a bad minute into a bad week: a snapshot taken after a
+    // reject is restored on every future start, so a restart stops healing it.
+    // The snapshots are only a warm-start optimisation - losing one costs a
+    // slower boot, keeping a poisoned one costs the wallet.
+    let rejected = false;
+
     async function snapshot(reason) {
+        if (rejected && reason !== 'force') {
+            log(`demo: skipping the ${reason} snapshot - a node reject happened this session,`,
+                'and persisting that state would survive a restart');
+            return;
+        }
         try {
             saveBlob('shielded', await facade.shielded.serializeState());
             saveBlob('unshielded', await facade.unshielded.serializeState());
@@ -323,7 +336,10 @@ export async function createRunner({ log = console.log } = {}) {
         await snapshot('warmup');
     })().catch((e) => { warmError = e; log('demo: warmup FAILED:', e?.message ?? e); });
 
-    const snapTimer = setInterval(() => { if (ready) snapshot('periodic'); }, 30 * 60_000);
+    // Never snapshot mid-run: a run between balancing and confirmation has
+    // pending atoms by design, and freezing that is the same trap as freezing
+    // a reject.
+    const snapTimer = setInterval(() => { if (ready && queueLength === 0) snapshot('periodic'); }, 30 * 60_000);
     snapTimer.unref?.();
 
     // ---- daily cap ---------------------------------------------------------
@@ -812,11 +828,42 @@ export async function createRunner({ log = console.log } = {}) {
 
             const baseline = await latestContractAction();
             halt();                       // never submit for a cancelled run
-            const extrinsicHash = await runStep(step(`submit:${n}`, 'Submit to the preprod node'), () => submitFinalized(finalized));
+            const extrinsicHash = await runStep(step(`submit:${n}`, 'Submit to the preprod node'), async () => {
+                try {
+                    return await submitFinalized(finalized);
+                } catch (e) {
+                    // Give the dust back before rethrowing.
+                    //
+                    // Balancing marks the spent dust note pending inside the
+                    // facade. A node reject happens BEFORE the mempool, so
+                    // that note is never actually spent - but nothing tells
+                    // the wallet, and the atoms stay pending. Rebuild after
+                    // rebuild they accumulate until balancing fails on a
+                    // wallet with plenty of dust, which is precisely the
+                    // "Insufficient Funds: could not balance dust" we hit on
+                    // a wallet holding 1.06e19 SPECKs, and which the classifier
+                    // then had to call out-of-dust because it looked like it.
+                    //
+                    // Missing this is what made a recoverable stall look like
+                    // an empty wallet. (ODATANO's finding 2.)
+                    rejected = true;
+                    try {
+                        await facade.revert(finalized);
+                        log(`demo: stage ${n} rejected; reverted the dust spend`);
+                    } catch (re) {
+                        // Worth saying out loud: from here the pending atoms
+                        // are stranded until the process restarts.
+                        log(`demo: stage ${n} rejected AND the dust revert failed (${re?.message ?? re});`,
+                            'pending dust may be stranded until restart');
+                    }
+                    throw e;
+                }
+            });
             return { extrinsicHash, baseline };
         }
 
-        snapshot('post-run');
+        // Only worth persisting a run that ended clean.
+        if (!rejected) snapshot('post-run');
 
         // -- the receipt: the private half of the passport, for its holder
         job.receipt = {
