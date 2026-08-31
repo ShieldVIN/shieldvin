@@ -138,3 +138,30 @@ node scripts/app-server.mjs
 
 Without `VINPASSPORT_PREPROD=1` the server is exactly what judges clone and
 run: in-process circuits, in-memory ledger, no wallet, no chain, no secrets.
+
+Three things a deployment needs that a clone does not:
+
+1. **The prover keys.** `contracts/vinpassport/src/managed/vinpassport/keys/`
+   is gitignored — 18 MB of build artifacts that `compact compile` regenerates,
+   and that the simulator (which proves nothing) never touches. Real proving
+   does need them, so they have to be copied to the host or recompiled there.
+2. **A synced wallet.** Building the dust state from nothing replays the whole
+   preprod event stream, so the snapshots are copied in rather than rebuilt.
+3. **Sole ownership of that wallet.** Two processes on one seed spend the same
+   dust twice and both get rejected, so exactly one host runs the engine.
+
+## How it is deployed
+
+Two services, because restoring the wallet is heavy synchronous WASM work that
+blocks the Node event loop outright on a small box — a single process would
+take the public API down for minutes on every restart:
+
+| Service | Port | Holds the wallet | Job |
+|---|---|---|---|
+| `vinpassport-app` | 8790 | no | the public API, always answering |
+| `vinpassport-demo` | 8791 | yes | the preprod engine, blocks while it warms |
+
+Caddy routes `/api/demo/*` to the engine and everything else to the API, so a
+warming engine never delays anything else. The client half knows this too: a
+service that accepts the connection and says nothing is reported as *starting*
+rather than absent, and the demo page rechecks until it is ready.
