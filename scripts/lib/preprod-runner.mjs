@@ -698,12 +698,23 @@ export async function createRunner({ log = console.log } = {}) {
             // eating the whole run's budget and surfacing as a bare timeout.
             halt();                       // do not begin a stage after a cancel
             const stageEndsAt = Date.now() + STAGE_BUDGET_MS;
-            const stageBudget = () => {
-                if (Date.now() > stageEndsAt) {
-                    throw new Error(`stage ${n} (${stage.label}) exceeded its ` +
-                        `${Math.round(STAGE_BUDGET_MS / 60_000)} minute budget`);
-                }
-            };
+            const overBudget = `stage ${n} (${stage.label}) exceeded its ` +
+                `${Math.round(STAGE_BUDGET_MS / 60_000)} minute budget`;
+            // Checked before starting another attempt, which costs a proof.
+            const stageBudget = () => { if (Date.now() > stageEndsAt) throw new Error(overBudget); };
+            // The budget is also armed as a real deadline, so it holds for a
+            // stage whose first attempt has not returned yet: the check above
+            // is only reached between attempts, and a stage need not make it
+            // that far to be over its time.
+            //
+            // It goes through the run's own controller rather than racing the
+            // await, so an overrunning stage takes exactly the same path as
+            // the outer backstop. One place decides when a run is reported and
+            // when the queue moves on, and both know a rejected promise is not
+            // a finished run.
+            clearTimeout(job.stageTimer);
+            job.stageTimer = setTimeout(() => job.abort?.(overBudget), STAGE_BUDGET_MS);
+            job.stageTimer.unref?.();
 
             // A 1010 reject is a known batch outcome; the remedy is to REBUILD
             // with fresh randomness, never to resubmit the same bytes. If a
@@ -803,6 +814,10 @@ export async function createRunner({ log = console.log } = {}) {
             st.detail = `tx ${landed.hash} in block ${landed.height}`;
             job.touch();
         }
+        // The deadline belongs to the stages, so it is released with them. The
+        // run's tail - the result, the snapshot - is the outer backstop's to
+        // bound, never the last stage's clock.
+        clearTimeout(job.stageTimer);
 
         async function runStageOnce(n, stage, calls, attempt) {
             const suffix = attempt > 1 ? ` (attempt ${attempt})` : '';
@@ -1098,6 +1113,7 @@ export async function createRunner({ log = console.log } = {}) {
             })
             .finally(() => {
                 clearTimeout(timer);
+                clearTimeout(job.stageTimer);   // armed per stage; always cleared here
                 queueLength -= 1;
                 job.finishedAt = new Date().toISOString();
                 if (job.startedAt) job.ms = Date.parse(job.finishedAt) - Date.parse(job.startedAt);
