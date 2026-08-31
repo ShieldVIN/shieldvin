@@ -3,11 +3,15 @@
  *
  *   npm run app        ->  http://localhost:8790
  *
- * Serves the three surfaces and runs the REAL compiled circuits in-process:
+ * Serves every site surface and runs the REAL compiled circuits in-process:
  *
- *   /            verification - scan a vehicle, see its verdicts
- *   /console/    intake - fill in the fields, submit, watch the proofs land
+ *   /            home - the problem and the mechanism
+ *   /regulation/ what Reg (EU) 2026/1738 actually requires
+ *   /verify/     verification - scan a vehicle, see its verdicts
+ *   /intake/     intake - fill in the fields, submit, watch the proofs land
  *   /proofs/     proof explorer - every claim on the ledger, with status
+ *   /demo/       the guided run against the DEPLOYED preprod contract
+ *   /console/    a redirect to /intake/, kept because the old url was shared
  *
  *   POST /api/intake   run an intake through the circuits (register, record,
  *                      prove). Refusals are results: a step the circuit

@@ -32,22 +32,33 @@ commitments reach the ledger. **Compile in WSL2** — Compact has no native Wind
 Role-scoped disclosure is Phase 1, in the service layer and NIGHTGATE's on-chain grants — not a
 circuit here.
 
-- [ ] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages — **first
-      task, gates everything else**
-- [ ] CAP scaffold with `@odatano/nightgate` 0.19.0 pinned, registering `attestation-vault-32`
-- [ ] `npx nightgate-fetch-keys attestation-vault-32` — keys are not packed in npm
-- [ ] `db/vehicle-schema.cds` — vehicle domain model
-- [ ] `PROVABLE_FIELDS` registry, 32 slots per FIELDS.md (26 used, 6 reserved)
-- [ ] Canonicalisation and anchoring path
-- [ ] **Treasury pool and sponsor wiring** — at least two sponsor wallets with registered NIGHT
-      UTxOs, to exercise the lease pool rather than a single-wallet happy path; confirm attribution
-      lands on the organisation rather than on us
+> **Rewritten 2026-08-31.** This list was the CAP-era plan and had drifted badly: it still called
+> for scaffolding that [D20](DECISIONS.md#settled) removed, and left items unticked that shipped
+> weeks ago. Ticks below are verified against the repository, not remembered.
+
+- [x] Verify the [FIELDS.md](FIELDS.md) checklist against installed `@odatano/*` packages —
+      24 assertions in `test/sdk-assumptions.mjs`, run by `npm test`
+- [x] ~~CAP scaffold~~, ~~`nightgate-fetch-keys attestation-vault-32`~~, ~~`db/vehicle-schema.cds`~~
+      — **dropped by [D20](DECISIONS.md#settled)**: no CAP application, and we deployed our own
+      contract rather than registering a vault. Returns as Phase 1 service-layer work
+- [x] `PROVABLE_FIELDS` registry, 32 slots per FIELDS.md — layout settled (26 used, 6 reserved);
+      5 wired end to end, the rest documented but not yet exercised
+- [x] Canonicalisation and anchoring path — `contentRoot` over the salted panel
+- [x] Predicates end to end — `proveFieldAtMost` / `proveFieldAtLeast` land on preprod, and a
+      claim that cannot hold is refused in-circuit and reported rather than hidden
+- [x] The verification surface — `site/verify/`, QR to verdict, mobile, no login. (Built at
+      `site/verify/`, not the planned `app/scan/`)
+- [x] Seed data and a demo scenario — `npm run demo:export` regenerates `site/verify/` from the
+      real compiled circuits, so the committed fixture cannot drift from the contract
+- [x] Fee funding — **not** the planned treasury pool. [D24](DECISIONS.md#settled): one wallet,
+      self-renewing DUST from registered NIGHT. Per-organisation sessions, and the attribution that
+      comes with them, are Phase 1
 - [ ] **Measure DUST cost** per anchor and per proof, batched versus unbatched, width 32 versus 16 —
-      gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md)
-- [ ] Predicates end to end — write-off status and accident count first, then a monotonic field
-- [ ] `app/scan` — QR to verdict, mobile, no login
-- [ ] `contentSaltSeed` persistence **with a tested restore path**
-- [ ] Seed data and a demo scenario
+      gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md). Partially done: a guided run costs
+      about 5.1e15 SPECKs across five transactions, but the batched/unbatched and width comparisons
+      are not measured
+- [ ] `contentSaltSeed` persistence **with a tested restore path** — a run seeds its salts per run
+      and hands them to the holder in the receipt; there is no long-lived seed to restore yet
 
 **Explicitly not in Phase 0:** billing, hardware, tiered disclosure UI, the console beyond a rough
 form, Cardano, mainnet.

@@ -14,8 +14,9 @@
 > covered by tests, and the three application surfaces (verification, intake console, proof
 > explorer) run against the compiled circuits with one command (`npm run app`). The contract is
 > **deployed on Midnight preprod** (28 Aug 2026, [`deploy/preprod.json`](deploy/preprod.json)).
-> Not yet done: the live pages read demo state rather than chain state; wiring the site's writes
-> to the deployed contract is the named Wave 2 delta. The table under
+> The `/demo/` surface and the intake console write **real transactions to the deployed contract**,
+> paying their own DUST, capped per UTC day. The other pages read committed demo state, so the site
+> stays fully functional as a static export. The table under
 > [Where this actually stands](#where-this-actually-stands) says exactly what does and does not
 > exist today.
 
@@ -92,14 +93,14 @@ npm install
 npm test
 ```
 
-Expected: **67 contract tests, 10 app tests and 24 SDK assertions, all passing**, in a couple of
+Expected: **67 contract tests, 20 app tests and 24 SDK assertions, all passing**, in a couple of
 seconds.
 
 ```
  Test Files  1 passed (1)
       Tests  67 passed (67)
 
-# pass 10
+# pass 20
 
 ================ 24 passed, 0 failed ================
 ```
@@ -109,15 +110,15 @@ seconds.
 | `npm test` | Everything below, in one run |
 | `npm run test:contract` | The 67 contract tests, against the compiled circuits |
 | `npm run test:watch` | The same, re-running on change |
-| `npm run test:app` | 10 tests on the scan page's verdict logic, via `node --test` |
+| `npm run test:app` | 20 tests on the verification page's verdict logic, via `node --test` |
 | `npm run test:sdk` | 24 assertions pinning our assumptions about `@odatano/dpp-sdk` |
 | `npm run app` | All three surfaces + the circuits, one dependency-free server |
-| `npm run serve:scan` | The verification page alone, statically |
-| `npm run demo:export` | Regenerate the scan page's demo ledger by running the compiled circuits |
+| `npm run serve:site` | The site statically, as GitHub Pages serves it — no circuits, demo state only |
+| `npm run demo:export` | Regenerate `site/verify/` demo ledger by running the compiled circuits |
 | `npm run deploy:preprod` | Build + prove the deploy locally; `--submit` hands it to the sponsor |
 | `npm run compile` | Recompile the Compact contract: **WSL2, macOS or Linux only**, see below |
 
-### The app: three surfaces, one command
+### The app: every surface, one command
 
 ```bash
 npm run app        # -> http://localhost:8790
@@ -125,9 +126,14 @@ npm run app        # -> http://localhost:8790
 
 | Surface | | Who it is for |
 |---|---|---|
-| **Verification** | `/` | A buyer: scan a QR, see what the passport has *proven* and what it has not |
-| **Intake console** | `/console/` | A registrar: fill in the fields, submit, watch the circuits accept and refuse |
+| **Home** | `/` | The problem, the mechanism, and what the chain does and does not learn |
+| **Regulation** | `/regulation/` | What Reg (EU) 2026/1738 actually requires, article by article |
+| **Verification** | `/verify/` | A buyer: scan a QR, see what the passport has *proven* and what it has not |
+| **Intake console** | `/intake/` | A registrar: fill in the fields, submit, watch the circuits accept and refuse |
 | **Proof explorer** | `/proofs/` | An auditor: every claim on the ledger, marked current or superseded |
+| **Live preprod demo** | `/demo/` | Anyone: one click writes a real passport to the deployed contract |
+
+`/console/` is kept as a redirect to `/intake/`, because the console moved after the URL was shared.
 
 The server is dependency-free Node and runs the **real compiled circuits in-process**: submitting
 the console form registers the passport, records the history, and proves the claims. A rollback

@@ -72,5 +72,5 @@ writeFileSync(join(OUT, 'fields.json'), JSON.stringify(vocabulary([
 ]), null, 2) + '\n');
 
 console.log(`\nledger regenerated with ${ledger.claims.length} claims across 3 passports.`);
-console.log(`view it:  npm run serve:scan  ->  /?v=${mine.vinHex}`);
+console.log(`view it:  npm run serve:site  ->  /verify/?v=${mine.vinHex}`);
 console.log('(the exported ledger holds commitments and claims - never your values or the VIN)');

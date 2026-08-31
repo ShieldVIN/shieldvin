@@ -146,6 +146,26 @@ obligation with us. Decide when billing is actually built.
 
 ## Repository structure
 
+> **Scope: this is the CAP-era target layout, not what the repository looks like.**
+> [D20](DECISIONS.md#settled) dropped the CAP application and [D21](DECISIONS.md#settled) replaced
+> the three `app/` surfaces with one dependency-free Node server, so none of the tree below exists
+> on disk. What is actually there:
+>
+> ```
+> contracts/vinpassport/     the Compact contract and its compiled artefacts
+> scripts/                   app-server, preprod-runner, preprod-plan, scenario, deploy, export
+> site/                      index, regulation, verify, proofs, intake, demo, assets
+> deck/                      the Wave 1 deck
+> test/                      passport.test.mjs (vitest), app/ (node --test), sdk-assumptions.mjs
+> deploy/preprod.json        the deployment record
+> docs/                      this directory
+> ```
+>
+> Nothing is written in TypeScript: the repository is plain `.mjs` throughout, per
+> [D11](DECISIONS.md#settled) and D21. Keep the tree below as the shape to grow back into when the
+> service layer arrives in Phase 1 — the module names still describe real responsibilities, and
+> `query-guard` in particular is a requirement, not a nicety.
+
 ```
 db/
   vehicle-schema.cds          vehicles, anchors, grants, attributes
@@ -183,20 +203,29 @@ module for the same reason.
 
 ## Stack
 
+**What is actually installed and running** — verified against `package.json` and `node_modules`:
+
 | Layer | Choice | Why |
 |---|---|---|
-| Runtime | Node ≥22, TypeScript | Required by NIGHTGATE |
-| Framework | `@sap/cds` ^10 | NIGHTGATE is a CAP plugin |
-| Chain | `@odatano/nightgate` **0.19.0**, exact | 0.x with frequent breaking changes |
+| Runtime | Node ≥22, plain `.mjs` | No build step, per [D11](DECISIONS.md#settled) / [D21](DECISIONS.md#settled) |
+| Framework | none | One dependency-free Node server (D21). No CAP, no database |
+| Contract | `vinpassport`, our own Compact contract | [D16](DECISIONS.md#settled) / [D18](DECISIONS.md#settled); compiler 0.31.1, language 0.23.0 |
+| Chain runtime | `@midnight-ntwrk/compact-runtime` **0.16.0**, `ledger-v8` 8.1.1 | Must match what the contract was compiled against |
 | DPP core | `@odatano/dpp-sdk` **0.2.0**, exact | Width-aware Merkle helpers |
-| Local signing | `@odatano/nightgate-tx` **0.3.0**, exact | For the Model C path and batches |
-| Vault | `attestation-vault-32` — 32 slots, depth 5 | See [FIELDS.md](FIELDS.md) |
-| Database | SQLite (dev) → Postgres (prod) | NIGHTPASS's pattern |
-| Contract tests | **vitest** | Midnight's own convention — see D17 |
-| App unit tests | `node --test` + `tsx` | Matches ODATANO |
-| E2E | Playwright | Matches ODATANO |
+| Tx building | `@odatano/nightgate-tx` **0.4.0**, exact | Local build, batch ordering, in-process wasm proving |
+| Proving | in-process wasm | No proof server, no Docker |
+| Fees | our own wallet's DUST | [D24](DECISIONS.md#settled) — not sponsored |
+| Submission | `@polkadot/api` 16.5.6 → `author_submitExtrinsic` | Straight to the public preprod node |
+| Contract tests | **vitest** — 67 | Midnight's own convention — see D17 |
+| App unit tests | `node --test` — 20 | Platform runner, no `tsx` needed without TypeScript |
+| SDK guard | `node test/sdk-assumptions.mjs` — 24 | Pins our assumptions about `dpp-sdk` |
 | All UI | Plain HTML / CSS / JS | See below |
-| Network | Preprod | Mainnet submission is gated off in NIGHTGATE |
+| Network | Preprod | Mainnet submission is gated off |
+
+**Planned for Phase 1, not installed:** `@sap/cds` ^10 and the `@odatano/nightgate` CAP plugin
+(0.19.0 pinned), a SQLite→Postgres database, Playwright for E2E, and the `attestation-vault-32`
+vault — we deployed our own contract instead, so the vault is a NIGHTGATE facility we have not
+taken up. This table previously listed all of these as the stack; they were the pre-D20 plan.
 
 **On UI:** NIGHTPASS uses SAPUI5 for operator apps and plain HTML for public ones. We use plain HTML
 throughout, including the console. The product constraint is that this be simple enough for anyone,
@@ -230,7 +259,7 @@ Ordered by dependency.
 7. **Measure DUST cost** per anchor and per proof, **batched versus unbatched**, and at width 32
    versus 16 — gates all pricing
 8. Predicates end to end — write-off status and accident count first, then a monotonic field
-9. `app/scan` — QR to verdict, mobile, no login
+9. The verification surface — QR to verdict, mobile, no login (built at `site/verify/`)
 10. Seed data and a demo scenario
 
 **Not in Phase 0:** billing, hardware, tiered disclosure UI, the console beyond a rough form.
