@@ -693,12 +693,32 @@ export async function createRunner({ log = console.log } = {}) {
             // so prefixing "Prove " again gave "Prove prove noAccidents".
             const what = /^prove /i.test(stage.label) ? stage.label : `Prove ${stage.label}`;
             const built = await runStep(step(`build:${n}`, `${what} (${calls.length} call${calls.length === 1 ? '' : 's'}, in-process)${suffix}`), async () => {
+                // Every call in this contract moves no value: they write
+                // commitments, and OUR facade does the dust balancing further
+                // down. So the builder's own wallet sync is pure cost - it
+                // syncs from genesis on this thread for the life of the
+                // builder, and we build one of these per stage.
+                //
+                // On 0.4.0 that cost did not even end with the stage: close()
+                // called `facade.close?.()`, the facade only has stop(), and
+                // optional chaining made it a silent no-op - so each stage
+                // left a facade syncing and an indexer socket open until the
+                // process exited. It showed in the run: stages 2 and 3 do
+                // identical work, one initialiseField each, and stage 3 took
+                // 13s longer, with every later stage slower again.
+                // 0.4.1 fixed close(); walletSync skips the sync entirely.
                 const builder = await createTxBuilder({
                     seedHex, networkId: NETWORK_ID,
                     indexerHttpUrl: INDEXER_HTTP, indexerWsUrl: INDEXER_WS, nodeUrl: NODE_WS,
                     provingMode: 'wasm', zkConfigDir: ZK_CONFIG_DIR,
                     contractClass: Contract, contractName: 'vinpassport',
                     privateStateId: 'vinpassport-demo',
+                    walletSync: false,
+                    // A proof that never returns would otherwise sit inside the
+                    // stage budget with nothing to report; bound it just under
+                    // the budget so the stage fails saying "proving", not
+                    // "stage exceeded".
+                    proofTimeoutMs: Math.round(STAGE_BUDGET_MS * 0.6),
                     circuits: [...new Set(calls.map((c) => c.circuitId))]
                 });
                 try {
@@ -710,7 +730,17 @@ export async function createRunner({ log = console.log } = {}) {
                     holder.armed = null;
                     calls[0].before();
                     return await builder.buildSponsorable({
-                        contractAddress, calls, witnesses, initialPrivateState: {}, bind: true
+                        contractAddress, calls, witnesses, initialPrivateState: {}, bind: true,
+                        // A claims batch is genuinely independent: two
+                        // proveFieldAtMost calls on DIFFERENT fields read the
+                        // ledger and write nothing, so no order between them
+                        // is required. Told that, the builder groups them by
+                        // stage instead of insisting array order satisfies
+                        // causality, and fails fast before proving if it
+                        // cannot. Every other batch here IS ordered -
+                        // registerPassport has to precede the initialiseField
+                        // that follows it - so this stays off by default.
+                        independentCalls: stage.steps.every((s) => s.kind === 'claim')
                     });
                 } finally { await builder.close?.(); }
             });
