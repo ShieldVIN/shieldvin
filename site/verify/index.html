@@ -19,10 +19,10 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://passport.vin/assets/vinpassport-banner.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=4">
+<link rel="stylesheet" href="../assets/site.css?v=5">
 </head>
 <body>
-<div style="max-width:560px;margin:0 auto;padding:0 var(--edge)">
+<div style="max-width:1200px;margin:0 auto;padding:0 var(--edge)">
 
   <nav style="display:flex;align-items:center;flex-wrap:wrap;gap:14px 26px;padding:18px 0;min-height:75px;border-bottom:1px solid rgba(0,74,173,.26)">
     <a href="../" style="display:flex;align-items:center;margin-right:auto;flex:none;text-decoration:none">
@@ -31,6 +31,9 @@
     <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#004AAD;border:1px solid rgba(0,74,173,.4);padding:4px 9px;flex:none">verify</span>
   </nav>
 
+  <div class="vfy-grid">
+
+  <section class="vfy-card">
   <header style="padding:20px 0 14px;border-bottom:1px solid rgba(0,74,173,.16)">
     <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Vehicle passport · Reg (EU) 2026/1738</span>
     <h1 style="margin:5px 0 4px;font-size:clamp(28px,7vw,38px);line-height:1;letter-spacing:.01em;text-transform:uppercase">2019 Golf, silver</h1>
@@ -61,7 +64,7 @@
     <span class="mono" style="flex:none;font-size:12px;color:rgba(14,23,38,.42)">+</span>
   </div>
 
-  <div style="border-top:1px solid rgba(0,74,173,.16);background:rgba(0,74,173,.05);margin:0 calc(var(--edge) * -1);padding:0 var(--edge)">
+  <div style="border-top:1px solid rgba(0,74,173,.16);background:rgba(0,74,173,.05);padding:0 15px">
     <div style="display:flex;gap:13px;padding:14px 0;align-items:flex-start">
       <span class="tick"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg></span>
       <div style="flex:1;min-width:0"><b style="display:block;font-size:15.5px">Mileage under 150,000 km</b><span style="font-size:12px;color:rgba(14,23,38,.58)">odometerKm ≤ 150,000 · proven against the current record</span></div>
@@ -84,12 +87,14 @@
     <div style="display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:rgba(14,23,38,.62)"><span>Battery passport</span><span class="mono">not an EV</span></div>
   </div>
 
-  <div style="padding:16px 18px;border-top:1px solid rgba(0,74,173,.26);background:rgba(0,74,173,.05);margin:0 calc(var(--edge) * -1)">
+  <div style="padding:16px 18px;border-top:1px solid rgba(0,74,173,.26);background:rgba(0,74,173,.05)">
     <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em;margin-bottom:7px">WHAT A TICK DOES, AND DOES NOT, MEAN</b>
     <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(14,23,38,.72)">Proven against the anchored record, attributable to a named registrar, tamper-evident. Not a guarantee that the record matched physical reality when it was written. That is the registrar's word, which is why every passport names one.</p>
   </div>
 
-  <section id="b" style="margin:30px 0 0;padding-top:24px;border-top:1px solid rgba(0,74,173,.26)">
+  </section>
+
+  <section class="vfy-card" id="b">
     <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Another passport · the honest not-proven case</span>
     <h2 style="margin:5px 0 4px;font-size:clamp(24px,6vw,32px);line-height:1;letter-spacing:.01em;text-transform:uppercase">2018 320d, grey</h2>
     <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH c7e89baf7818a3dc43edc3632b7f36e0df990fc9de72ede2cf80f5886c176d3b</span>
@@ -129,6 +134,8 @@
     <p style="margin:16px 0 0;font-size:13px"><a href="../proofs/">See both vehicles in the proof explorer →</a></p>
   </section>
 
+  </div>
+
   <footer style="padding:26px 0 48px;margin-top:24px;border-top:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;font-size:13px;color:rgba(14,23,38,.7)">
     <img src="../assets/vinpassport-logo.png" alt="VINPassport" width="546" height="102" style="height:24px;width:auto">
     <a href="https://github.com/VINPassport/VINPassport" target="_blank" rel="noopener" style="text-decoration:none">Source</a>
@@ -137,6 +144,6 @@
   </footer>
 
 </div>
-<script type="module" src="verify.js?v=4"></script>
+<script type="module" src="verify.js?v=5"></script>
 </body>
 </html>

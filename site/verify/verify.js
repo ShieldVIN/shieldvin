@@ -124,13 +124,13 @@ function statsBlock(view, vinfo, badge) {
 }
 
 const HONESTY =
-    `<div style="padding:16px 18px;border-top:1px solid rgba(0,74,173,.26);background:rgba(0,74,173,.05);margin:0 calc(var(--edge) * -1)">
+    `<div style="padding:16px 18px;border-top:1px solid rgba(0,74,173,.26);background:rgba(0,74,173,.05)">
     <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:.02em;margin-bottom:7px">WHAT A TICK DOES, AND DOES NOT, MEAN</b>
     <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(14,23,38,.72)">Proven against the anchored record, attributable to a named registrar, tamper-evident. Not a guarantee that the record matched physical reality when it was written. That is the registrar's word, which is why every passport names one.</p>
   </div>`;
 
 function mainSection(vin, view, vinfo, badge) {
-    return `<header style="padding:20px 0 14px;border-bottom:1px solid rgba(0,74,173,.16)">
+    return `<section class="vfy-card"><header style="padding:20px 0 14px;border-bottom:1px solid rgba(0,74,173,.16)">
     <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Vehicle passport · Reg (EU) 2026/1738</span>
     <h1 style="margin:5px 0 4px;font-size:clamp(28px,7vw,38px);line-height:1;letter-spacing:.01em;text-transform:uppercase">${esc(vinfo?.title ?? 'Vehicle passport')}</h1>
     <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
@@ -138,11 +138,11 @@ function mainSection(vin, view, vinfo, badge) {
   ${scoreBand(view, false)}
   ${rowsFor(view, false)}
   ${statsBlock(view, vinfo, badge)}
-  ${HONESTY}`;
+  ${HONESTY}</section>`;
 }
 
 function secondarySection(vin, view, vinfo, index) {
-    return `<section id="${index === 0 ? 'b' : 'v-' + vin.slice(0, 8)}" style="margin:30px 0 0;padding-top:24px;border-top:1px solid rgba(0,74,173,.26)">
+    return `<section class="vfy-card" id="${index === 0 ? 'b' : 'v-' + vin.slice(0, 8)}">
     <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Another passport · ${esc(vinfo?.blurb ?? 'on the same ledger')}</span>
     <h2 style="margin:5px 0 4px;font-size:clamp(24px,6vw,32px);line-height:1;letter-spacing:.01em;text-transform:uppercase">${esc(vinfo?.title ?? 'Vehicle passport')}</h2>
     <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
@@ -182,7 +182,12 @@ function secondarySection(vin, view, vinfo, index) {
         rest.map((v, i) =>
             secondarySection(v, passportView(ledger, v, vocabulary), byVin[v], i)).join('\n');
 
-    root.replaceChildren(nav, ...holder.children, footer);
+    const grid = document.createElement('div');
+    grid.className = 'vfy-grid';
+    // One passport should keep a readable column rather than span the page.
+    if (holder.children.length < 2) grid.setAttribute('data-single', '');
+    grid.replaceChildren(...holder.children);
+    root.replaceChildren(nav, grid, footer);
 
     // +/- toggles: a row opens the detail block that follows it
     for (const row of root.querySelectorAll('.row')) {

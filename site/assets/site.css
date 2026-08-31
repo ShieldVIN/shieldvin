@@ -94,9 +94,58 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{
   .vid-mobile{display:block!important}
 }
 
-/* Mobile nav: brand and the action button only; section links are desktop. */
-@media (max-width:700px){
-  .nav-sec{display:none}
+/* --- Nav, narrow screens --------------------------------------------------
+   Below the breakpoint the bar carries the brand, the page tag and a menu
+   button; the links move into a panel the button opens. Before this, only /
+   and /regulation/ hid their links, so the app bars wrapped four cross-links
+   onto three or four rows and the bar's height depended on how many links a
+   page happened to carry. The button is the artboards' hamburger, the one
+   already drawn in /mockups/. Above the breakpoint .nav-links is a plain row
+   and the bar renders exactly as designed. */
+/* No auto margin here: the brand's own margin-right:auto already absorbs the
+   free space, and a second auto would split it and drag the row to the middle. */
+.nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:14px 26px}
+.nav-burger{display:none}
+/* 950px, not the 700px the section links used to hide at: the home bar needs
+   796px for its six items, so it was already wrapping to two rows at 768px
+   while the app bars stayed on one. Measured, not guessed. */
+@media (max-width:950px){
+  .nav-burger{display:flex;flex-direction:column;justify-content:center;align-items:center;
+    gap:3px;flex:none;width:30px;height:30px;padding:6px;
+    background:none;border:0;cursor:pointer;color:var(--color-text)}
+  .nav-burger i{display:block;width:17px;height:1.5px;background:currentColor}
+  .nav-links{display:none;order:3;flex-basis:100%;flex-direction:column;
+    align-items:stretch;gap:0;margin:0}
+  nav.nav-open .nav-links{display:flex}
+  /* Inline padding on the action button wins over this, so it keeps its shape
+     while the plain links become full-width rows. */
+  .nav-links>*{padding-top:12px;padding-bottom:12px;border-top:1px solid rgba(0,74,173,.16)}
+  /* The bar's 26px column gap is inline, and at 360px the brand, the widest
+     page tag and the button together overrun it by 10px. Same override the
+     footer meta already uses below. */
+  nav{column-gap:12px!important}
+}
+/* Below ~340px even the trimmed row overruns on the pages carrying a page tag,
+   so the lockup gives back the last few pixels rather than the bar wrapping. */
+@media (max-width:340px){
+  nav img{height:26px!important}
+}
+
+/* --- /verify/: one passport per column ------------------------------------
+   The page is a stack of passports, each designed at a phone's measure. On a
+   desktop they sit side by side rather than stretching, which is also the
+   page's argument: proven next to not-proven. A lone passport keeps a single
+   readable column instead of spanning the full width. */
+.vfy-grid{display:grid;gap:clamp(26px,3vw,48px);grid-template-columns:1fr}
+.vfy-grid>*{min-width:0}
+@media (min-width:900px){
+  .vfy-grid:not([data-single]){grid-template-columns:1fr 1fr}
+}
+.vfy-grid[data-single]{max-width:620px}
+/* Stacked, one passport needs a rule to separate it from the last; side by
+   side the gutter already does that and the rule reads as a stray line. */
+@media (max-width:899px){
+  .vfy-grid>.vfy-card+.vfy-card{padding-top:24px;border-top:1px solid var(--color-divider)}
 }
 
 /* Footer meta: right-aligned on wide screens; on mobile it wraps, so let it

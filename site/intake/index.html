@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://passport.vin/assets/vinpassport-banner.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=4">
+<link rel="stylesheet" href="../assets/site.css?v=5">
 </head>
 <body>
 <div style="max-width:1200px;margin:0 auto;padding:0 var(--edge)">
@@ -29,10 +29,13 @@
       <img src="../assets/vinpassport-logo.png" alt="VINPassport" width="546" height="102" style="height:32px;width:auto">
     </a>
     <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">intake</span>
-    <a href="../demo/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
-    <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
-    <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
-    <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    <div class="nav-links" id="navmenu">
+      <a href="../demo/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
+      <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
+      <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
+      <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    </div>
+    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navmenu"><i></i><i></i><i></i></button>
   </nav>
 
   <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 16px;padding:clamp(24px,4vw,40px) 0 18px">
@@ -188,5 +191,6 @@
 
 </div>
 <script type="module" src="intake.js?v=3"></script>
+<script type="module" src="../assets/nav.mjs?v=1"></script>
 </body>
 </html>

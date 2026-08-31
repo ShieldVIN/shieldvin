@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://passport.vin/assets/vinpassport-banner.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=4">
+<link rel="stylesheet" href="assets/site.css?v=5">
 </head>
 <body>
 <div style="max-width:1200px;margin:0 auto;padding:0 var(--edge)">
@@ -28,12 +28,15 @@
     <span style="display:flex;align-items:center;margin-right:auto;flex:none">
       <img src="assets/vinpassport-logo.png" alt="VINPassport" width="546" height="102" style="height:32px;width:auto">
     </span>
-    <a href="#how" class="nav-sec" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">How it works</a>
-    <a href="#surfaces" class="nav-sec" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Surfaces</a>
-    <a href="regulation/" class="nav-sec" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
-    <a href="#limits" class="nav-sec" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Honest limits</a>
-    <a href="demo/" class="nav-sec" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
-    <a href="intake/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:9px 20px;white-space:nowrap;flex:none">ADD PASSPORT</a>
+    <div class="nav-links" id="navmenu">
+      <a href="#how" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">How it works</a>
+      <a href="#surfaces" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Surfaces</a>
+      <a href="regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+      <a href="#limits" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Honest limits</a>
+      <a href="demo/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
+      <a href="intake/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:9px 20px;white-space:nowrap;flex:none">ADD PASSPORT</a>
+    </div>
+    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navmenu"><i></i><i></i><i></i></button>
   </nav>
 
   <section style="padding:clamp(48px,8vw,96px) 0 72px;display:flex;flex-wrap:wrap;gap:clamp(32px,4vw,56px);align-items:flex-start">
@@ -253,5 +256,6 @@
   </footer>
 
 </div>
+<script type="module" src="assets/nav.mjs?v=1"></script>
 </body>
 </html>

@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://passport.vin/assets/vinpassport-banner.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=4">
+<link rel="stylesheet" href="../assets/site.css?v=5">
 </head>
 <body>
 <div style="max-width:1200px;margin:0 auto;padding:0 var(--edge)">
@@ -28,11 +28,14 @@
     <a href="../" style="display:flex;align-items:center;margin-right:auto;flex:none;text-decoration:none">
       <img src="../assets/vinpassport-logo.png" alt="VINPassport" width="546" height="102" style="height:32px;width:auto">
     </a>
-    <a href="../demo/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
-    <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
     <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">proofs</span>
-    <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
-    <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    <div class="nav-links" id="navmenu">
+      <a href="../demo/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
+      <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
+      <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
+      <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    </div>
+    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navmenu"><i></i><i></i><i></i></button>
   </nav>
 
   <header style="padding:clamp(24px,4vw,40px) 0 20px">
@@ -101,5 +104,6 @@
 
 </div>
 <script type="module" src="proofs.js?v=4"></script>
+<script type="module" src="../assets/nav.mjs?v=1"></script>
 </body>
 </html>

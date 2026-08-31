@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://passport.vin/assets/vinpassport-banner.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=4">
+<link rel="stylesheet" href="../assets/site.css?v=5">
 </head>
 <body>
 <div style="max-width:1200px;margin:0 auto;padding:0 var(--edge)">
@@ -29,19 +29,22 @@
       <img src="../assets/vinpassport-logo.png" alt="VINPassport" width="546" height="102" style="height:32px;width:auto">
     </a>
     <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">live demo</span>
-    <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
-    <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
-    <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
-    <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    <div class="nav-links" id="navmenu">
+      <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
+      <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
+      <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
+      <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    </div>
+    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navmenu"><i></i><i></i><i></i></button>
   </nav>
 
   <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 16px;padding:clamp(24px,4vw,40px) 0 18px">
     <div style="flex:1 1 380px;min-width:0">
       <span style="display:block;font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Midnight preprod, live</span>
       <h1 style="margin:4px 0 0;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:.01em;text-transform:uppercase">Put a passport on the chain</h1>
-      <p style="margin:12px 0 0;font-size:15px;line-height:1.6;max-width:62ch;color:rgba(14,23,38,.8)">Not a simulation. Press the button and this site registers a vehicle passport on the deployed preprod contract, records its history, and proves claims about values it never publishes. Real proofs, real fees, real blocks you can look up yourself.</p>
+      <p style="margin:12px 0 0;font-size:15px;line-height:1.6;max-width:76ch;color:rgba(14,23,38,.8)">Not a simulation. Press the button and this site registers a vehicle passport on the deployed preprod contract, records its history, and proves claims about values it never publishes. Real proofs, real fees, real blocks you can look up yourself.</p>
     </div>
-    <div id="cap" style="flex:0 1 260px;min-width:0;padding:12px 14px;border:1px solid rgba(0,74,173,.28)">
+    <div id="cap" style="flex:0 1 300px;min-width:0;padding:12px 14px;border:1px solid rgba(0,74,173,.28)">
       <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span id="capdot" style="width:7px;height:7px;background:#8B95FF;flex:none"></span><span id="capstate">Checking the chain</span></div>
       <div id="capline" class="mono" style="margin-top:6px;font-size:10.5px;line-height:1.5;color:rgba(14,23,38,.5)">contacting api.passport.vin</div>
     </div>
@@ -81,7 +84,7 @@
 
   <section style="margin-bottom:40px">
     <div class="sect"><span class="snum">02</span><h2 class="stitle">CHECKING IT YOURSELF</h2><span class="smeta">public indexer</span></div>
-    <p style="margin:0 0 12px;font-size:13.5px;line-height:1.6;max-width:64ch;color:rgba(14,23,38,.8)">Nothing above has to be taken on trust. The contract is public, and so is every transaction the run makes. Ask the indexer what the contract's latest action is and compare it against the hashes in your receipt.</p>
+    <p style="margin:0 0 12px;font-size:13.5px;line-height:1.6;max-width:76ch;color:rgba(14,23,38,.8)">Nothing above has to be taken on trust. The contract is public, and so is every transaction the run makes. Ask the indexer what the contract's latest action is and compare it against the hashes in your receipt.</p>
     <div class="mono" style="padding:12px 14px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);font-size:11.5px;line-height:1.7;overflow-wrap:anywhere">curl -s https://indexer.preprod.midnight.network/api/v4/graphql \<br>&nbsp;&nbsp;-H 'Content-Type: application/json' \<br>&nbsp;&nbsp;-d '{"query":"{ contractAction(address: \"<span id="addr">…</span>\") { __typename transaction { hash block { height } } } }"}'</div>
   </section>
 
@@ -93,5 +96,6 @@
 
 </div>
 <script type="module" src="demo.js?v=1"></script>
+<script type="module" src="../assets/nav.mjs?v=1"></script>
 </body>
 </html>
