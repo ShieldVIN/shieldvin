@@ -69,9 +69,46 @@ export const startManual = async (base, intake) =>
 
 // ---------------------------------------------------------------- steps
 
+// ---------------------------------------------------------------- clock
+
 /**
- * A step's public shape. `running` is the only state that animates, and it
- * animates by wording rather than motion: the design carries no spinners.
+ * Durations, in the shortest form that stays readable. Seconds below a
+ * minute, then m:ss - a proof is tens of seconds and a whole run is minutes,
+ * so hours never arise and are not pretended at.
+ */
+export function fmtDuration(ms) {
+    if (ms == null || !Number.isFinite(ms) || ms < 0) return '';
+    const s = Math.floor(ms / 1000);
+    // Submitting takes well under a second; reporting that as "0s" reads like
+    // a step that never ran.
+    if (s < 1) return '<1s';
+    return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
+}
+
+/**
+ * The server owns the clock. It timestamps every step, so a reload or a
+ * second viewer sees the same elapsed time instead of starting its own; the
+ * only thing done here is correcting for a viewer whose clock is off, using
+ * the server time that arrives with each poll.
+ */
+let skewMs = 0;
+const serverNow = () => Date.now() - skewMs;
+const since = (iso) => (iso ? serverNow() - Date.parse(iso) : null);
+
+/** One ticker for the page: live clocks are re-rendered in place, so a poll
+ *  landing between ticks cannot fight it for the DOM. */
+let ticker = null;
+function tick() {
+    const live = document.querySelectorAll('[data-vp-since]');
+    if (!live.length) { clearInterval(ticker); ticker = null; return; }
+    for (const el of live) el.textContent = fmtDuration(serverNow() - Number(el.dataset.vpSince));
+}
+function startTicker() { if (!ticker) ticker = setInterval(tick, 1000); }
+
+/**
+ * A step's public shape. The running row is the only one that moves, and it
+ * moves because a single proof blocks for tens of seconds: without it a
+ * working run and a dead page look identical.
  */
 const MARK = {
     pending: { glyph: '·', color: 'rgba(14,23,38,.35)', border: '1px dashed rgba(14,23,38,.3)', bg: 'transparent' },
@@ -82,16 +119,27 @@ const MARK = {
 
 function stepRow(step) {
     const m = MARK[step.status] ?? MARK.pending;
+    const running = step.status === 'running';
     const detail = step.detail
         ? `<div class="mono" style="margin-top:3px;font-size:10.5px;line-height:1.5;color:rgba(14,23,38,.55);overflow-wrap:anywhere">${esc(step.detail)}</div>`
         : '';
-    return `<div style="display:flex;gap:12px;padding:11px 15px;border-top:1px solid rgba(0,74,173,.12);align-items:flex-start">
-      <span style="flex:none;width:22px;height:22px;display:grid;place-items:center;font-size:12px;line-height:1;
+    // A finished step reports what it took; the running one counts up. Only
+    // the running clock carries data-vp-since, so the ticker stops on its own
+    // once nothing is live.
+    const clock = running && step.startedAt
+        ? `<span class="mono vp-clock" data-vp-since="${Date.parse(step.startedAt)}"
+             style="flex:none;font-size:11px;color:#004AAD">${esc(fmtDuration(since(step.startedAt)) || '0s')}</span>`
+        : step.ms != null
+            ? `<span class="mono vp-clock" style="flex:none;font-size:11px;color:rgba(14,23,38,.42)">${esc(fmtDuration(step.ms))}</span>`
+            : '';
+    return `<div class="${running ? 'vp-run' : ''}" style="display:flex;gap:12px;padding:11px 15px;border-top:1px solid rgba(0,74,173,.12);align-items:flex-start">
+      <span class="${running ? 'vp-mark-run' : ''}" style="flex:none;width:22px;height:22px;display:grid;place-items:center;font-size:12px;line-height:1;
         border:${m.border};background:${m.bg};color:${m.color}">${m.glyph}</span>
       <div style="flex:1 1 220px;min-width:0">
-        <b style="display:block;font-size:13.5px;font-weight:${step.status === 'running' ? 700 : 500};line-height:1.4">${esc(step.label)}</b>
+        <b style="display:block;font-size:13.5px;font-weight:${running ? 700 : 500};line-height:1.4">${esc(step.label)}</b>
         ${detail}
       </div>
+      ${clock}
     </div>`;
 }
 
@@ -159,26 +207,44 @@ function receiptPanel(job, base) {
  * out of order cannot leave the panel in a half-updated state.
  */
 export function renderJob(host, job, base) {
+    // Correct for a viewer whose clock is off, using the server's own stamp.
+    if (job.updatedAt) skewMs = Date.now() - Date.parse(job.updatedAt);
+
     const done = job.status === 'done' || job.status === 'done-with-refusals';
+    const live = job.status === 'running' || job.status === 'queued';
     const headline = job.status === 'queued' ? 'Queued'
         : job.status === 'running' ? 'Running on preprod'
             : job.status === 'failed' ? 'Stopped'
                 : 'Complete';
+    // A run out of dust is not a broken run: the wallet cannot pay a fee. Say
+    // which it is, because the reader can do something about one of them.
+    const outOfDust = job.status === 'failed' && /out of dust|balance dust|insufficient funds/i.test(job.error ?? '');
     const sub = job.status === 'failed'
-        ? esc(job.error ?? 'the run did not finish')
+        ? (outOfDust
+            ? `${esc(job.error ?? '')} Dust pays the fees here and regenerates from NIGHT registered for it, so this is a wallet top-up rather than something wrong with the passport or the circuits.`
+            : esc(job.error ?? 'the run did not finish'))
         : done
             ? 'Every transaction below is on the public preprod chain.'
             : 'Real proving, real fees, real blocks. This takes a few minutes.';
 
+    const total = live && job.startedAt
+        ? `<span class="mono vp-clock" data-vp-since="${Date.parse(job.startedAt)}" style="font-size:11px;color:#004AAD">${esc(fmtDuration(since(job.startedAt)) || '0s')}</span>`
+        : job.ms != null
+            ? `<span class="mono vp-clock" style="font-size:11px;color:rgba(14,23,38,.55)">took ${esc(fmtDuration(job.ms))}</span>`
+            : '';
+
     host.innerHTML = `<section style="border:1px solid rgba(0,74,173,.26)">
       <div style="padding:12px 15px;border-bottom:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;align-items:baseline;gap:8px">
         <h3 style="margin:0;font-size:19px;letter-spacing:.02em;text-transform:uppercase">${esc(headline)}</h3>
+        ${total}
         <span class="mono" style="margin-left:auto;font-size:11px;color:rgba(14,23,38,.55)">${esc(job.kind)} run · ${esc(job.id.slice(0, 8))}</span>
       </div>
       <p style="margin:0;padding:11px 15px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.72);border-bottom:1px solid rgba(0,74,173,.12)">${sub}</p>
       ${(job.steps ?? []).map(stepRow).join('')}
     </section>
     ${receiptPanel(job, base)}`;
+
+    startTicker();
 }
 
 /**
@@ -237,5 +303,11 @@ export function capacityLine(status) {
     if (!status.ready) return 'The signing wallet is catching up to the chain tip. Runs start once it is level.';
     const reset = status.resetsAtUtc ? new Date(status.resetsAtUtc) : null;
     const when = reset ? `${String(reset.getUTCHours()).padStart(2, '0')}:00 UTC` : '00:00 UTC';
-    return `${status.remaining} of ${status.capacity} runs left today. The count resets at ${when}.`;
+    const line = `${status.remaining} of ${status.capacity} runs left today. The count resets at ${when}.`;
+    // The daily cap is not the only thing that can stop a run. Dust pays the
+    // fees, and a run that starts without enough of it writes half a passport
+    // before it finds out.
+    const dust = status.funds?.dust;
+    if (dust != null && BigInt(dust) === 0n) return `The signing wallet is out of dust, so a run cannot pay a fee. ${line}`;
+    return line;
 }

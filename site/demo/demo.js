@@ -11,7 +11,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-import { apiBase, getStatus, startGuided, followJob, capacityLine } from '../assets/preprod-run.mjs?v=1';
+import { apiBase, getStatus, startGuided, followJob, capacityLine } from '../assets/preprod-run.mjs?v=2';
 
 const $ = (id) => document.getElementById(id);
 const goBtn = $('go');

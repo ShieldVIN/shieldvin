@@ -131,6 +131,25 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{
   nav img{height:26px!important}
 }
 
+/* --- Preprod run: the step that is working ---------------------------------
+   A run spends tens of seconds inside a single proof, so a page with no
+   moving part is indistinguishable from a page that has died. The bar is the
+   design's own vocabulary: 2px, square, brand blue, no glow and no easing
+   tricks. Under prefers-reduced-motion nothing moves and the bar simply sits
+   under the running row; the wording and the clock still say it is running. */
+@keyframes vp-sweep{from{transform:translateX(-100%)}to{transform:translateX(363%)}}
+@keyframes vp-breathe{0%,100%{opacity:1}50%{opacity:.4}}
+.vp-run{position:relative;overflow:hidden}
+.vp-run::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:38%;
+  background:var(--color-accent);animation:vp-sweep 1.6s ease-in-out infinite}
+.vp-mark-run{animation:vp-breathe 1.6s ease-in-out infinite}
+/* Digits that tick must not reflow the row they sit in. */
+.vp-clock{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){
+  .vp-run::after{animation:none;width:100%;opacity:.3}
+  .vp-mark-run{animation:none}
+}
+
 /* --- /verify/: one passport per column ------------------------------------
    The page is a stack of passports, each designed at a phone's measure. On a
    desktop they sit side by side rather than stretching, which is also the
