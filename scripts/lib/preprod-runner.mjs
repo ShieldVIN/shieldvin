@@ -200,7 +200,7 @@ export async function createRunner({ log = console.log } = {}) {
      * The tip is sampled ONCE and used as a fixed target, so this terminates:
      * waiting for a tip that keeps advancing would never finish.
      */
-    async function gateToApplied(ceilingMs) {
+    async function gateToApplied(ceilingMs, signal) {
         const end = Date.now() + ceilingMs;
         const target = await dustStreamTip();
         if (target == null) return;                    // indexer quiet; do not block the run
@@ -213,6 +213,9 @@ export async function createRunner({ log = console.log } = {}) {
                 throw new Error(`the wallet is ${want - dust.applied} dust events behind the chain; ` +
                     'a fee proven against a stale dust root is rejected by the node');
             }
+            // A cancelled run must not sit here for the rest of the ceiling:
+            // this loop can outlive the queue's grace period on its own.
+            if (signal?.aborted) throw signal.reason ?? new Error('run cancelled');
             await new Promise((r) => setTimeout(r, 5_000));
         }
     }
@@ -430,7 +433,24 @@ export async function createRunner({ log = console.log } = {}) {
     }
 
     // ---- one run -----------------------------------------------------------
-    async function executeRun(job, intake) {
+    async function executeRun(job, intake, signal) {
+        // Checked wherever the run is about to start something expensive or
+        // chain-touching. A wasm proof cannot be interrupted once it is
+        // running, so the guarantee is "starts nothing new after the abort",
+        // not "stops instantly" - which is why the queue also waits out a
+        // grace period before releasing.
+        const halt = () => {
+            if (signal?.aborted) throw signal.reason ?? new Error('run cancelled');
+        };
+        // Sleep that gives up early when the run is cancelled, so a poll loop
+        // does not keep the whole run alive for another full interval.
+        const nap = (ms) => new Promise((resolve, reject) => {
+            if (signal?.aborted) return reject(signal.reason ?? new Error('run cancelled'));
+            const t = setTimeout(() => { signal?.removeEventListener('abort', onAbort); resolve(); }, ms);
+            const onAbort = () => { clearTimeout(t); reject(signal.reason ?? new Error('run cancelled')); };
+            signal?.addEventListener('abort', onAbort, { once: true });
+        });
+
         // Steps are keyed by id so a retried stage reuses its rows instead of
         // duplicating them in the job view.
         const step = (id, label) => {
@@ -590,6 +610,7 @@ export async function createRunner({ log = console.log } = {}) {
             // Each stage is bounded on its own. A stage that hangs now fails
             // in minutes with a message naming the stage, instead of quietly
             // eating the whole run's budget and surfacing as a bare timeout.
+            halt();                       // do not begin a stage after a cancel
             const stageEndsAt = Date.now() + STAGE_BUDGET_MS;
             const stageBudget = () => {
                 if (Date.now() > stageEndsAt) {
@@ -645,6 +666,7 @@ export async function createRunner({ log = console.log } = {}) {
                     if (attempt < (unknown1010 ? 2 : 3)) {
                         // Another attempt costs ~40s of proving, so only start
                         // one the stage still has room to finish.
+                        halt();
                         stageBudget();
                         log(`demo: stage ${n} rejected by the node (attempt ${attempt}: ${msg}); rebuilding`);
                         continue;
@@ -667,7 +689,7 @@ export async function createRunner({ log = console.log } = {}) {
                     const a = await latestContractAction();
                     if (a && a.type === 'ContractCall' && (!baseline || a.hash !== baseline.hash || a.height > baseline.height)) return a;
                     if (Date.now() >= deadline) break;
-                    await new Promise((r) => setTimeout(r, CONFIRM_POLL_MS));
+                    await nap(CONFIRM_POLL_MS);
                 }
                 throw new Error(`not visible on the indexer within ${Math.round(CONFIRM_TIMEOUT_MS / 60_000)} minutes ` +
                     '(it may still land; check the contract address)');
@@ -692,6 +714,7 @@ export async function createRunner({ log = console.log } = {}) {
             // stage.label already reads "prove noAccidents" for a single call,
             // so prefixing "Prove " again gave "Prove prove noAccidents".
             const what = /^prove /i.test(stage.label) ? stage.label : `Prove ${stage.label}`;
+            halt();                       // a proof is ~40s we cannot take back
             const built = await runStep(step(`build:${n}`, `${what} (${calls.length} call${calls.length === 1 ? '' : 's'}, in-process)${suffix}`), async () => {
                 // Every call in this contract moves no value: they write
                 // commitments, and OUR facade does the dust balancing further
@@ -754,10 +777,11 @@ export async function createRunner({ log = console.log } = {}) {
                 }
                 if (!tx) throw new Error('could not deserialize the built transaction');
                 const attempt = async () => {
+                    halt();               // never balance dust for a cancelled run
                     // Every stage spends a dust UTXO; the wallet must have seen
                     // the previous stage's spend before it picks the next one,
                     // and "seen" has to mean level, not within a hundred.
-                    await gateToApplied(GATE_TIMEOUT_MS);
+                    await gateToApplied(GATE_TIMEOUT_MS, signal);
                     const recipe = await facade.balanceFinalizedTransaction(
                         tx, { shieldedSecretKeys: zswapKeys, dustSecretKey: dustKey },
                         { ttl: new Date(Date.now() + 30 * 60_000), tokenKindsToBalance: ['dust'] }
@@ -774,7 +798,7 @@ export async function createRunner({ log = console.log } = {}) {
                     // both mean the fee proof itself was refused, so re-gate to
                     // the tip and prove it again rather than giving up.
                     if (!isStaleDustProof(msg) && !/1010|invalid|stale/i.test(msg)) throw e;
-                    await gateToApplied(GATE_TIMEOUT_MS);
+                    await gateToApplied(GATE_TIMEOUT_MS, signal);
                     return attempt();
                 }
             });
@@ -787,6 +811,7 @@ export async function createRunner({ log = console.log } = {}) {
             }
 
             const baseline = await latestContractAction();
+            halt();                       // never submit for a cancelled run
             const extrinsicHash = await runStep(step(`submit:${n}`, 'Submit to the preprod node'), () => submitFinalized(finalized));
             return { extrinsicHash, baseline };
         }
@@ -829,6 +854,37 @@ export async function createRunner({ log = console.log } = {}) {
     let queueTail = Promise.resolve();
     let queueLength = 0;
 
+    // How long a cancelled run gets to notice and unwind. A proof in wasm is
+    // not interruptible, so the honest number is "one proof plus slack".
+    const ABORT_GRACE_MS = 3 * 60_000;
+
+    // Set when a cancelled run would NOT stop. There is exactly one wallet
+    // facade here, so a run still holding it is not something to run beside -
+    // it is a reason to stop accepting runs and say so. Refusing the demo is
+    // recoverable by a restart; two runs sharing a facade corrupts both and
+    // spends real dust doing it.
+    let wedged = null;
+
+    /**
+     * Wait for an aborted run to actually finish, not merely to have rejected.
+     *
+     * Releasing the queue on the rejection is the bug this exists to close:
+     * the promise settles the moment the backstop fires, while the run itself
+     * carries on proving and submitting.
+     */
+    async function settle(p, graceMs, job) {
+        let done = false;
+        p.then(() => { done = true; }, () => { done = true; });
+        const end = Date.now() + graceMs;
+        while (!done && Date.now() < end) await new Promise((r) => setTimeout(r, 500));
+        if (!done) {
+            wedged = `run ${job.id} was cancelled but did not stop within ` +
+                `${Math.round(graceMs / 60_000)} minutes; it may still be holding the wallet. ` +
+                'Preprod runs are disabled until this process restarts.';
+            log('demo: ' + wedged);
+        }
+    }
+
     function makeJob(kind) {
         const job = {
             id: randomUUID(), kind, status: 'queued', steps: [], receipt: null,
@@ -845,22 +901,48 @@ export async function createRunner({ log = console.log } = {}) {
 
     function enqueue(kind, intake) {
         if (warmError) throw new Error('the preprod wallet failed to start: ' + warmError.message);
+        // A run that would not stop is still holding the one facade. Refuse
+        // rather than start a second one beside it.
+        if (wedged) throw Object.assign(new Error(wedged), { code: 'WEDGED' });
         takeSlot();                       // counts against today even if it later fails
         const job = makeJob(kind);
         queueLength += 1;
+        // The backstop has to STOP the run, not just report it.
+        //
+        // This was `Promise.race([executeRun, timeout])`, which marks the job
+        // failed and lets the queue move on while executeRun carries on
+        // proving and submitting. The next visitor's run then shares this
+        // facade with the abandoned one: their dust spends collide, and both
+        // confirm loops watch the same contract address and can adopt each
+        // other's transactions. So the one case the backstop exists for was
+        // the one case that produced the concurrency the queue exists to
+        // prevent. (Found by ODATANO's review; the 20 -> 75 minute ceiling
+        // earlier the same day had made the window 55 minutes longer.)
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(
+            new Error(`run exceeded the ${Math.round(JOB_CEILING_MS / 60_000)} minute backstop`)
+        ), JOB_CEILING_MS);
+        job.abort = (why) => ctl.abort(new Error(why ?? 'run cancelled'));
+
         queueTail = queueTail
             .then(async () => {
                 job.status = 'running'; job.startedAt = new Date().toISOString(); job.touch();
-                await Promise.race([
-                    executeRun(job, intake),
-                    // Backstop only. Stages carry their own deadlines, so this
-                    // fires for something pathological (a wedged socket, a
-                    // wallet that never syncs), not for a run that is merely
-                    // slow - which is what the old flat 20 minutes did.
-                    new Promise((_, rej) => setTimeout(
-                        () => rej(new Error(`run exceeded the ${Math.round(JOB_CEILING_MS / 60_000)} minute backstop`)),
-                        JOB_CEILING_MS))
-                ]);
+                const running = executeRun(job, intake, ctl.signal);
+                // Two separate jobs, and conflating them is how the original
+                // bug happened. REPORTING must be prompt: race the abort, so
+                // a run that ignores its signal is still reported as having
+                // exceeded the backstop instead of quietly succeeding
+                // whenever it eventually finishes. RELEASING the queue must
+                // wait: a rejected promise is not a stopped run.
+                const aborted = new Promise((_, rej) => ctl.signal.addEventListener(
+                    'abort', () => rej(ctl.signal.reason ?? new Error('run cancelled')), { once: true }));
+                try {
+                    await Promise.race([running, aborted]);
+                } catch (e) {
+                    throw ctl.signal.aborted ? (ctl.signal.reason ?? e) : e;
+                } finally {
+                    await settle(running, ABORT_GRACE_MS, job);
+                }
             })
             .catch((e) => {
                 if (job.status !== 'done' && job.status !== 'done-with-refusals') {
@@ -869,6 +951,7 @@ export async function createRunner({ log = console.log } = {}) {
                 }
             })
             .finally(() => {
+                clearTimeout(timer);
                 queueLength -= 1;
                 job.finishedAt = new Date().toISOString();
                 if (job.startedAt) job.ms = Date.parse(job.finishedAt) - Date.parse(job.startedAt);
@@ -942,8 +1025,13 @@ export async function createRunner({ log = console.log } = {}) {
             const c = readCounter();
             return {
                 enabled: true, network: NETWORK_ID, contractAddress,
-                ready, warming: !ready && !warmError,
-                error: warmError ? String(warmError.message) : null,
+                // A wedged runner is not ready, whatever the wallet says: it
+                // holds a facade a cancelled run may still be using. Reporting
+                // it as an error rather than a quiet refusal means the page
+                // explains itself instead of the button just not working.
+                ready: ready && !wedged,
+                warming: !ready && !warmError && !wedged,
+                error: warmError ? String(warmError.message) : wedged,
                 capacity, used: c.used, remaining: Math.max(0, capacity - c.used),
                 resetsAtUtc: new Date(Date.parse(todayUtc()) + 86_400_000).toISOString(),
                 queueLength,
