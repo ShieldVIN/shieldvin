@@ -58,8 +58,25 @@ const NODE_WS = 'wss://rpc.preprod.midnight.network/';
 const INDEXER_HTTP = 'https://indexer.preprod.midnight.network/api/v4/graphql';
 const INDEXER_WS = 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws';
 const ZK_CONFIG_DIR = join(ROOT, 'contracts', 'vinpassport', 'src', 'managed', 'vinpassport');
-const CONFIRM_TIMEOUT_MS = 240_000;
-const JOB_CEILING_MS = 20 * 60_000;
+// Time budgets.
+//
+// These used to be incoherent with each other. The run ceiling was a flat 20
+// minutes however many stages the intake produced, while confirmation alone
+// was allowed 4 minutes per stage - so a five-stage run could spend its whole
+// ceiling waiting on the indexer and time out on a run that had in fact
+// worked. Measured on preprod 2026-08-31: a clean five-stage run used ~18
+// minutes of the 20, so one slow block or a single retry would have reported
+// a passing run as a timeout.
+//
+// The budget now comes from the plan instead of a guess: every stage gets its
+// own deadline, and the run's ceiling is derived from how many stages there
+// are. The outer backstop only catches something pathological.
+const CONFIRM_TIMEOUT_MS = 240_000;   // indexer lag is real; keep this net wide
+const CONFIRM_POLL_MS = 4_000;        // blocks are ~6s, so sleeping 10s first was pure latency
+const GATE_TIMEOUT_MS = 3 * 60_000;   // a wallet 3 minutes behind is a fault, not a wait
+const WARMUP_BUDGET_MS = 7 * 60_000;  // restore, dry-run and the first build
+const STAGE_BUDGET_MS = 8 * 60_000;   // build + fund + submit + confirm, including retries
+const JOB_CEILING_MS = 75 * 60_000;   // backstop only; the real bound is per stage
 // What a whole run needs in the wallet before it is worth starting. Left at 0
 // deliberately: the real per-stage cost is not something to invent, and a
 // wrong floor would refuse runs that would have worked. The status endpoint
@@ -246,7 +263,21 @@ export async function createRunner({ log = console.log } = {}) {
             // like an empty one.
             out.available = (u?.availableCoins ?? []).length;
             out.pending = (u?.pendingCoins ?? []).length;
-            out.registered = (u?.totalCoins ?? []).filter((c) => c?.registeredForDustGeneration).length;
+            // The flag sits on the utxo's META, not on the utxo: totalCoins
+            // yields UtxoWithMeta = { utxo, meta }, and `meta` is where
+            // registeredForDustGeneration lives. Reading it one level too high
+            // gave `undefined` for every coin and therefore a confident
+            // "registered: 0" for nine UTXOs the chain says ARE registered.
+            //
+            // Which is the same shape of mistake that read balances off the
+            // wallet handles instead of the state, so this one refuses to
+            // guess: if the flag is missing entirely the answer is null - not
+            // knowing is reported as not knowing, never as zero.
+            const coins = u?.totalCoins ?? [];
+            const flags = coins.map((c) => c?.meta?.registeredForDustGeneration);
+            out.registered = coins.length === 0 ? 0
+                : flags.every((f) => typeof f !== 'boolean') ? null
+                    : flags.filter((f) => f === true).length;
         } catch (e) { out.nightError = String(e?.message ?? e).slice(0, 160); }
         try {
             const d = latest.dust;
@@ -320,17 +351,51 @@ export async function createRunner({ log = console.log } = {}) {
             : null;
     }
 
-    // ---- telling a funding failure from a sequencing one --------------------
-    // The node answers a rejected submission with a bare 1010 and a sub-code:
-    // 188 is the sequencing (causality) refusal, which splitting a batch does
-    // fix. 117 and 170 are funding, which it cannot. The local balancer says
-    // it in words instead. Confirmed on preprod 2026-08-31: a run landed four
-    // stages, was rejected 1010/170 twice on the fifth, split, and then failed
-    // to balance at all.
+    // ---- what the node's sub-code actually means ----------------------------
+    //
+    // A rejected submission comes back as a bare `1010 Invalid Transaction`
+    // with a numeric sub-code, and those sub-codes are not interchangeable.
+    // Verified against midnightntwrk/midnight-node, ledger/src/versions/
+    // common/types.rs, via the midnight-status-codes reference:
+    //
+    //   170 InvalidDustSpendProof   the DUST FEE PROOF is invalid - typically
+    //                               proven against a dust root the node has
+    //                               moved past. Re-gate and rebuild. The
+    //                               wallet is NOT out of dust.
+    //   171 OutOfDustValidityWindow the transaction outlived its ttl. Rebuild.
+    //   117 NotNormalized           malformed transaction, classically a zero
+    //                               fee. Waiting does not fix it.
+    //   138 BalanceCheckOverspend   dust-side: the fee exceeded available
+    //                               dust. THIS is what out-of-dust looks like.
+    //   173 InsufficientDustFor...  out of dust, registration specifically.
+    //   219-224 SequencingCheck.*   the batch's call order is illegal;
+    //                               splitting into single calls does fix it.
+    //   188 SequencingCheckFailure  RETIRED - the current ledger never emits
+    //                               it. Kept here only for older nodes.
+    //
+    // Getting this table wrong is not academic. 170 was previously classified
+    // as a funding failure, so a run that hit a stale dust root aborted
+    // claiming "out of dust" - against a wallet holding 1.06e19 SPECKs - and
+    // sent us to a faucet for NIGHT we already had. The sub-code was saying
+    // "your proof is stale", and we read it as "your wallet is empty".
     const OUT_OF_DUST = 'out of dust: the signing wallet cannot pay a fee right now';
+    const subCode = (msg) => Number(/Custom error:\s*(\d+)/.exec(msg)?.[1] ?? NaN);
+
+    // The fee proof itself was refused. Re-gate to the tip and prove again.
+    const isStaleDustProof = (msg) => [170, 171].includes(subCode(msg));
+
+    // The wallet genuinely cannot pay. Only these say that.
     const isFundsProblem = (msg) =>
-        /Custom error:\s*(117|170)\b/.test(msg) ||
-        /insufficient funds|could not balance dust/i.test(msg);
+        [138, 173].includes(subCode(msg)) ||
+        /insufficient funds|could not balance dust|InvalidTransaction::Payment/i.test(msg);
+
+    // The batch's shape is the problem, so splitting it into single calls is
+    // the remedy. Nothing else here is worth splitting for.
+    const isSequencingProblem = (msg) => {
+        const c = subCode(msg);
+        return (c >= 219 && c <= 224) || c === 188 ||
+            /causality|sequencing|segment ordering|BatchCausality/i.test(msg);
+    };
 
     // ---- submission (the path that works: encode HTTP, submit one-shot ws) -
     async function submitFinalized(finalized) {
@@ -484,7 +549,9 @@ export async function createRunner({ log = console.log } = {}) {
         await runStep(walletStep, async () => {
             await warmup;
             if (warmError) throw warmError;
-            await gateToTip(10 * 60_000);
+            // Bounded by the same warm-up budget the run publishes, so the
+            // advertised budget is the truth rather than an underestimate.
+            await gateToTip(WARMUP_BUDGET_MS);
             // Say what the wallet can pay with BEFORE proving anything. A run
             // that dies of dust at stage five has already spent four fees, a
             // slot from the daily cap and several minutes of the visitor's
@@ -503,10 +570,27 @@ export async function createRunner({ log = console.log } = {}) {
         const stagesOut = [];
         const queue = [...plan.stages];
         let n = 0;
+        // Now the plan is known, so the run's budget can be a number derived
+        // from it rather than a flat guess. Publishing it lets the page say
+        // how long a run may legitimately take instead of leaving a slow run
+        // looking indistinguishable from a stuck one.
+        job.budgetMs = WARMUP_BUDGET_MS + queue.length * STAGE_BUDGET_MS;
+        job.stagesPlanned = queue.length;
+        job.touch();
         while (queue.length) {
             const stage = queue.shift();
             n += 1;
             const calls = stage.steps.map(toCall);
+            // Each stage is bounded on its own. A stage that hangs now fails
+            // in minutes with a message naming the stage, instead of quietly
+            // eating the whole run's budget and surfacing as a bare timeout.
+            const stageEndsAt = Date.now() + STAGE_BUDGET_MS;
+            const stageBudget = () => {
+                if (Date.now() > stageEndsAt) {
+                    throw new Error(`stage ${n} (${stage.label}) exceeded its ` +
+                        `${Math.round(STAGE_BUDGET_MS / 60_000)} minute budget`);
+                }
+            };
 
             // A 1010 reject is a known batch outcome; the remedy is to REBUILD
             // with fresh randomness, never to resubmit the same bytes. If a
@@ -525,12 +609,24 @@ export async function createRunner({ log = console.log } = {}) {
                     const msg = String(e?.message ?? e);
                     // A funding failure is not a batching failure. Splitting a
                     // batch we cannot pay for just buys two more proofs we
-                    // also cannot pay for, which is exactly what happened:
-                    // 1010/170 twice, split, then "could not balance dust".
+                    // also cannot pay for.
                     if (isFundsProblem(msg)) throw Object.assign(new Error(OUT_OF_DUST), { funds: true });
-                    const batchy = /1010|causality|segment ordering|BatchCausality/i.test(msg);
-                    if (!batchy) throw e;
-                    if (stage.steps.length > 1 && attempt >= 2) {
+                    const sequencing = isSequencingProblem(msg);
+                    const dustProof = isStaleDustProof(msg);
+                    // A 1010 whose sub-code this table does not recognise
+                    // still earns ONE rebuild with fresh randomness - cheap
+                    // insurance against a code added upstream since - but it
+                    // never earns a split, because splitting only ever
+                    // remedies call ordering.
+                    const unknown1010 = !sequencing && !dustProof && /\b1010\b/.test(msg);
+                    if (!sequencing && !dustProof && !unknown1010) throw e;
+                    // Splitting only ever helps a SEQUENCING refusal, because
+                    // there the batch's call order is the thing being
+                    // rejected. A refused dust proof is about the fee, which
+                    // is identical in a single call - splitting it just buys
+                    // more proofs against the same stale root, which is what
+                    // this code used to do on every bare 1010.
+                    if (sequencing && stage.steps.length > 1 && attempt >= 2) {
                         log(`demo: batch of ${stage.steps.length} refused twice (${msg}); splitting into single calls`);
                         queue.unshift(...stage.steps.map((s) => makeStage([s])));
                         for (const id of [`build:${n}`, `fund:${n}`, `submit:${n}`]) {
@@ -540,8 +636,11 @@ export async function createRunner({ log = console.log } = {}) {
                         split = true;
                         break;
                     }
-                    if (attempt < 3) {
-                        log(`demo: stage ${n} rejected by the node (attempt ${attempt}); rebuilding`);
+                    if (attempt < (unknown1010 ? 2 : 3)) {
+                        // Another attempt costs ~40s of proving, so only start
+                        // one the stage still has room to finish.
+                        stageBudget();
+                        log(`demo: stage ${n} rejected by the node (attempt ${attempt}: ${msg}); rebuilding`);
                         continue;
                     }
                     throw e;
@@ -554,12 +653,18 @@ export async function createRunner({ log = console.log } = {}) {
 
             const landed = await runStep(step(`confirm:${n}`, 'Wait for the block and the indexer'), async () => {
                 const deadline = Date.now() + CONFIRM_TIMEOUT_MS;
-                while (Date.now() < deadline) {
-                    await new Promise((r) => setTimeout(r, 10_000));
+                // Ask first, then wait. Sleeping before the first look spent
+                // ten seconds per stage discovering nothing, and blocks are
+                // about six seconds apart, so a ten-second poll added its own
+                // latency on top of the chain's.
+                for (; ;) {
                     const a = await latestContractAction();
                     if (a && a.type === 'ContractCall' && (!baseline || a.hash !== baseline.hash || a.height > baseline.height)) return a;
+                    if (Date.now() >= deadline) break;
+                    await new Promise((r) => setTimeout(r, CONFIRM_POLL_MS));
                 }
-                throw new Error('not visible on the indexer within 4 minutes (it may still land; check the contract address)');
+                throw new Error(`not visible on the indexer within ${Math.round(CONFIRM_TIMEOUT_MS / 60_000)} minutes ` +
+                    '(it may still land; check the contract address)');
             });
 
             stagesOut.push({
@@ -616,7 +721,7 @@ export async function createRunner({ log = console.log } = {}) {
                     // Every stage spends a dust UTXO; the wallet must have seen
                     // the previous stage's spend before it picks the next one,
                     // and "seen" has to mean level, not within a hundred.
-                    await gateToApplied(10 * 60_000);
+                    await gateToApplied(GATE_TIMEOUT_MS);
                     const recipe = await facade.balanceFinalizedTransaction(
                         tx, { shieldedSecretKeys: zswapKeys, dustSecretKey: dustKey },
                         { ttl: new Date(Date.now() + 30 * 60_000), tokenKindsToBalance: ['dust'] }
@@ -626,13 +731,14 @@ export async function createRunner({ log = console.log } = {}) {
                 try { return await attempt(); }
                 catch (e) {
                     const msg = String(e?.message ?? e);
-                    // Retrying a balance we cannot afford just waits ten
-                    // minutes to fail the same way.
+                    // Retrying a balance we cannot afford just waits to fail
+                    // the same way.
                     if (isFundsProblem(msg)) throw Object.assign(new Error(`${OUT_OF_DUST} (${msg})`), { funds: true });
-                    // A stale dust root reads as an invalid-transaction reject:
-                    // re-gate to tip once and retry before giving up.
-                    if (!/1010|invalid|stale/i.test(msg)) throw e;
-                    await gateToApplied(10 * 60_000);
+                    // 170 InvalidDustSpendProof and 171 OutOfDustValidityWindow
+                    // both mean the fee proof itself was refused, so re-gate to
+                    // the tip and prove it again rather than giving up.
+                    if (!isStaleDustProof(msg) && !/1010|invalid|stale/i.test(msg)) throw e;
+                    await gateToApplied(GATE_TIMEOUT_MS);
                     return attempt();
                 }
             });
@@ -711,7 +817,13 @@ export async function createRunner({ log = console.log } = {}) {
                 job.status = 'running'; job.startedAt = new Date().toISOString(); job.touch();
                 await Promise.race([
                     executeRun(job, intake),
-                    new Promise((_, rej) => setTimeout(() => rej(new Error('run exceeded the 20 minute ceiling')), JOB_CEILING_MS))
+                    // Backstop only. Stages carry their own deadlines, so this
+                    // fires for something pathological (a wedged socket, a
+                    // wallet that never syncs), not for a run that is merely
+                    // slow - which is what the old flat 20 minutes did.
+                    new Promise((_, rej) => setTimeout(
+                        () => rej(new Error(`run exceeded the ${Math.round(JOB_CEILING_MS / 60_000)} minute backstop`)),
+                        JOB_CEILING_MS))
                 ]);
             })
             .catch((e) => {
