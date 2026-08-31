@@ -54,12 +54,17 @@ function paintStatus(status) {
     capLine.textContent = capacityLine(status);
     const ready = status?.enabled && status?.ready && !status?.error;
     const spent = ready && status.remaining <= 0;
-    capDot.style.background = ready && !spent ? '#004AAD' : '#8B95FF';
+    // The daily cap is not the only thing that can stop a run. Starting one
+    // with an empty wallet spends a slot to fail at the first fee, so treat
+    // no dust exactly like no runs left.
+    const broke = ready && status.funds?.dust != null && BigInt(status.funds.dust) === 0n;
+    capDot.style.background = ready && !spent && !broke ? '#004AAD' : '#8B95FF';
     capState.textContent = !status?.enabled ? 'Preprod runs are off here'
         : status.error ? 'Preprod runs unavailable'
             : !status.ready ? 'Wallet syncing'
-                : spent ? "Today's runs are used"
-                    : 'Connected to preprod';
+                : broke ? 'Out of dust'
+                    : spent ? "Today's runs are used"
+                        : 'Connected to preprod';
     if (status?.contractAddress) $('addr').textContent = status.contractAddress;
 
     if (busy) return;
@@ -71,6 +76,9 @@ function paintStatus(status) {
         goNote.textContent = status?.enabled && !status.ready
             ? 'the wallet is catching up; this page will enable itself'
             : 'the manual console still runs the circuits locally';
+    } else if (broke) {
+        disable('The signing wallet has no dust, so a run cannot pay its first fee.');
+        goNote.textContent = 'the wallet needs dust before a run can start';
     } else if (spent) {
         disable('Today\'s runs are used. The counter resets at 00:00 UTC.');
         goNote.textContent = 'the counter resets at 00:00 UTC';
