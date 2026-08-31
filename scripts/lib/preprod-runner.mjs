@@ -374,6 +374,42 @@ export async function createRunner({ log = console.log } = {}) {
             : null;
     }
 
+    /**
+     * Find OUR transaction on chain, by identity rather than by coincidence.
+     *
+     * The confirm step used to accept any ContractCall newer than a baseline
+     * taken before submitting. On a public contract address that is not a
+     * confirmation: a third party calling the same contract satisfies it, and
+     * so does a second transaction of our own if a transport failure ever led
+     * us to send twice. It answers "something happened" when the question is
+     * "did MY transaction land".
+     *
+     * `identifiers()` is the sanctioned way to watch for a specific
+     * transaction - the ledger's own docs say `transactionHash()` must NOT be
+     * used for this, because merging can change it - and the indexer's
+     * transaction offset takes one. (ODATANO's finding 4.)
+     */
+    function txIdentifiers(finalized) {
+        try {
+            const ids = finalized?.identifiers?.() ?? [];
+            return [...ids].map(String).filter((s) => /^[0-9a-f]+$/i.test(s));
+        } catch { return []; }
+    }
+
+    async function findByIdentifiers(ids) {
+        for (const id of ids) {
+            const r = await fetch(INDEXER_HTTP, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `{ transactions(offset: { identifier: "${id}" }) { hash block { height } } }`
+                })
+            }).then((x) => x.json()).catch(() => null);
+            const t = r?.data?.transactions?.[0];
+            if (t?.hash) return { type: 'ContractCall', hash: t.hash, height: t.block?.height ?? 0 };
+        }
+        return null;
+    }
+
     // ---- what the node's sub-code actually means ----------------------------
     //
     // A rejected submission comes back as a bare `1010 Invalid Transaction`
@@ -701,9 +737,19 @@ export async function createRunner({ log = console.log } = {}) {
                 // ten seconds per stage discovering nothing, and blocks are
                 // about six seconds apart, so a ten-second poll added its own
                 // latency on top of the chain's.
+                const ids = submitted.ids ?? [];
                 for (; ;) {
-                    const a = await latestContractAction();
-                    if (a && a.type === 'ContractCall' && (!baseline || a.hash !== baseline.hash || a.height > baseline.height)) return a;
+                    // By identity when we have one. The baseline comparison
+                    // stays only as a fallback for the case where the ledger
+                    // gives us no identifiers, because it cannot tell our
+                    // transaction from anyone else's.
+                    if (ids.length) {
+                        const mine = await findByIdentifiers(ids);
+                        if (mine) return mine;
+                    } else {
+                        const a = await latestContractAction();
+                        if (a && a.type === 'ContractCall' && (!baseline || a.hash !== baseline.hash || a.height > baseline.height)) return a;
+                    }
                     if (Date.now() >= deadline) break;
                     await nap(CONFIRM_POLL_MS);
                 }
@@ -827,11 +873,26 @@ export async function createRunner({ log = console.log } = {}) {
             }
 
             const baseline = await latestContractAction();
+            const ids = txIdentifiers(finalized);
             halt();                       // never submit for a cancelled run
             const extrinsicHash = await runStep(step(`submit:${n}`, 'Submit to the preprod node'), async () => {
                 try {
                     return await submitFinalized(finalized);
                 } catch (e) {
+                    // A TRANSPORT failure is not a rejection. The websocket
+                    // timing out says nothing about whether the node took the
+                    // transaction, so treating it as a failure can fail a run
+                    // whose transaction is landing as we speak - and reverting
+                    // the dust for a spend that DID happen would be worse than
+                    // the leak it fixes. Ask the chain before deciding.
+                    if (!/1010|invalid|rejected/i.test(String(e?.message ?? e)) && ids.length) {
+                        await new Promise((r) => setTimeout(r, 12_000));
+                        const landed = await findByIdentifiers(ids);
+                        if (landed) {
+                            log(`demo: stage ${n} submit reported "${e?.message ?? e}" but the tx is on chain (${landed.hash})`);
+                            return landed.hash;
+                        }
+                    }
                     // Give the dust back before rethrowing.
                     //
                     // Balancing marks the spent dust note pending inside the
@@ -859,7 +920,7 @@ export async function createRunner({ log = console.log } = {}) {
                     throw e;
                 }
             });
-            return { extrinsicHash, baseline };
+            return { extrinsicHash, baseline, ids };
         }
 
         // Only worth persisting a run that ended clean.
