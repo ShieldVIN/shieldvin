@@ -1053,7 +1053,29 @@ export async function createRunner({ log = console.log } = {}) {
             // The page shows a clock; the server owns it, so a reload or a
             // second viewer sees the same elapsed time rather than its own.
             startedAt: null, finishedAt: null, ms: null,
-            touch() { this.updatedAt = new Date().toISOString(); }
+            budgetMs: null, stagesPlanned: null,
+            touch() { this.updatedAt = new Date().toISOString(); },
+            // The API serialises a job straight to the caller, so what a job
+            // carries and what it publishes have to be separate things. They
+            // were not: the run also hangs a controller and a stage timer off
+            // this object, and a Node timer holds a reference back to itself,
+            // which is not representable as JSON. Serialising the whole job
+            // therefore threw inside the response - taking the process with
+            // it, mid-run, on the first poll after a stage began.
+            //
+            // An explicit list is the point: a field is published because it
+            // is named here, so anything the run needs to keep on a job from
+            // now on stays internal by default.
+            toJSON() {
+                return {
+                    id: this.id, kind: this.kind, status: this.status,
+                    steps: this.steps, receipt: this.receipt,
+                    createdAt: this.createdAt, updatedAt: this.updatedAt,
+                    startedAt: this.startedAt, finishedAt: this.finishedAt,
+                    ms: this.ms, budgetMs: this.budgetMs,
+                    stagesPlanned: this.stagesPlanned, error: this.error
+                };
+            }
         };
         jobs.set(job.id, job);
         if (jobs.size > 100) jobs.delete(jobs.keys().next().value);

@@ -96,9 +96,21 @@ async function serveStatic(res, urlPath) {
 
 // ---------------------------------------------------------------- api
 
+// Serialise BEFORE committing to a status code. Writing the header first and
+// stringifying after means a value that cannot be represented sends a 200 with
+// an empty body - a caller then fails on parse and has nothing to report,
+// which is a worse outcome than a plain 500 saying what happened.
 const json = (res, code, obj) => {
+    let body;
+    try {
+        body = JSON.stringify(obj);
+    } catch (e) {
+        console.error('demo: response could not be serialised:', String(e?.message ?? e));
+        body = JSON.stringify({ error: 'response could not be serialised' });
+        code = 500;
+    }
     res.writeHead(code, { 'content-type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(obj));
+    res.end(body);
 };
 
 function ledgerPayload() {
@@ -244,7 +256,20 @@ function cors(req, res) {
     }
 }
 
-const server = createServer(async (req, res) => {
+// One request must not be able to end the process. The handler is async, so
+// anything thrown inside it becomes a rejected promise that nothing awaits,
+// and Node ends the process on an unhandled rejection - which is how a single
+// GET took the demo engine down mid-run, along with the run it was reporting
+// on. A failed request is a 500; the engine keeps the wallet and the queue.
+const server = createServer((req, res) => {
+    route(req, res).catch((e) => {
+        console.error('demo: request failed:', String(e?.stack ?? e));
+        if (!res.headersSent) json(res, 500, { error: 'internal error' });
+        else try { res.end(); } catch { /* client already gone */ }
+    });
+});
+
+async function route(req, res) {
     const url = new URL(req.url, 'http://x');
     const { pathname } = url;
     if (pathname.startsWith('/api/')) {
@@ -263,7 +288,7 @@ const server = createServer(async (req, res) => {
     if (pathname.startsWith('/api/demo/')) return handleDemo(req, res, url);
     if (pathname.startsWith('/api/')) return json(res, 404, { error: 'unknown endpoint' });
     return serveStatic(res, pathname);
-});
+}
 
 // A busy port greets nobody with a stack trace: walk forward a few ports -
 // the previous run, or another tool, may still be holding the default.
