@@ -169,9 +169,22 @@ export async function createRunner({ log = console.log } = {}) {
      * landed, the fifth was rejected 1010/170, and only the local balancer
      * further down said "Insufficient Funds: could not balance dust".
      */
+    // Balances live on the wallet STATE objects the facade emits, not on the
+    // wallet handles themselves: `facade.dust.balance` and
+    // `facade.unshielded.balances` are both undefined, so reading them
+    // reported a confident zero for a wallet holding 12e9 NIGHT. Keep the
+    // latest emitted state and read balances off that.
+    let latest = null;
+    const watchState = () => {
+        try { facade.state().subscribe({ next: (v) => { latest = v; }, error: () => { } }); }
+        catch (e) { log('demo: state subscription failed:', e?.message ?? e); }
+    };
+
     function dustBalance() {
-        try { return BigInt(facade?.dust?.balance?.(new Date()) ?? 0n); }
-        catch { return null; }
+        try {
+            const b = latest?.dust?.balance;
+            return typeof b === 'function' ? BigInt(latest.dust.balance(new Date())) : null;
+        } catch { return null; }
     }
 
     /**
@@ -183,28 +196,28 @@ export async function createRunner({ log = console.log } = {}) {
      * tell you whether it will ever come back.
      */
     function walletFunds() {
-        const now = new Date();
-        const out = { dust: null, night: null, nightUtxos: 0, registered: null };
+        const out = { dust: null, night: null, nightUtxos: null, available: null, pending: null, registered: null };
+        if (!latest) { out.note = 'no wallet state emitted yet'; return out; }
         try { const d = dustBalance(); out.dust = d == null ? null : d.toString(); } catch { }
         try {
-            const bal = facade?.unshielded?.balances ?? {};
-            const total = Object.values(bal).reduce((a, v) => a + BigInt(v), 0n);
-            out.night = total.toString();
-            out.nightByToken = Object.fromEntries(
-                Object.entries(bal).map(([k, v]) => [String(k).slice(0, 16), String(v)]));
-        } catch { }
+            const u = latest.unshielded;
+            const bal = u?.balances ?? {};
+            out.night = Object.values(bal).reduce((a, v) => a + BigInt(v), 0n).toString();
+            out.nightUtxos = (u?.totalCoins ?? []).length;
+            // Dust the balancer cannot reach is the interesting number: a
+            // rejected submission leaves its atoms pending, and a wallet with
+            // a healthy balance and nothing available fails to balance exactly
+            // like an empty one.
+            out.available = (u?.availableCoins ?? []).length;
+            out.pending = (u?.pendingCoins ?? []).length;
+            out.registered = (u?.totalCoins ?? []).filter((c) => c?.registeredForDustGeneration).length;
+        } catch (e) { out.nightError = String(e?.message ?? e).slice(0, 160); }
         try {
-            const utxos = facade?.unshielded?.totalCoins ?? [];
-            out.nightUtxos = utxos.length;
-            // Registered UTXOs are the ones with generation details attached;
-            // an empty projection with NIGHT present means nothing is earning.
-            const gen = facade?.dust?.estimateDustGeneration?.(utxos, now) ?? [];
-            out.registered = gen.filter((g) => g?.dustDetails ?? g?.generationInfo ?? g).length;
-            out.projection = gen.slice(0, 4).map((g) => {
-                try { return JSON.stringify(g, (k, v) => typeof v === 'bigint' ? v.toString() : v).slice(0, 260); }
-                catch { return String(g); }
-            });
-        } catch (e) { out.generationError = String(e?.message ?? e).slice(0, 200); }
+            const d = latest.dust;
+            out.dustCoins = (d?.totalCoins ?? []).length;
+            out.dustAvailable = (d?.availableCoins ?? []).length;
+            out.dustPending = (d?.pendingCoins ?? []).length;
+        } catch (e) { out.dustError = String(e?.message ?? e).slice(0, 160); }
         return out;
     }
 
@@ -229,6 +242,7 @@ export async function createRunner({ log = console.log } = {}) {
             dust: () => DustWallet(configuration).restore(restore.dust)
         });
         await facade.start(zswapKeys, dustKey);
+        watchState();
         await gateToTip(30 * 60_000);
         ready = true;
         log(`demo: wallet at tip (dust applied=${dust.applied}); preprod runs enabled`);
