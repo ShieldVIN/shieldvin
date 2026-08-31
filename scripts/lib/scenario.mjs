@@ -85,12 +85,12 @@ const nodeHash = (l, r) => b2b(Uint8Array.from([...l, ...r]));
  * does not leak its values to anyone who merely knows the VIN. Losing the seed
  * makes the root permanently unprovable - BUILD-SCOPE carries that risk by name.
  */
-export const contentRoot = (vin, fields, panel = {}) => {
+export const contentRoot = (vin, fields, panel = {}, saltFn = saltFrom) => {
     const values = { ...panel, ...fields, vinHash: hex(vinHash(vin)) };
     const leaves = [];
     for (let slot = 0; slot < 32; slot++) {
         const name = Object.keys(PANEL).find((n) => PANEL[n][0] === slot);
-        const slotSalt = saltFrom(`:leafsalt:v0:${vin}:${slot}`);
+        const slotSalt = saltFn(`:leafsalt:v0:${vin}:${slot}`);
         let valueDigest = b2b(utf8(''));                       // absent / reserved
         if (name && values[name] !== undefined && values[name] !== '') {
             const kind = PANEL[name][1];

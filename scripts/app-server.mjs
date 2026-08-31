@@ -40,6 +40,21 @@ const PORT = Number(process.env.PORT ?? 8790);
 const sim = new PassportSimulator();
 const salt = saltStream();
 const demo = buildDemoVehicles(sim, salt);
+
+// ------------------------------------------------------------ preprod demo
+// Off by default: `npm run app` stays the dependency-light judge path. With
+// VINPASSPORT_PREPROD=1 (plus the seed file and wallet snapshots the runner
+// documents), /api/demo/* runs REAL transactions against the deployed
+// contract - capped per UTC day, one at a time, fresh random VPD VINs.
+const DEMO_ENABLED = process.env.VINPASSPORT_PREPROD === '1';
+let runner = null;
+let runnerError = null;
+if (DEMO_ENABLED) {
+    import('./lib/preprod-runner.mjs')
+        .then((m) => m.createRunner({ log: console.log }))
+        .then((r) => { runner = r; })
+        .catch((e) => { runnerError = e; console.error('preprod demo failed to start:', e.message); });
+}
 const vehicles = [
     { vinHash: demo.a.vinHex, title: 'Vehicle A', blurb: 'Full service history, claims proven' },
     { vinHash: demo.b.vinHex, title: 'Vehicle B', blurb: 'A record it cannot prove clean' }
@@ -89,15 +104,20 @@ function ledgerPayload() {
     };
 }
 
-async function handleIntake(req, res) {
+async function readJson(req) {
     let body = '';
     for await (const chunk of req) {
         body += chunk;
-        if (body.length > 100_000) { return json(res, 413, { error: 'intake too large' }); }
+        if (body.length > 100_000) throw Object.assign(new Error('body too large'), { code: 413 });
     }
+    try { return body ? JSON.parse(body) : {}; }
+    catch { throw Object.assign(new Error('body is not JSON'), { code: 400 }); }
+}
+
+async function handleIntake(req, res) {
     let intake;
-    try { intake = JSON.parse(body); }
-    catch { return json(res, 400, { error: 'body is not JSON' }); }
+    try { intake = await readJson(req); }
+    catch (e) { return json(res, e.code ?? 400, { error: e.message }); }
     for (const req of ['vin', 'registrar', 'fields']) {
         if (!intake[req]) return json(res, 400, { error: `missing "${req}"` });
     }
@@ -115,6 +135,50 @@ async function handleIntake(req, res) {
     json(res, 200, result);
 }
 
+// The preprod demo API. Every route degrades honestly: disabled mode says so,
+// a warming wallet says so, a spent daily cap says so with the reset time.
+async function handleDemo(req, res, url) {
+    const path = url.pathname;
+    if (path === '/api/demo/status') {
+        if (!DEMO_ENABLED) return json(res, 200, { enabled: false });
+        if (runnerError) return json(res, 200, { enabled: true, ready: false, error: runnerError.message });
+        if (!runner) return json(res, 200, { enabled: true, ready: false, warming: true });
+        return json(res, 200, runner.status());
+    }
+    if (!DEMO_ENABLED) return json(res, 503, { error: 'preprod demo mode is not enabled on this server' });
+    if (runnerError) return json(res, 503, { error: 'preprod demo failed to start: ' + runnerError.message });
+    if (!runner) return json(res, 503, { error: 'preprod demo is still starting; try again shortly' });
+
+    if ((path === '/api/demo/run' || path === '/api/demo/intake') && req.method === 'POST') {
+        let body;
+        try { body = await readJson(req); }
+        catch (e) { return json(res, e.code ?? 400, { error: e.message }); }
+        try {
+            const job = path === '/api/demo/run' ? runner.runGuided() : runner.runManual(body);
+            return json(res, 202, { jobId: job.id, status: job.status, remaining: runner.status().remaining });
+        } catch (e) {
+            const code = e.code === 'CAP' ? 429 : e.code === 'TOO_LARGE' ? 400 : 400;
+            return json(res, code, { error: String(e.message ?? e) });
+        }
+    }
+    if (path === '/api/demo/job' && req.method === 'GET') {
+        const job = runner.job(url.searchParams.get('id') ?? '');
+        if (!job) return json(res, 404, { error: 'unknown job' });
+        return json(res, 200, job);
+    }
+    if (path === '/api/demo/report' && req.method === 'GET') {
+        const job = runner.job(url.searchParams.get('id') ?? '');
+        if (!job) return json(res, 404, { error: 'unknown job' });
+        if (!job.receipt) return json(res, 409, { error: 'no report yet: job is ' + job.status + (job.error ? ' (' + job.error + ')' : '') });
+        res.writeHead(200, {
+            'content-type': 'application/json; charset=utf-8',
+            'content-disposition': `attachment; filename="vinpassport-demo-${job.receipt.vin}.json"`
+        });
+        return res.end(JSON.stringify(job.receipt, null, 2));
+    }
+    return json(res, 404, { error: 'unknown demo endpoint' });
+}
+
 // ---------------------------------------------------------------- server
 
 // The published site lives on passport.vin (GitHub Pages) while /api/ lives
@@ -129,7 +193,8 @@ function cors(req, res) {
 }
 
 const server = createServer(async (req, res) => {
-    const { pathname } = new URL(req.url, 'http://x');
+    const url = new URL(req.url, 'http://x');
+    const { pathname } = url;
     if (pathname.startsWith('/api/')) {
         cors(req, res);
         if (req.method === 'OPTIONS') {
@@ -143,6 +208,7 @@ const server = createServer(async (req, res) => {
     if (pathname === '/api/health') return json(res, 200, { ok: true });
     if (pathname === '/api/ledger' && req.method === 'GET') return json(res, 200, ledgerPayload());
     if (pathname === '/api/intake' && req.method === 'POST') return handleIntake(req, res);
+    if (pathname.startsWith('/api/demo/')) return handleDemo(req, res, url);
     if (pathname.startsWith('/api/')) return json(res, 404, { error: 'unknown endpoint' });
     return serveStatic(res, pathname);
 });
