@@ -148,6 +148,11 @@ export async function createRunner({ log = console.log } = {}) {
         ws.onerror = () => { clearTimeout(timer); done(null); };
     });
 
+    /**
+     * Warm-up gate. The tip moves constantly, so demanding equality here would
+     * spin forever; a hundred events of slack is fine for deciding the wallet
+     * has finished restoring.
+     */
     async function gateToTip(ceilingMs) {
         const end = Date.now() + ceilingMs;
         for (; ;) {
@@ -157,6 +162,37 @@ export async function createRunner({ log = console.log } = {}) {
             if (tip != null) dust.tip = BigInt(tip);
             if (dust.tip > 0n && dust.applied >= 0n && dust.applied >= dust.tip - 100n) return;
             await new Promise((r) => setTimeout(r, 10_000));
+        }
+    }
+
+    /**
+     * Between-stage gate, and it must be strict where the warm-up one is not.
+     *
+     * A dust spend is proven against the dust Merkle root the wallet believes
+     * in. Run four stages and the wallet drifts behind while each proof takes
+     * the better part of a minute, so by stage five it is proving against a
+     * root the node has moved past and the node rejects the transaction. That
+     * is the shape of the run that died here: stages one to four landed, the
+     * wallet sat 67 events behind the tip, and every attempt after that was
+     * refused. Slack is exactly the wrong thing to allow at this point.
+     *
+     * The tip is sampled ONCE and used as a fixed target, so this terminates:
+     * waiting for a tip that keeps advancing would never finish.
+     */
+    async function gateToApplied(ceilingMs) {
+        const end = Date.now() + ceilingMs;
+        const target = await dustStreamTip();
+        if (target == null) return;                    // indexer quiet; do not block the run
+        const want = BigInt(target);
+        for (; ;) {
+            const st = await peek();
+            dust.applied = st?.dust?.progress?.appliedIndex != null ? BigInt(st.dust.progress.appliedIndex) : -1n;
+            if (dust.applied >= want) { dust.tip = want > dust.tip ? want : dust.tip; return; }
+            if (Date.now() > end) {
+                throw new Error(`the wallet is ${want - dust.applied} dust events behind the chain; ` +
+                    'a fee proven against a stale dust root is rejected by the node');
+            }
+            await new Promise((r) => setTimeout(r, 5_000));
         }
     }
 
@@ -578,8 +614,9 @@ export async function createRunner({ log = console.log } = {}) {
                 if (!tx) throw new Error('could not deserialize the built transaction');
                 const attempt = async () => {
                     // Every stage spends a dust UTXO; the wallet must have seen
-                    // the previous stage's spend before it picks the next one.
-                    await gateToTip(10 * 60_000);
+                    // the previous stage's spend before it picks the next one,
+                    // and "seen" has to mean level, not within a hundred.
+                    await gateToApplied(10 * 60_000);
                     const recipe = await facade.balanceFinalizedTransaction(
                         tx, { shieldedSecretKeys: zswapKeys, dustSecretKey: dustKey },
                         { ttl: new Date(Date.now() + 30 * 60_000), tokenKindsToBalance: ['dust'] }
@@ -595,7 +632,7 @@ export async function createRunner({ log = console.log } = {}) {
                     // A stale dust root reads as an invalid-transaction reject:
                     // re-gate to tip once and retry before giving up.
                     if (!/1010|invalid|stale/i.test(msg)) throw e;
-                    await gateToTip(10 * 60_000);
+                    await gateToApplied(10 * 60_000);
                     return attempt();
                 }
             });
