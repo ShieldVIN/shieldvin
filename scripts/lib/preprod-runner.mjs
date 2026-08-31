@@ -60,6 +60,13 @@ const INDEXER_WS = 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws';
 const ZK_CONFIG_DIR = join(ROOT, 'contracts', 'vinpassport', 'src', 'managed', 'vinpassport');
 const CONFIRM_TIMEOUT_MS = 240_000;
 const JOB_CEILING_MS = 20 * 60_000;
+// What a whole run needs in the wallet before it is worth starting. Left at 0
+// deliberately: the real per-stage cost is not something to invent, and a
+// wrong floor would refuse runs that would have worked. The status endpoint
+// reports the balance now, so set VINPASSPORT_MIN_DUST once a few runs have
+// shown what one actually costs. A zero balance is refused regardless, since
+// that needs no threshold to be certain about.
+const MIN_DUST = BigInt(process.env.VINPASSPORT_MIN_DUST ?? 0);
 
 const b2b = (d) => blake2b(d, { dkLen: 32 });
 const utf8 = (s) => new TextEncoder().encode(s);
@@ -153,6 +160,54 @@ export async function createRunner({ log = console.log } = {}) {
         }
     }
 
+    /**
+     * What the wallet can actually pay with, right now.
+     *
+     * Dust is wallet-local by design: the indexer has no per-address query for
+     * it, so if the service does not report this number nobody can see it
+     * until a run dies of it. Which is exactly what happened - four stages
+     * landed, the fifth was rejected 1010/170, and only the local balancer
+     * further down said "Insufficient Funds: could not balance dust".
+     */
+    function dustBalance() {
+        try { return BigInt(facade?.dust?.balance?.(new Date()) ?? 0n); }
+        catch { return null; }
+    }
+
+    /**
+     * Dust, the NIGHT behind it, and whether that NIGHT is actually generating.
+     *
+     * Dust is not a balance you top up directly: it regenerates from NIGHT
+     * UTXOs REGISTERED for dust generation. Holding NIGHT is not enough. So
+     * "how much dust" is only half the question, and the half that does not
+     * tell you whether it will ever come back.
+     */
+    function walletFunds() {
+        const now = new Date();
+        const out = { dust: null, night: null, nightUtxos: 0, registered: null };
+        try { const d = dustBalance(); out.dust = d == null ? null : d.toString(); } catch { }
+        try {
+            const bal = facade?.unshielded?.balances ?? {};
+            const total = Object.values(bal).reduce((a, v) => a + BigInt(v), 0n);
+            out.night = total.toString();
+            out.nightByToken = Object.fromEntries(
+                Object.entries(bal).map(([k, v]) => [String(k).slice(0, 16), String(v)]));
+        } catch { }
+        try {
+            const utxos = facade?.unshielded?.totalCoins ?? [];
+            out.nightUtxos = utxos.length;
+            // Registered UTXOs are the ones with generation details attached;
+            // an empty projection with NIGHT present means nothing is earning.
+            const gen = facade?.dust?.estimateDustGeneration?.(utxos, now) ?? [];
+            out.registered = gen.filter((g) => g?.dustDetails ?? g?.generationInfo ?? g).length;
+            out.projection = gen.slice(0, 4).map((g) => {
+                try { return JSON.stringify(g, (k, v) => typeof v === 'bigint' ? v.toString() : v).slice(0, 260); }
+                catch { return String(g); }
+            });
+        } catch (e) { out.generationError = String(e?.message ?? e).slice(0, 200); }
+        return out;
+    }
+
     async function snapshot(reason) {
         try {
             saveBlob('shielded', await facade.shielded.serializeState());
@@ -215,6 +270,18 @@ export async function createRunner({ log = console.log } = {}) {
             : null;
     }
 
+    // ---- telling a funding failure from a sequencing one --------------------
+    // The node answers a rejected submission with a bare 1010 and a sub-code:
+    // 188 is the sequencing (causality) refusal, which splitting a batch does
+    // fix. 117 and 170 are funding, which it cannot. The local balancer says
+    // it in words instead. Confirmed on preprod 2026-08-31: a run landed four
+    // stages, was rejected 1010/170 twice on the fifth, split, and then failed
+    // to balance at all.
+    const OUT_OF_DUST = 'out of dust: the signing wallet cannot pay a fee right now';
+    const isFundsProblem = (msg) =>
+        /Custom error:\s*(117|170)\b/.test(msg) ||
+        /insufficient funds|could not balance dust/i.test(msg);
+
     // ---- submission (the path that works: encode HTTP, submit one-shot ws) -
     async function submitFinalized(finalized) {
         const { ApiPromise, HttpProvider } = await import('@polkadot/api');
@@ -247,14 +314,23 @@ export async function createRunner({ log = console.log } = {}) {
         // duplicating them in the job view.
         const step = (id, label) => {
             let s = job.steps.find((x) => x.id === id);
-            if (!s) { s = { id, label, status: 'pending', detail: '' }; job.steps.push(s); }
-            else { s.status = 'pending'; s.detail = ''; s.label = label; }
+            if (!s) { s = { id, label, status: 'pending', detail: '', startedAt: null, ms: null }; job.steps.push(s); }
+            else { s.status = 'pending'; s.detail = ''; s.label = label; s.startedAt = null; s.ms = null; }
             return s;
         };
+        // Timing is recorded here rather than in the page, so a reload picks up
+        // the real elapsed time instead of restarting the clock, and a step
+        // that finished while the tab was closed still reports what it took.
         const runStep = async (s, fn) => {
-            s.status = 'running'; job.touch();
-            try { const v = await fn(); s.status = 'done'; job.touch(); return v; }
-            catch (e) { s.status = 'failed'; s.detail = String(e?.message ?? e); job.touch(); throw e; }
+            s.status = 'running'; s.startedAt = new Date().toISOString(); s.ms = null; job.touch();
+            const settle = (status, detail) => {
+                s.status = status;
+                s.ms = Date.now() - Date.parse(s.startedAt);
+                if (detail != null) s.detail = detail;
+                job.touch();
+            };
+            try { const v = await fn(); settle('done'); return v; }
+            catch (e) { settle('failed', String(e?.message ?? e)); throw e; }
         };
 
         const runSeed = randomBytes(32);
@@ -354,10 +430,24 @@ export async function createRunner({ log = console.log } = {}) {
         };
 
         // -- wait for the wallet, then run stage by stage
-        await runStep(step('wallet', 'Wallet at chain tip, dust ready'), async () => {
+        const walletStep = step('wallet', 'Wallet at chain tip, dust ready');
+        await runStep(walletStep, async () => {
             await warmup;
             if (warmError) throw warmError;
             await gateToTip(10 * 60_000);
+            // Say what the wallet can pay with BEFORE proving anything. A run
+            // that dies of dust at stage five has already spent four fees, a
+            // slot from the daily cap and several minutes of the visitor's
+            // attention, and left a passport half-written on a public chain.
+            const bal = dustBalance();
+            walletStep.detail = bal == null ? 'dust balance unavailable'
+                : `dust balance ${bal}${MIN_DUST ? ` · floor ${MIN_DUST}` : ''}`;
+            if (bal != null && MIN_DUST && bal < MIN_DUST) {
+                throw Object.assign(new Error(
+                    `${OUT_OF_DUST} (balance ${bal}, needs about ${MIN_DUST} for a full run). ` +
+                    'Dust regenerates from NIGHT registered for dust generation; this is a wallet top-up, not a bug in the run.'
+                ), { funds: true });
+            }
         });
 
         const stagesOut = [];
@@ -383,6 +473,11 @@ export async function createRunner({ log = console.log } = {}) {
                     break;
                 } catch (e) {
                     const msg = String(e?.message ?? e);
+                    // A funding failure is not a batching failure. Splitting a
+                    // batch we cannot pay for just buys two more proofs we
+                    // also cannot pay for, which is exactly what happened:
+                    // 1010/170 twice, split, then "could not balance dust".
+                    if (isFundsProblem(msg)) throw Object.assign(new Error(OUT_OF_DUST), { funds: true });
                     const batchy = /1010|causality|segment ordering|BatchCausality/i.test(msg);
                     if (!batchy) throw e;
                     if (stage.steps.length > 1 && attempt >= 2) {
@@ -428,7 +523,15 @@ export async function createRunner({ log = console.log } = {}) {
 
         async function runStageOnce(n, stage, calls, attempt) {
             const suffix = attempt > 1 ? ` (attempt ${attempt})` : '';
-            const built = await runStep(step(`build:${n}`, `Prove ${stage.label} (${calls.length} call${calls.length === 1 ? '' : 's'}, in-process)${suffix}`), async () => {
+            // Proving is ~40s of CPU. Spending it on a transaction we already
+            // know we cannot fund is the expensive way to reach the same
+            // failure, so ask the wallet first.
+            const before = dustBalance();
+            if (before === 0n) throw Object.assign(new Error(OUT_OF_DUST), { funds: true });
+            // stage.label already reads "prove noAccidents" for a single call,
+            // so prefixing "Prove " again gave "Prove prove noAccidents".
+            const what = /^prove /i.test(stage.label) ? stage.label : `Prove ${stage.label}`;
+            const built = await runStep(step(`build:${n}`, `${what} (${calls.length} call${calls.length === 1 ? '' : 's'}, in-process)${suffix}`), async () => {
                 const builder = await createTxBuilder({
                     seedHex, networkId: NETWORK_ID,
                     indexerHttpUrl: INDEXER_HTTP, indexerWsUrl: INDEXER_WS, nodeUrl: NODE_WS,
@@ -451,7 +554,8 @@ export async function createRunner({ log = console.log } = {}) {
                 } finally { await builder.close?.(); }
             });
 
-            const finalized = await runStep(step(`fund:${n}`, 'Pay the fee in dust (our wallet)'), async () => {
+            const fundStep = step(`fund:${n}`, 'Pay the fee in dust (our wallet)');
+            const finalized = await runStep(fundStep, async () => {
                 const bytes = Uint8Array.from(Buffer.from(built.finalizedTxB64, 'base64'));
                 let tx = null;
                 for (const tags of [['signature', 'proof', 'binding'], ['signature', 'proof', 'pre-binding']]) {
@@ -470,13 +574,24 @@ export async function createRunner({ log = console.log } = {}) {
                 };
                 try { return await attempt(); }
                 catch (e) {
+                    const msg = String(e?.message ?? e);
+                    // Retrying a balance we cannot afford just waits ten
+                    // minutes to fail the same way.
+                    if (isFundsProblem(msg)) throw Object.assign(new Error(`${OUT_OF_DUST} (${msg})`), { funds: true });
                     // A stale dust root reads as an invalid-transaction reject:
                     // re-gate to tip once and retry before giving up.
-                    if (!/1010|invalid|stale/i.test(String(e?.message ?? e))) throw e;
+                    if (!/1010|invalid|stale/i.test(msg)) throw e;
                     await gateToTip(10 * 60_000);
                     return attempt();
                 }
             });
+            // Record what the fee actually cost, so the floor above can be set
+            // from observation instead of guesswork.
+            const after = dustBalance();
+            if (before != null && after != null) {
+                fundStep.detail = `dust ${before} -> ${after} (fee ${before - after})`;
+                job.touch();
+            }
 
             const baseline = await latestContractAction();
             const extrinsicHash = await runStep(step(`submit:${n}`, 'Submit to the preprod node'), () => submitFinalized(finalized));
@@ -525,6 +640,9 @@ export async function createRunner({ log = console.log } = {}) {
         const job = {
             id: randomUUID(), kind, status: 'queued', steps: [], receipt: null,
             createdAt: new Date().toISOString(), updatedAt: null, error: null,
+            // The page shows a clock; the server owns it, so a reload or a
+            // second viewer sees the same elapsed time rather than its own.
+            startedAt: null, finishedAt: null, ms: null,
             touch() { this.updatedAt = new Date().toISOString(); }
         };
         jobs.set(job.id, job);
@@ -539,7 +657,7 @@ export async function createRunner({ log = console.log } = {}) {
         queueLength += 1;
         queueTail = queueTail
             .then(async () => {
-                job.status = 'running'; job.touch();
+                job.status = 'running'; job.startedAt = new Date().toISOString(); job.touch();
                 await Promise.race([
                     executeRun(job, intake),
                     new Promise((_, rej) => setTimeout(() => rej(new Error('run exceeded the 20 minute ceiling')), JOB_CEILING_MS))
@@ -551,7 +669,12 @@ export async function createRunner({ log = console.log } = {}) {
                     log('demo: run failed:', job.error);
                 }
             })
-            .finally(() => { queueLength -= 1; });
+            .finally(() => {
+                queueLength -= 1;
+                job.finishedAt = new Date().toISOString();
+                if (job.startedAt) job.ms = Date.parse(job.finishedAt) - Date.parse(job.startedAt);
+                job.touch();
+            });
         return job;
     }
 
@@ -625,7 +748,8 @@ export async function createRunner({ log = console.log } = {}) {
                 capacity, used: c.used, remaining: Math.max(0, capacity - c.used),
                 resetsAtUtc: new Date(Date.parse(todayUtc()) + 86_400_000).toISOString(),
                 queueLength,
-                dust: { applied: dust.applied.toString(), tip: dust.tip.toString() }
+                dust: { applied: dust.applied.toString(), tip: dust.tip.toString() },
+                funds: ready ? walletFunds() : null
             };
         },
         runGuided() { return enqueue('guided', guidedIntake()); },
