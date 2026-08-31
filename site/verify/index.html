@@ -28,7 +28,14 @@
     <a href="../" style="display:flex;align-items:center;margin-right:auto;flex:none;text-decoration:none">
       <img src="../assets/vinpassport-logo.png" alt="VINPassport" width="546" height="102" style="height:32px;width:auto">
     </a>
-    <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#004AAD;border:1px solid rgba(0,74,173,.4);padding:4px 9px;flex:none">verify</span>
+    <div class="nav-links" id="navmenu">
+      <a href="../demo/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Live demo</a>
+      <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
+      <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
+      <span aria-current="page" style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">verify</span>
+      <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+    </div>
+    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navmenu"><i></i><i></i><i></i></button>
   </nav>
 
   <div class="vfy-grid">
@@ -145,5 +152,6 @@
 
 </div>
 <script type="module" src="verify.js?v=5"></script>
+<script type="module" src="../assets/nav.mjs?v=1"></script>
 </body>
 </html>
