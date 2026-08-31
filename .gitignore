@@ -53,6 +53,12 @@ _local-tracking/
 OPEN-ISSUES.md
 SECURITY-BACKLOG.md
 
+# Throwaway chain/wallet probes. They are written against real preprod state and
+# routinely hold an address, a job id or a hand-pasted key while being debugged,
+# so they must never reach a public remote. Kept structural rather than relying
+# on remembering to list paths on every commit.
+scripts/spike-*.mjs
+
 # ── Editor / OS ───────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
