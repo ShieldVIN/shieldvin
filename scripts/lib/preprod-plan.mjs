@@ -67,6 +67,13 @@ export const makeStage = (steps) => ({
  * meets. Apply order inside a transaction is call order (nightgate-tx sorts
  * the randomized segment ids ascending before proving), so a batch may carry
  * dependent calls - a registration and the initialisation that needs it.
+ *
+ * One batch here holds several identically-named calls: the claims. The
+ * builder cannot tell same-named intents apart, so their relative apply order
+ * is not guaranteed - which is fine precisely because claims are independent.
+ * Each opens its own field's commitment and inserts its own fresh claimKey,
+ * so no claim can observe another. Never batch same-named calls that DO
+ * depend on each other; give them their own transactions instead.
  */
 export function planCalls(intake) {
     const steps = [{ kind: 'register', circuit: 'registerPassport' }];

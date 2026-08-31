@@ -305,7 +305,10 @@ export async function createRunner({ log = console.log } = {}) {
                     }
                 });
             }
-            plan.stages = plan.stages.filter((st) => st.steps.length > 0);
+            // Relabel from what SURVIVED. A stage keeps the label it was
+            // planned with otherwise, and would go on naming a claim the
+            // dry-run refused and never submitted.
+            plan.stages = plan.stages.filter((st) => st.steps.length > 0).map((st) => makeStage(st.steps));
             simStep.detail = refused.length ? `${refused.length} step(s) refused in-circuit; not submitted` : 'every step provable';
             if (!plan.stages.length) throw new Error('nothing survived the dry-run');
         });
