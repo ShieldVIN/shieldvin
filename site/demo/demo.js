@@ -38,6 +38,19 @@ const enable = () => {
 };
 
 function paintStatus(status) {
+    // `unreachable` means the engine is there but not answering yet - it
+    // restores a large wallet on start. That is a different thing from the
+    // feature being off, and the page must not confuse the two.
+    if (status?.unreachable) {
+        capDot.style.background = '#8B95FF';
+        capState.textContent = 'Preprod engine starting';
+        capLine.textContent = 'The signing wallet is being restored. This page enables itself when it is ready.';
+        if (!busy) {
+            disable('The preprod engine is still starting.');
+            goNote.textContent = 'checking again every 20 seconds';
+        }
+        return;
+    }
     capLine.textContent = capacityLine(status);
     const ready = status?.enabled && status?.ready && !status?.error;
     const spent = ready && status.remaining <= 0;
@@ -67,9 +80,21 @@ function paintStatus(status) {
     }
 }
 
+let lastStatus = null;
 async function refreshStatus() {
-    try { paintStatus(await getStatus(base)); }
-    catch { paintStatus({ enabled: false }); }
+    try { lastStatus = await getStatus(base); }
+    catch (e) { lastStatus = e.unreachable ? { unreachable: true } : { enabled: false }; }
+    paintStatus(lastStatus);
+    return lastStatus;
+}
+
+/** Keep checking while the engine is warming, so the page heals itself. */
+function watchUntilReady() {
+    setInterval(async () => {
+        if (busy) return;
+        const s = lastStatus;
+        if (s?.unreachable || (s?.enabled && !s?.ready)) await refreshStatus();
+    }, 20000);
 }
 
 async function follow(jobId) {
@@ -121,6 +146,7 @@ goBtn.addEventListener('click', async () => {
         return;
     }
     await refreshStatus();
+    watchUntilReady();
     const existing = new URLSearchParams(location.search).get('job');
     if (existing) await follow(existing);
 })();

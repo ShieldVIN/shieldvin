@@ -20,13 +20,30 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const short = (h) => `${String(h).slice(0, 12)}…${String(h).slice(-8)}`;
 
-/** GET/POST helper that turns a non-2xx into the server's own message. */
-async function call(base, path, init) {
-    const r = await fetch(`${base}${path}`, {
-        cache: 'no-store',
-        ...init,
-        headers: init?.body ? { 'content-type': 'application/json' } : undefined
-    });
+/**
+ * GET/POST helper that turns a non-2xx into the server's own message.
+ *
+ * The timeout is not decoration: restoring the signing wallet is heavy
+ * synchronous work, so the demo service accepts connections before it can
+ * answer them. Without a deadline the page would hang on a request that is
+ * going to be answered eventually, instead of saying "still starting".
+ */
+async function call(base, path, init, timeoutMs = 15000) {
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), timeoutMs);
+    let r;
+    try {
+        r = await fetch(`${base}${path}`, {
+            cache: 'no-store',
+            signal: abort.signal,
+            ...init,
+            headers: init?.body ? { 'content-type': 'application/json' } : undefined
+        });
+    } catch (e) {
+        throw Object.assign(
+            new Error(e?.name === 'AbortError' ? 'the preprod service did not answer in time' : 'could not reach the preprod service'),
+            { unreachable: true });
+    } finally { clearTimeout(timer); }
     let body = null;
     try { body = await r.json(); } catch { /* non-JSON error page */ }
     if (!r.ok) {
@@ -44,9 +61,11 @@ export async function apiBase() {
 }
 
 export const getStatus = async (base) => call(base, '/api/demo/status');
-export const startGuided = async (base) => call(base, '/api/demo/run', { method: 'POST', body: '{}' });
+// Starting a run is a longer wait: the request queues behind whatever the
+// engine is doing, and the caller has explicitly asked for it.
+export const startGuided = async (base) => call(base, '/api/demo/run', { method: 'POST', body: '{}' }, 60000);
 export const startManual = async (base, intake) =>
-    call(base, '/api/demo/intake', { method: 'POST', body: JSON.stringify(intake) });
+    call(base, '/api/demo/intake', { method: 'POST', body: JSON.stringify(intake) }, 60000);
 
 // ---------------------------------------------------------------- steps
 

@@ -350,7 +350,11 @@ ppWrap.addEventListener('click', () => {
     try {
         const { apiBase: resolveBase, getStatus } = await import('../assets/preprod-run.mjs?v=1');
         status = await getStatus(await resolveBase());
-    } catch { /* no server, or no demo endpoints: handled below */ }
+    } catch (e) {
+        // Not answering is not the same as not offered: the engine restores a
+        // large wallet before it can reply.
+        status = e?.unreachable ? 'unreachable' : null;
+    }
 
     ppReady = Boolean(status?.enabled && status?.ready && !status?.error && status.remaining > 0);
     if (ppReady) {
@@ -359,6 +363,8 @@ ppWrap.addEventListener('click', () => {
         ppNote.textContent = 'The preprod signing wallet is catching up to the chain tip. Until it is level, the circuits below still run here.';
     } else if (status?.enabled && status?.remaining <= 0) {
         ppNote.textContent = "Today's preprod runs are used; the count resets at 00:00 UTC. The circuits below still run here.";
+    } else if (status === 'unreachable') {
+        ppNote.textContent = 'The preprod engine is starting up: it restores its signing wallet first. Reload in a minute to submit to the chain. The circuits below run here either way.';
     } else {
         ppNote.textContent = 'Preprod submission is not available from this server. The circuits below still run here, against an in-process ledger.';
     }
