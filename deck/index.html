@@ -6,7 +6,7 @@
 <title>VINPassport Wave 1 Deck</title>
 <meta name="description" content="VINPassport slide deck: a Digital Circularity Vehicle Passport on Midnight. Arrow keys to navigate; print to PDF.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap">
 <style>
 /* Self-contained slide deck. Arrow keys / click to advance; Ctrl+P prints one
    slide per landscape page for the PDF the submission wants. System fonts,
@@ -44,10 +44,11 @@ h1, h2, .brandline {
   font-family: "Montserrat", system-ui, sans-serif;
 }
 h1 { font-size: 52px; line-height: 1.12; margin: 0; letter-spacing: .01em; font-weight: 700; }
-h1.wordmark { text-transform: uppercase; letter-spacing: .14em; font-weight: 500; color: var(--brand); }
+h1.wordmark { text-transform: uppercase; letter-spacing: .14em; font-weight: 300; color: var(--brand); }
 /* The lockup sets VIN heavy against a light PASSPORT, both in one colour.
    Text renderings of the name follow the logo rather than inventing a
    second treatment. Montserrat 800 and 500 are both loaded above. */
+.wm { white-space: nowrap; }
 .wm-vin { font-weight: 800; }
 h2 { font-size: 34px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -.005em; font-weight: 700; }
 h3 { font-size: 20px; margin: 0; }
@@ -68,7 +69,8 @@ ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 
   display: flex; justify-content: space-between; align-items: baseline;
   font-size: 13px; color: var(--muted);
 }
-.brandline { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--ink); }
+.brandline { display: flex; align-items: center; gap: 8px; font-weight: 400;
+  text-transform: uppercase; letter-spacing: .1em; color: var(--ink); }
 .brandline svg { width: 18px; height: 18px; color: var(--brand); }
 
 table { border-collapse: collapse; width: 100%; font-size: 17px; }
@@ -122,7 +124,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <span class="url">passport.vin</span>
   </p>
   <div style="flex:1"></div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>1</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>1</span></div>
 </section>
 
 <!-- ============================================================ 2 problem -->
@@ -147,7 +149,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       the other.</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>2</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>2</span></div>
 </section>
 
 <!-- ============================================================ 3 insight -->
@@ -167,7 +169,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <p>Each field carries an <strong>integrity rule fixed at creation</strong>: mileage, accidents,
   keepers, write-off status can never fall. The rule lives on the ledger, so nobody can pick the
   flattering rule at the moment they need it.</p>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>3</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>3</span></div>
 </section>
 
 <!-- ============================================================ 4 built -->
@@ -195,7 +197,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       <p class="url">passport.vin: anyone can start a real preprod transaction, on our dust · npm run app locally</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>4</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>4</span></div>
 </section>
 
 <!-- ============================================================ 5 how -->
@@ -233,7 +235,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <text x="704" y="138" text-anchor="middle" font-size="13" fill="#44536F">reads claims</text>
   </svg>
   </figure>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>5</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>5</span></div>
 </section>
 
 <!-- ============================================================ 6 refusal -->
@@ -259,7 +261,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       from the demo fleet, submit.</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>6</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>6</span></div>
 </section>
 
 <!-- ============================================================ 7 regulation panel -->
@@ -287,7 +289,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       and reveals nothing: including which slots are filled.</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>7</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>7</span></div>
 </section>
 
 <!-- ============================================================ 8 QA -->
@@ -316,7 +318,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       (Wave 3+), not something we imply we have.</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>8</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>8</span></div>
 </section>
 
 <!-- ============================================================ 9 ecosystem -->
@@ -327,23 +329,23 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <div class="box">
       <h3>Ours</h3>
       <ul>
-        <li>The Compact contract: five circuits, its own ledger, its own integrity rules. Not a fork; does not extend <code>attestation-vault</code></li>
-        <li>The 32-slot vehicle field panel: a vehicle-domain design</li>
+        <li>The Compact contract: five circuits, its own ledger and integrity rules. Not a fork of <code>attestation-vault</code></li>
+        <li>The 32-slot vehicle field panel</li>
         <li>All three surfaces, the demo fleet, the tests</li>
       </ul>
     </div>
     <div class="box">
       <h3>ODATANO, in three ways</h3>
       <ul>
-        <li><code>@odatano/dpp-sdk</code>: panel key derivation, value scaling, Merkle construction</li>
-        <li><code>@odatano/nightgate-tx</code>: local transaction building, batch ordering and in-process proving, against our own key</li>
-        <li>Hosted NIGHTGATE <strong>sponsored our deploy</strong> under a metered grant: <strong>live on preprod since 28 Aug</strong>, contract <code>72e52488…d553a</code></li>
-        <li>Running fees are <strong>no longer sponsored</strong>: the demo pays its own DUST direct to the public node. A one-step change, because every transaction was already built, proven and signed our side: <strong>no witness ever leaves</strong></li>
+        <li><code>@odatano/dpp-sdk</code>: key derivation, value scaling, Merkle construction</li>
+        <li><code>@odatano/nightgate-tx</code>: transaction building, batch ordering, in-process proving - against our own key</li>
+        <li>Hosted NIGHTGATE <strong>sponsored our deploy</strong>: live on preprod since 28 Aug</li>
+        <li>Running fees are <strong>not</strong>: the demo pays its own DUST. Every transaction was already built, proven and signed our side, so <strong>no witness ever leaves</strong></li>
       </ul>
-      <p>Not used: the CAP service, OData layer, attestation-vault, disclosure grants - the Wave 2 delta, stated in advance.</p>
+      <p>Not used: CAP service, OData layer, attestation-vault, disclosure grants - the Wave 2 delta, stated in advance.</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>9</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>9</span></div>
 </section>
 
 <!-- ============================================================ 10 business -->
@@ -371,7 +373,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       chain, so pricing never touches crypto code.</p>
     </div>
   </div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>10</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>10</span></div>
 </section>
 
 <!-- ============================================================ 11 roadmap -->
@@ -386,7 +388,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     <tr><th>Horizon</th>
         <td><strong>Closing the trust gap</strong>: sensor-signed readings from tamper-resistant hardware bind numbers to physical reality; provenance marking lets a verifier tell a sensor-attested reading from a self-declared one. That distinction becomes the product</td></tr>
   </table>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>11</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>11</span></div>
 </section>
 
 <!-- ============================================================ 12 close -->
@@ -405,7 +407,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
     Apache-2.0, fully open source
   </p>
   <div style="flex:1"></div>
-  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm-vin">VIN</span>Passport</span><span>12</span></div>
+  <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>12</span></div>
 </section>
 
 <div class="nav-hint">← → to navigate · Ctrl+P for PDF</div>
