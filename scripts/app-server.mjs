@@ -141,21 +141,26 @@ async function handleIntake(req, res) {
 
 // Per-caller share of the daily cap.
 //
-// Starting a run is deliberately unauthenticated - the whole point is that a
-// stranger can click it - but that also means one `curl` loop can spend the
-// day's runs before anyone else arrives, and CORS does not stop curl. So the
-// global cap keeps a per-caller share underneath it: enough for a visitor to
-// try the guided run and one intake of their own, not enough to clear the
-// board. (ODATANO's minor finding.)
+// The global cap bounds what the wallet spends in a day; this bounds what any
+// one caller may take of it, so the day's runs are still there for the next
+// visitor. Open to anyone by design - a stranger clicking it is the point.
 const PER_IP_RUNS = Number(process.env.VINPASSPORT_PER_IP_RUNS ?? 2);
 const ipRuns = new Map();          // ip -> { date, used }
 
+const isLocal = (a) => !a || a === '127.0.0.1' || a === '::1' || a === '::ffff:127.0.0.1';
+
 const callerIp = (req) => {
-    // Behind a proxy the socket is the proxy. Take the FIRST hop of
-    // X-Forwarded-For, which is the one the proxy itself observed; the rest of
-    // the header is caller-supplied and worth nothing.
-    const fwd = String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim();
-    return fwd || req.socket?.remoteAddress || 'unknown';
+    const sock = req.socket?.remoteAddress ?? '';
+    // Forwarding headers are only meaningful from our own proxy; from anyone
+    // else the socket is the answer.
+    if (!isLocal(sock)) return sock || 'unknown';
+    // Our proxy appends the address it observed, so the last hop is the one
+    // it vouched for. Earlier entries arrived with the request and carry no
+    // authority. This also holds for a proxy that overwrites rather than
+    // appends, where there is only one entry.
+    const hops = String(req.headers['x-forwarded-for'] ?? '')
+        .split(',').map((h) => h.trim()).filter(Boolean);
+    return hops.length ? hops[hops.length - 1] : (sock || 'unknown');
 };
 
 function takeIpSlot(req) {
@@ -263,12 +268,9 @@ const server = createServer(async (req, res) => {
 // A busy port greets nobody with a stack trace: walk forward a few ports -
 // the previous run, or another tool, may still be holding the default.
 //
-// NOT in preprod mode. There the busy port is the signal that matters: it
-// means an instance is already running, and walking past it starts a SECOND
-// one on the same wallet state - two facades spending the same dust notes,
-// two snapshot writers racing each other, and a daily counter read and
-// written by both. The convenience is worth a stack trace; the second wallet
-// is not. (ODATANO's finding 5.)
+// NOT in preprod mode. There a busy port means an instance is already
+// running, and exactly one process may hold the wallet state. The
+// convenience is worth a stack trace; a second wallet is not.
 let port = PORT;
 server.on('error', (e) => {
     if (e.code === 'EADDRINUSE' && !DEMO_ENABLED && port < PORT + 10) {

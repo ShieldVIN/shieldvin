@@ -65,3 +65,11 @@ Thumbs.db
 .vscode/
 .idea/
 private/
+
+# ── Security notes — LOCAL ONLY, never committed ──────────────────────────────
+# Standing rule: security findings and open issues are tracked locally, not in
+# a public repository, and not in commit messages either. Anything matching
+# these patterns stays on the machine it was written on.
+SECURITY-NOTES.local.md
+*.local.md
+security-notes/
