@@ -138,6 +138,20 @@ console falls back to producing an intake file for `scripts/intake.mjs`.
 All three are plain HTML/CSS/JS with no build step, by decision
 ([D11](docs/DECISIONS.md#settled)): the audience is a used-car buyer holding a phone.
 
+### Running it on the real chain
+
+A fourth surface, `/demo/`, does the same intake against the **deployed preprod
+contract** instead of an in-process ledger: real proving, real dust fees from our own
+wallet, real blocks, and a receipt holding the values and salts that the chain never
+saw. It is capped per UTC day and gives every run a fresh random VIN. The intake
+console carries the same thing as a *Submit to Midnight preprod* toggle.
+
+This needs a funded, synced wallet, so it is off unless the server is started with
+`VINPASSPORT_PREPROD=1` and pointed at a seed file and wallet snapshots — a plain
+`npm run app` is unchanged and needs no secrets. [docs/DEMO-MODE.md](docs/DEMO-MODE.md)
+has the design, the API, and the two ledger rules that decide how calls pack into
+transactions.
+
 Its demo ledger is **not hand-written**: `scripts/export-demo-state.mjs` runs the real compiled
 circuits through a scripted history and exports the resulting public ledger, asserted clean of
 every private value. Two vehicles on purpose: one that proved the four buyer questions, and one

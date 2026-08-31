@@ -18,6 +18,11 @@ dust fees from the project wallet, and walks away with two artifacts:
 
 ## Two routes, one engine
 
+The surfaces: **`/demo/`** runs the guided route and renders the stepper;
+**`/intake/`** carries a *Submit to Midnight preprod* toggle that sends the
+registrar's own intake down the same engine. Both share
+`site/assets/preprod-run.mjs`, so neither can drift from the other.
+
 | Route | Who drives | What happens |
 |---|---|---|
 | **Guided** (`POST /api/demo/run`) | The server | A plausible vehicle is generated (fresh random `VPD…` VIN), registered with four live fields and a panel of declarations, given one odometer update, then asked four questions — **one of which is designed to fail**: "one keeper" on a two-keeper car. The visitor watches the circuit refuse it, and the refusal appears in the report as a result, not an apology. |
@@ -49,15 +54,39 @@ then per stage (a stage = one transaction, up to 8 batched calls):
 receipt       assemble the downloadable report
 ```
 
-Every call gets its **own transaction**, applied in dependency order:
-register, then each field initialisation, then each update, then each claim.
-Learned the empirical way: the node 1010-rejects our multi-call batches even
-when every call in the batch is independent, while single-call transactions
-land first try. (Whether that is batch segment ordering or same-map write
-merging is a Wave 2 investigation — the demo does not bet on it. The engine
-caps a run at 10 on-chain calls.)
+Calls are packed into as few transactions as the ledger allows, in dependency
+order. Two rules decide the packing, and both were learned from rejected
+transactions rather than from any signature:
 
-A guided run is seven transactions and lands in roughly ten minutes; the job
+**A call that updates an already-populated cell must be last in its
+transaction.** The ledger's sequencing check refuses such a call when a later
+intent follows it, and the node reports only a bare `1010` (sub-code 188).
+Reading our own circuits tells you which calls those are:
+
+| Circuit | Writes | Populated cell? |
+|---|---|---|
+| `registerPassport` | fresh `vinHash` into `passports` + `registrar` | no |
+| `initialiseField` | fresh slot, then `updateCount.increment()` | **yes, the counter** |
+| `recordField` | **overwrites** the slot, then `updateCount.increment()` | **yes, twice** |
+| `proveFieldAtMost` | fresh `claimKey` into `claims` | no |
+
+`updateCount` is a `Counter` — one cell, always populated — which is why
+initialisations and updates each close a transaction, while registration and
+proofs batch freely. It is also why the vendor's "anchor first, then proofs"
+shape is the one that works. A guided run collapses from nine transactions to
+five: `[register + first init]`, `[init]`, `[init]`, `[update]`, `[all claims]`.
+
+**Per-call private state must be armed explicitly.** nightgate-tx runs a
+call's `before` hook only when the transaction carries a *batch*; a single
+call is proven with the witnesses exactly as they stand. An unarmed holder
+reads as value 0 with a zero salt — and since `initialiseField` asserts
+nothing about prior state, that **proves and lands**, writing a commitment
+nobody can ever open. The engine therefore arms the first call itself and the
+witness holder refuses to be read until something has armed it, so a missed
+arming is a loud build error instead of a quiet zero on the public chain.
+`test/app/preprod-plan.test.mjs` pins both rules.
+
+A guided run is five transactions and lands in roughly eight minutes; the job
 API exposes each step's live status so a UI can render the wait as the story
 it actually is: *this is a zero-knowledge proof being made and a real chain
 accepting it*.

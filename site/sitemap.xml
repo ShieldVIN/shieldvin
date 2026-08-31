@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://passport.vin/</loc></url>
   <url><loc>https://passport.vin/regulation/</loc></url>
+  <url><loc>https://passport.vin/demo/</loc></url>
   <url><loc>https://passport.vin/intake/</loc></url>
   <url><loc>https://passport.vin/proofs/</loc></url>
   <url><loc>https://passport.vin/verify/</loc></url>

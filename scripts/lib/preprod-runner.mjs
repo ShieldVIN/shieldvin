@@ -1,4 +1,4 @@
-/**
+﻿/**
  * The preprod demo engine: runs a REAL intake against the DEPLOYED vinpassport
  * contract on Midnight preprod, self-funded from our own wallet.
  *
@@ -11,6 +11,9 @@
  * until the call is on chain. The caller gets a receipt file holding the
  * values and salts - the private half of the passport - which never leave
  * this process any other way.
+ *
+ * preprod-plan.mjs holds the two rules this engine cannot get wrong: how calls
+ * pack into transactions, and why per-call witness state must be armed.
  *
  * Demo policy (locked design): a GLOBAL cap of runs per UTC day, guided and
  * manual counted together; every run uses a fresh random VPD-prefixed VIN so
@@ -26,7 +29,7 @@
 import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { randomBytes, randomUUID, webcrypto } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { blake2b } from '@noble/hashes/blake2';
 import { createTxBuilder } from '@odatano/nightgate-tx/txbuilder';
 import { HDWallet, Roles } from '@midnightntwrk/wallet-sdk-hd';
@@ -42,6 +45,11 @@ import {
     PassportSimulator, hex,
     FIELDS, K, vinHash as vinHashOf, contentRoot, registrarId, PANEL
 } from './scenario.mjs';
+import {
+    CLAIM_DEFS, planCalls, makeStage, stepLabel, makeWitnessHolder, randomDemoVin
+} from './preprod-plan.mjs';
+
+export { randomDemoVin };
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const NETWORK_ID = 'preprod';
@@ -50,73 +58,12 @@ const NODE_WS = 'wss://rpc.preprod.midnight.network/';
 const INDEXER_HTTP = 'https://indexer.preprod.midnight.network/api/v4/graphql';
 const INDEXER_WS = 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws';
 const ZK_CONFIG_DIR = join(ROOT, 'contracts', 'vinpassport', 'src', 'managed', 'vinpassport');
-
-// One call per transaction, learned the empirical way: the node 1010-rejects
-// our multi-call batches even when every call is independent (four
-// initialiseField calls on distinct fields), while every single-call
-// transaction lands first try. Whether that is segment ordering or same-map
-// write merging is a Wave 2 investigation; the demo does not bet on it.
-const MAX_CALLS_PER_RUN = 10;   // bounds a run's wall clock (~1-2 min per tx)
 const CONFIRM_TIMEOUT_MS = 240_000;
 const JOB_CEILING_MS = 20 * 60_000;
 
 const b2b = (d) => blake2b(d, { dkLen: 32 });
 const utf8 = (s) => new TextEncoder().encode(s);
 const zero32 = () => new Uint8Array(32);
-
-// Random demo VIN: real 17-char shape, VPD prefix marks it as a demo unit.
-const VIN_ALPHABET = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789'; // no I/O/Q
-export const randomDemoVin = () => {
-    const u = new Uint8Array(14);
-    webcrypto.getRandomValues(u);
-    return 'VPD' + Array.from(u, (b) => VIN_ALPHABET[b % VIN_ALPHABET.length]).join('');
-};
-
-// The claims the console knows how to request, mapped to circuit calls.
-const CLAIM_DEFS = {
-    neverWrittenOff: { field: 'writeOffCategory', bound: () => 0n, label: 'Never written off' },
-    noAccidents:     { field: 'accidentCount',    bound: () => 0n, label: 'No reported accidents' },
-    oneKeeper:       { field: 'ownerCount',       bound: () => 1n, label: 'One keeper' },
-    mileageUnder:    { field: 'odometerKm',       bound: (v) => BigInt(v), label: 'Mileage under' }
-};
-
-// ---------------------------------------------------------------- planning
-
-/**
- * Turn an intake into the on-chain plan: ONE call per transaction, applied in
- * dependency order - register, then field initialisations, then update
- * rounds, then the claims that open the final commitments.
- */
-function planIntake(intake) {
-    const vin = intake.vin;
-    const steps = [];   // { kind, name?, claim?, value?, bound?, round? }
-
-    steps.push({ kind: 'register' });
-    for (const [name, value] of Object.entries(intake.fields ?? {})) {
-        steps.push({ kind: 'init', name, value: BigInt(value) });
-    }
-    (intake.updates ?? []).forEach((round, i) => {
-        for (const [name, value] of Object.entries(round)) {
-            steps.push({ kind: 'update', name, value: BigInt(value), round: i + 1 });
-        }
-    });
-    for (const [claim, def] of Object.entries(CLAIM_DEFS)) {
-        const wanted = claim === 'mileageUnder' ? intake.prove?.mileageUnder : intake.prove?.[claim];
-        if (wanted) steps.push({ kind: 'claim', claim, name: def.field, bound: def.bound(wanted) });
-    }
-
-    if (steps.length > MAX_CALLS_PER_RUN) {
-        throw Object.assign(new Error(`intake needs ${steps.length} on-chain calls; the demo caps at ${MAX_CALLS_PER_RUN} - fewer fields, updates or claims, please`), { code: 'TOO_LARGE' });
-    }
-    const stages = steps.map((s) => ({ label: stepLabel(s), steps: [s] }));
-    return { vin, stages };
-}
-
-const stepLabel = (s) =>
-    s.kind === 'register' ? 'registerPassport'
-        : s.kind === 'init' ? `initialiseField ${s.name}`
-            : s.kind === 'update' ? `update ${s.round}: ${s.name} -> ${s.value}`
-                : `prove ${s.claim}${s.claim === 'mileageUnder' ? ' ' + s.bound : ''}`;
 
 // ---------------------------------------------------------------- the runner
 
@@ -283,7 +230,10 @@ export async function createRunner({ log = console.log } = {}) {
                     const m = JSON.parse(ev.data);
                     if (m.id !== 1) return;
                     clearTimeout(timer); try { ws.close(); } catch { }
-                    if (m.error) reject(new Error(`node rejected: ${m.error.code} ${m.error.message}`));
+                    // error.data carries the ledger's sub-code, and the
+                    // sub-code is the whole diagnosis: 188 is the sequencing
+                    // (causality) refusal, the dust codes are 117/170.
+                    if (m.error) reject(new Error(`node rejected: ${m.error.code} ${m.error.message}${m.error.data ? ' | ' + JSON.stringify(m.error.data) : ''}`));
                     else resolve(String(m.result));
                 };
                 ws.onerror = () => { clearTimeout(timer); reject(new Error('ws error during submit')); };
@@ -318,7 +268,7 @@ export async function createRunner({ log = console.log } = {}) {
         const writes = {};
         const saltOf = (name, seq) => saltFn(`:salt:${name}:${seq}`);
 
-        const plan = planIntake(intake);
+        const plan = { vin, stages: planCalls(intake) };
 
         // -- pre-simulate through the real compiled circuits: refusals are
         //    results and are never submitted; a refused write also refuses
@@ -336,13 +286,17 @@ export async function createRunner({ log = console.log } = {}) {
                             const salt = saltOf(s.name, 0);
                             sim.initialiseField(vinBytes, K[s.name], FIELDS[s.name].rule, s.value, salt);
                             writes[s.name] = [{ value: s.value, salt }];
+                            s.writeIndex = 0;
                         } else if (s.kind === 'update') {
                             if (!(s.name in FIELDS)) throw new Error('unknown field');
                             const salt = saltOf(s.name, (writes[s.name]?.length ?? 0));
                             sim.recordField(vinBytes, K[s.name], s.value, salt);
-                            (writes[s.name] ??= []).push({ value: s.value, salt });
+                            s.writeIndex = ((writes[s.name] ??= []).push({ value: s.value, salt })) - 1;
                         } else if (s.kind === 'claim') {
                             sim.proveFieldAtMost(vinBytes, K[s.name], s.bound);
+                            // Claims run last, so the write they open is the
+                            // field's final one - fixed here, not at call time.
+                            s.writeIndex = (writes[s.name]?.length ?? 0) - 1;
                         }
                         return true;
                     } catch (e) {
@@ -356,41 +310,43 @@ export async function createRunner({ log = console.log } = {}) {
             if (!plan.stages.length) throw new Error('nothing survived the dry-run');
         });
 
-        // -- shared witnesses: per-call state swapped in by `before` hooks
-        const holder = { pending: { value: 0n, salt: zero32() }, prev: { value: 0n, salt: zero32() } };
-        const witnesses = {
-            newValue: (ctx) => [ctx.privateState, holder.pending.value],
-            newSalt: (ctx) => [ctx.privateState, holder.pending.salt],
-            previousValue: (ctx) => [ctx.privateState, holder.prev.value],
-            previousSalt: (ctx) => [ctx.privateState, holder.prev.salt]
-        };
-        const seen = {};   // last write staged per field while building calls
+        // -- shared witnesses: per-call state swapped in by `before` hooks,
+        //    and refused entirely until one has armed them (preprod-plan.mjs
+        //    carries the why - an unarmed read would commit a zero value).
+        const { holder, witnesses, arm } = makeWitnessHolder();
+        // Pure: every call is derived from the step's own writeIndex, fixed
+        // during the dry-run. A stage that has to be re-planned (a rejected
+        // batch split into single calls) therefore rebuilds identical calls.
+        const writeAt = (name, i) => writes[name]?.[i] ?? { value: 0n, salt: zero32() };
         const toCall = (s) => {
+            const label = stepLabel(s);
             if (s.kind === 'register') {
-                return { circuitId: 'registerPassport', args: [vinBytes, croot, regId], before: () => { } };
+                // Reads no witness, but still arms: a batch behind it must not
+                // inherit an arming that belongs to some earlier call.
+                return {
+                    circuitId: 'registerPassport', args: [vinBytes, croot, regId],
+                    before: arm(label, { pending: { value: 0n, salt: zero32() }, prev: { value: 0n, salt: zero32() } })
+                };
             }
             if (s.kind === 'init') {
-                const w = writes[s.name][0];
-                seen[s.name] = 0;
+                const w = writeAt(s.name, 0);
                 return {
                     circuitId: 'initialiseField', args: [vinBytes, K[s.name], FIELDS[s.name].rule],
-                    before: () => { holder.pending = { value: w.value, salt: w.salt }; holder.prev = { value: 0n, salt: zero32() }; }
+                    before: arm(label, { pending: { ...w }, prev: { value: 0n, salt: zero32() } })
                 };
             }
             if (s.kind === 'update') {
-                const idx = seen[s.name] + 1;
-                const prev = writes[s.name][idx - 1];
-                const w = writes[s.name][idx];
-                seen[s.name] = idx;
+                const prev = writeAt(s.name, s.writeIndex - 1);
+                const w = writeAt(s.name, s.writeIndex);
                 return {
                     circuitId: 'recordField', args: [vinBytes, K[s.name]],
-                    before: () => { holder.pending = { value: w.value, salt: w.salt }; holder.prev = { value: prev.value, salt: prev.salt }; }
+                    before: arm(label, { pending: { ...w }, prev: { ...prev } })
                 };
             }
-            const last = writes[s.name]?.[writes[s.name].length - 1] ?? { value: 0n, salt: zero32() };
+            const opened = writeAt(s.name, s.writeIndex);
             return {
                 circuitId: 'proveFieldAtMost', args: [vinBytes, K[s.name], s.bound],
-                before: () => { holder.prev = { value: last.value, salt: last.salt }; }
+                before: arm(label, { pending: { value: 0n, salt: zero32() }, prev: { ...opened } })
             };
         };
 
@@ -402,29 +358,50 @@ export async function createRunner({ log = console.log } = {}) {
         });
 
         const stagesOut = [];
-        for (const [i, stage] of plan.stages.entries()) {
-            const n = i + 1;
-            // Build the call list ONCE per stage: toCall advances the per-field
-            // write cursor, so a retry must reuse these closures, not remap.
+        const queue = [...plan.stages];
+        let n = 0;
+        while (queue.length) {
+            const stage = queue.shift();
+            n += 1;
             const calls = stage.steps.map(toCall);
 
-            // A 1010 reject on submit is a known batch outcome; the remedy is
-            // to REBUILD with fresh randomness, never to resubmit the bytes.
+            // A 1010 reject is a known batch outcome; the remedy is to REBUILD
+            // with fresh randomness, never to resubmit the same bytes. If a
+            // multi-call transaction keeps being refused, the batch itself is
+            // the problem: split it into single calls (the shape proven to
+            // land) and carry on rather than losing the run.
             let submitted = null;
             let attempt = 0;
+            let split = false;
             for (; ;) {
                 attempt += 1;
                 try {
                     submitted = await runStageOnce(n, stage, calls, attempt);
                     break;
                 } catch (e) {
-                    if (attempt < 3 && /1010/.test(String(e?.message ?? e))) {
-                        log(`demo: stage ${n} rejected by the node (attempt ${attempt}); rebuilding the batch`);
+                    const msg = String(e?.message ?? e);
+                    const batchy = /1010|causality|segment ordering|BatchCausality/i.test(msg);
+                    if (!batchy) throw e;
+                    if (stage.steps.length > 1 && attempt >= 2) {
+                        log(`demo: batch of ${stage.steps.length} refused twice (${msg}); splitting into single calls`);
+                        queue.unshift(...stage.steps.map((s) => makeStage([s])));
+                        for (const id of [`build:${n}`, `fund:${n}`, `submit:${n}`]) {
+                            const row = job.steps.find((x) => x.id === id);
+                            if (row?.status === 'failed') row.detail = 'batch refused by the node; retrying these calls one transaction at a time';
+                        }
+                        split = true;
+                        break;
+                    }
+                    if (attempt < 3) {
+                        log(`demo: stage ${n} rejected by the node (attempt ${attempt}); rebuilding`);
                         continue;
                     }
                     throw e;
                 }
             }
+            // The failed batch keeps its step rows and its explanation; the
+            // split calls get fresh numbers behind it.
+            if (split) continue;
             const baseline = submitted.baseline;
 
             const landed = await runStep(step(`confirm:${n}`, 'Wait for the block and the indexer'), async () => {
@@ -458,6 +435,12 @@ export async function createRunner({ log = console.log } = {}) {
                     circuits: [...new Set(calls.map((c) => c.circuitId))]
                 });
                 try {
+                    // Arm the first call ourselves: the builder runs `before`
+                    // hooks per call for a BATCH, but a single call is proven
+                    // with the witnesses exactly as they stand. Doing it here
+                    // makes both paths identical, and a batch simply re-arms
+                    // in call order as it proves.
+                    holder.armed = null;
                     calls[0].before();
                     return await builder.buildSponsorable({
                         contractAddress, calls, witnesses, initialPrivateState: {}, bind: true

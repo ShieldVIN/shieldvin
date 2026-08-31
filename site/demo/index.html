@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live preprod demo · VINPassport</title>
+<meta name="description" content="Run a real passport onto Midnight preprod: real proving, real fees, real blocks, and a receipt only you can open.">
+<link rel="icon" href="../assets/vinpassport-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VINPassport">
+<meta property="og:title" content="VINPassport · Live preprod demo">
+<meta property="og:description" content="Register a passport, record history and prove claims on the deployed Midnight preprod contract. Five runs a day, real transactions.">
+<meta property="og:url" content="https://passport.vin/demo/">
+<meta property="og:image" content="https://passport.vin/assets/vinpassport-banner.png">
+<meta property="og:image:width" content="1500">
+<meta property="og:image:height" content="500">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://passport.vin/assets/vinpassport-banner.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css?v=4">
+</head>
+<body>
+<div style="max-width:1060px;margin:0 auto;padding:0 var(--edge)">
+
+  <nav style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 22px;padding:16px 0;border-bottom:1px solid rgba(0,74,173,.26)">
+    <a href="../" style="display:flex;align-items:center;gap:9px;margin-right:auto;flex:none;text-decoration:none">
+      <img src="../assets/vinpassport-mark.png" alt="" style="width:30px;height:30px">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:21px;letter-spacing:.1em;color:#004AAD"><b style="font-weight:700">VIN</b>PASSPORT</span>
+    </a>
+    <span style="font:600 9.5px Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#EDE4D8;background:#004AAD;padding:4px 9px;flex:none">live demo</span>
+    <a href="../intake/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Intake</a>
+    <a href="../proofs/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Proofs</a>
+    <a href="../verify/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Verify</a>
+    <a href="../regulation/" style="text-decoration:none;font-size:14px;color:#0E1726;white-space:nowrap">Regulation</a>
+  </nav>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 16px;padding:clamp(24px,4vw,40px) 0 18px">
+    <div style="flex:1 1 380px;min-width:0">
+      <span style="display:block;font:600 11px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Midnight preprod, live</span>
+      <h1 style="margin:4px 0 0;font-size:clamp(30px,4.4vw,48px);line-height:1.05;letter-spacing:.01em;text-transform:uppercase">Put a passport on the chain</h1>
+      <p style="margin:12px 0 0;font-size:15px;line-height:1.6;max-width:62ch;color:rgba(14,23,38,.8)">Not a simulation. Press the button and this site registers a vehicle passport on the deployed preprod contract, records its history, and proves claims about values it never publishes. Real proofs, real fees, real blocks you can look up yourself.</p>
+    </div>
+    <div id="cap" style="flex:0 1 260px;min-width:0;padding:12px 14px;border:1px solid rgba(0,74,173,.28)">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span id="capdot" style="width:7px;height:7px;background:#8B95FF;flex:none"></span><span id="capstate">Checking the chain</span></div>
+      <div id="capline" class="mono" style="margin-top:6px;font-size:10.5px;line-height:1.5;color:rgba(14,23,38,.5)">contacting api.passport.vin</div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid #8B95FF;background:rgba(139,149,255,.16);margin-bottom:28px;flex-wrap:wrap">
+    <span style="flex:none;display:inline-block;line-height:1.2;white-space:nowrap;font:700 9.5px Barlow,sans-serif;letter-spacing:.18em;background:#8B95FF;color:#0E1726;padding:4px 9px">DEMO</span>
+    <div style="flex:1 1 320px;min-width:0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.8)"><b>Fictional vehicles, real chain.</b> Every run invents a VIN of its own, so nothing here collides with a real vehicle or with another visitor's run. Runs are capped per day because each one writes permanent public state and spends real fees.</div>
+  </div>
+
+  <section style="margin-bottom:30px">
+    <div class="sect"><span class="snum">01</span><h2 class="stitle">WHAT THE RUN DOES</h2><span class="smeta">on the deployed contract</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 18px">
+      <div>
+        <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.03em;color:#004AAD">REGISTERS A PASSPORT</b>
+        <p style="margin:5px 0 0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.72)">A fresh VIN is hashed and anchored with a content root committing to its full declaration panel. The VIN itself is never published.</p>
+      </div>
+      <div>
+        <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.03em;color:#004AAD">RECORDS A HISTORY</b>
+        <p style="margin:5px 0 0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.72)">Mileage, accidents and keepers are created under integrity rules fixed at creation, then the odometer moves once. Only commitments reach the ledger.</p>
+      </div>
+      <div>
+        <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.03em;color:#004AAD">PROVES, AND REFUSES</b>
+        <p style="margin:5px 0 0;font-size:13px;line-height:1.55;color:rgba(14,23,38,.72)">Claims are proven in zero knowledge. One claim is chosen so the record cannot support it: watch it get refused in-circuit and write nothing.</p>
+      </div>
+    </div>
+    <p style="margin:12px 0 0;font-size:12px;color:rgba(14,23,38,.58)">The whole run takes a few minutes. Each transaction is proven on this server, funded from our own wallet, submitted to a preprod node, and then waited for until a block carries it.</p>
+  </section>
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:12px">
+    <button id="go" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:48px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;cursor:pointer;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:12px 28px">RUN THE GUIDED DEMO</button>
+    <a href="../intake/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:48px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.06em;color:#0E1726;border:1px solid rgba(0,74,173,.28);padding:12px 22px">FILL IT IN MYSELF</a>
+    <span id="gonote" style="font-size:12px;color:rgba(14,23,38,.5)">a run writes permanent public state</span>
+  </div>
+
+  <div id="run" style="margin-bottom:40px"></div>
+
+  <section style="margin-bottom:40px">
+    <div class="sect"><span class="snum">02</span><h2 class="stitle">CHECKING IT YOURSELF</h2><span class="smeta">public indexer</span></div>
+    <p style="margin:0 0 12px;font-size:13.5px;line-height:1.6;max-width:64ch;color:rgba(14,23,38,.8)">Nothing above has to be taken on trust. The contract is public, and so is every transaction the run makes. Ask the indexer what the contract's latest action is and compare it against the hashes in your receipt.</p>
+    <div class="mono" style="padding:12px 14px;background:#E6DCCE;border:1px solid rgba(0,74,173,.28);font-size:11.5px;line-height:1.7;overflow-wrap:anywhere">curl -s https://indexer.preprod.midnight.network/api/v4/graphql \<br>&nbsp;&nbsp;-H 'Content-Type: application/json' \<br>&nbsp;&nbsp;-d '{"query":"{ contractAction(address: \"<span id="addr">…</span>\") { __typename transaction { hash block { height } } } }"}'</div>
+  </section>
+
+  <footer style="padding:24px 0 44px;border-top:1px solid rgba(0,74,173,.26);display:flex;flex-wrap:wrap;gap:14px 30px;align-items:center;font-size:13px;color:rgba(14,23,38,.7)">
+    <img src="../assets/vinpassport-mark.png" alt="" style="width:24px;height:24px">
+    <span>VINPassport. Proving a vehicle identity.</span>
+    <span class="ft-meta" style="margin-left:auto;min-width:0">Apache-2.0 · Reg (EU) 2026/1738 · Midnight Network</span>
+  </footer>
+
+</div>
+<script type="module" src="demo.js?v=1"></script>
+</body>
+</html>

@@ -316,20 +316,77 @@ function renderResult(result) {
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ---------------------------------------------------------------- preprod
+
+// The same intake, aimed at the real chain instead of this process. The
+// toggle only offers itself when the server actually has preprod enabled and
+// a run left today, so switching it on cannot fail on click.
+const ppWrap = $('ppwrap');
+const ppBox = $('ppbox');
+const ppNote = $('ppnote');
+const ppRun = $('pprun');
+let preprod = false;
+let ppReady = false;
+
+const paintPreprod = () => {
+    ppWrap.style.border = preprod ? '1px solid #004AAD' : '1px solid rgba(0,74,173,.28)';
+    ppWrap.style.background = preprod ? 'rgba(0,74,173,.07)' : 'transparent';
+    ppBox.style.background = preprod ? '#004AAD' : 'transparent';
+    ppBox.style.color = preprod ? '#EDE4D8' : '';
+    ppBox.style.border = preprod ? 'none' : '1px solid rgba(0,74,173,.4)';
+    ppBox.querySelector('svg').style.visibility = preprod ? 'visible' : 'hidden';
+    ppWrap.style.opacity = ppReady ? '' : '.55';
+    ppWrap.style.cursor = ppReady ? 'pointer' : 'not-allowed';
+    registerBtn.textContent = preprod ? 'REGISTER & PROVE ON PREPROD' : 'REGISTER & PROVE';
+};
+ppWrap.addEventListener('click', () => {
+    if (!ppReady) return;
+    preprod = !preprod;
+    paintPreprod();
+});
+
+(async () => {
+    let status = null;
+    try {
+        const { apiBase: resolveBase, getStatus } = await import('../assets/preprod-run.mjs?v=1');
+        status = await getStatus(await resolveBase());
+    } catch { /* no server, or no demo endpoints: handled below */ }
+
+    ppReady = Boolean(status?.enabled && status?.ready && !status?.error && status.remaining > 0);
+    if (ppReady) {
+        ppNote.textContent = `${status.remaining} of ${status.capacity} preprod runs left today. Switch this on and the fields below become real transactions on the deployed contract, funded from our wallet, ending in a receipt only you can open. The VIN is replaced with a generated demo one, so a real vehicle is never claimed on a test chain.`;
+    } else if (status?.enabled && !status?.ready) {
+        ppNote.textContent = 'The preprod signing wallet is catching up to the chain tip. Until it is level, the circuits below still run here.';
+    } else if (status?.enabled && status?.remaining <= 0) {
+        ppNote.textContent = "Today's preprod runs are used; the count resets at 00:00 UTC. The circuits below still run here.";
+    } else {
+        ppNote.textContent = 'Preprod submission is not available from this server. The circuits below still run here, against an in-process ledger.';
+    }
+    paintPreprod();
+})();
+
 registerBtn.addEventListener('click', async () => {
     if (!serverMode) return;
     registerBtn.disabled = true;
     const was = registerBtn.textContent;
-    registerBtn.textContent = 'PROVING…';
+    registerBtn.textContent = preprod ? 'SUBMITTING…' : 'PROVING…';
     try {
-        const r = await fetch(`${apiBase}/api/intake`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify(buildIntake())
-        });
-        const result = await r.json();
-        if (!r.ok) throw new Error(result.error ?? `server said ${r.status}`);
-        renderResult(result);
+        if (preprod) {
+            const { startManual, followJob } = await import('../assets/preprod-run.mjs?v=1');
+            const started = await startManual(apiBase, buildIntake());
+            registerBtn.textContent = 'RUNNING ON PREPROD…';
+            ppRun.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            await followJob(apiBase, started.jobId, ppRun);
+        } else {
+            const r = await fetch(`${apiBase}/api/intake`, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(buildIntake())
+            });
+            const result = await r.json();
+            if (!r.ok) throw new Error(result.error ?? `server said ${r.status}`);
+            renderResult(result);
+        }
     } catch (e) {
         alert(`Could not submit: ${e.message}`);
     } finally {
