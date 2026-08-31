@@ -28,7 +28,7 @@ body {
 }
 
 .slide {
-  width: 1280px; max-width: 100vw; aspect-ratio: 16 / 9;
+  width: 1280px; height: 720px; flex: none;
   margin: 24px auto; padding: 56px 72px;
   background: var(--bg); border-radius: 6px;
   display: none; flex-direction: column; gap: 18px;
@@ -101,14 +101,28 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   position: fixed; right: 18px; bottom: 12px; font-size: 12px; color: #8D95B3;
 }
 
+
+/* The deck is designed at exactly 1280x720 and scaled to fit, rather than
+   letting the box shrink while the type stays put. That kept text at its
+   design size inside a smaller slide, and .slide is overflow:hidden, so the
+   excess was cut with nothing to scroll and no warning - four slides lost
+   content at 1152px, twelve at 768px.
+   Scaling the whole surface means the layout never reflows: what fits at the
+   design size fits at every size, and there is one width to verify. */
+#fit { overflow: hidden; display: flex; justify-content: center; }
+#stage { width: 1280px; flex: none; transform-origin: top center; }
+
 @media print {
   body { background: #fff; }
-  .slide { display: flex !important; page-break-after: always; margin: 0 auto; border-radius: 0; width: 100%; aspect-ratio: auto; height: 100vh; }
+  #fit { display: block; overflow: visible; height: auto !important; }
+  #stage { width: auto; transform: none !important; }
+  .slide { display: flex !important; page-break-after: always; margin: 0 auto; border-radius: 0; width: 100%; height: 100vh; }
   .nav-hint { display: none; }
 }
 </style>
 </head>
 <body>
+<div id="fit"><div id="stage">
 
 <!-- ============================================================ 1 title -->
 <section class="slide active">
@@ -330,7 +344,7 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       <h3>Ours</h3>
       <ul>
         <li>The Compact contract: five circuits, its own ledger and integrity rules. Not a fork of <code>attestation-vault</code></li>
-        <li>The 32-slot vehicle field panel</li>
+        <li>The 32-slot vehicle field panel: a vehicle-domain design</li>
         <li>All three surfaces, the demo fleet, the tests</li>
       </ul>
     </div>
@@ -339,8 +353,8 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
       <ul>
         <li><code>@odatano/dpp-sdk</code>: key derivation, value scaling, Merkle construction</li>
         <li><code>@odatano/nightgate-tx</code>: transaction building, batch ordering, in-process proving - against our own key</li>
-        <li>Hosted NIGHTGATE <strong>sponsored our deploy</strong>: live on preprod since 28 Aug</li>
-        <li>Running fees are <strong>not</strong>: the demo pays its own DUST. Every transaction was already built, proven and signed our side, so <strong>no witness ever leaves</strong></li>
+        <li>Hosted NIGHTGATE <strong>sponsored our deploy</strong> under a metered grant: live on preprod since 28 Aug, contract <code>72e52488…d553a</code></li>
+        <li>Running fees are <strong>not sponsored</strong>: the demo pays its own DUST. Every transaction was already built, proven and signed our side, so <strong>no witness ever leaves</strong></li>
       </ul>
       <p>Not used: CAP service, OData layer, attestation-vault, disclosure grants - the Wave 2 delta, stated in advance.</p>
     </div>
@@ -410,9 +424,24 @@ th { color: var(--ink); font-size: 14px; text-transform: uppercase; letter-spaci
   <div class="slide-foot"><span class="brandline"><i class="footmark" aria-hidden="true"></i><span class="wm"><span class="wm-vin">VIN</span>PASSPORT</span></span><span>12</span></div>
 </section>
 
+</div></div>
+
+</div></div>
+
 <div class="nav-hint">← → to navigate · Ctrl+P for PDF</div>
 
 <script>
+const fitEl = document.getElementById('fit');
+const stage = document.getElementById('stage');
+// 1280 design width + the slide's 24px margins on each side.
+function fit() {
+  const k = Math.min(1, (document.documentElement.clientWidth - 32) / 1280);
+  stage.style.transform = 'scale(' + k + ')';
+  fitEl.style.height = Math.ceil(768 * k) + 'px';
+}
+addEventListener('resize', fit);
+fit();
+
 const slides = [...document.querySelectorAll('.slide')];
 let i = 0;
 function show(n) {
