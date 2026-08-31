@@ -490,11 +490,56 @@ export async function createRunner({ log = console.log } = {}) {
             /causality|sequencing|segment ordering|BatchCausality/i.test(msg);
     };
 
+    // Every wait on the node gets a bound. The websocket send already had one;
+    // opening the API did not, and that is the wait that has actually hurt us:
+    // when the node went away mid-run, ApiPromise.create sat there retrying
+    // with nothing to report, and the stage deadline was the only thing that
+    // ever ended it. A backstop should not be the first thing to notice that a
+    // dependency is gone.
+    const NODE_INIT_TIMEOUT_MS = 30_000;
+    const NODE_PING_TIMEOUT_MS = 8_000;
+
+    const withTimeout = (promise, ms, what) => {
+        let timer;
+        return Promise.race([
+            promise,
+            new Promise((_, rej) => { timer = setTimeout(() => rej(Object.assign(new Error(what), { transport: true })), ms); })
+        ]).finally(() => clearTimeout(timer));
+    };
+
+    /**
+     * Is the node answering at all? Asked before a stage spends ~35s of proving
+     * on a transaction it will not be able to submit. The wallet's dust balance
+     * is already checked up front for the same reason; the node deserves the
+     * same courtesy.
+     *
+     * A true answer is not a promise the node will still be there at submit
+     * time - only bounding the submit itself covers that - so this is a fast
+     * honest failure, not a guarantee.
+     */
+    async function nodeReachable() {
+        try {
+            const r = await fetch(NODE_HTTP, {
+                method: 'POST', headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'system_chain', params: [] }),
+                signal: AbortSignal.timeout(NODE_PING_TIMEOUT_MS)
+            });
+            if (!r.ok) return { ok: false, why: `HTTP ${r.status}` };
+            const j = await r.json();
+            return j?.result ? { ok: true, chain: String(j.result) } : { ok: false, why: 'no result' };
+        } catch (e) {
+            return { ok: false, why: String(e?.message ?? e) };
+        }
+    }
+
     // ---- submission (the path that works: encode HTTP, submit one-shot ws) -
     async function submitFinalized(finalized) {
         const { ApiPromise, HttpProvider } = await import('@polkadot/api');
         const { u8aToHex } = await import('@polkadot/util');
-        const api = await ApiPromise.create({ provider: new HttpProvider(NODE_HTTP), noInitWarn: true });
+        const api = await withTimeout(
+            ApiPromise.create({ provider: new HttpProvider(NODE_HTTP), noInitWarn: true }),
+            NODE_INIT_TIMEOUT_MS,
+            `node API did not open within ${NODE_INIT_TIMEOUT_MS / 1000}s`);
         try {
             const extrinsicHex = api.tx.midnight.sendMnTransaction(u8aToHex(finalized.serialize())).toHex();
             return await new Promise((resolve, reject) => {
@@ -657,10 +702,20 @@ export async function createRunner({ log = console.log } = {}) {
         };
 
         // -- wait for the wallet, then run stage by stage
-        const walletStep = step('wallet', 'Wallet at chain tip, dust ready');
+        const walletStep = step('wallet', 'Wallet at chain tip, node reachable, dust ready');
         await runStep(walletStep, async () => {
             await warmup;
             if (warmError) throw warmError;
+            // Ask the node whether it is there before proving anything for it.
+            // Same argument as the dust floor below: a run that discovers at
+            // stage four that it cannot submit has already spent three fees and
+            // several minutes of someone's attention, and left a passport
+            // half-written on a public chain.
+            const node = await nodeReachable();
+            if (!node.ok) {
+                throw new Error(`the preprod node is not answering (${node.why}). ` +
+                    'This is the public network being unavailable, not a fault in the run; try again shortly.');
+            }
             // Bounded by the same warm-up budget the run publishes, so the
             // advertised budget is the truth rather than an underestimate.
             await gateToTip(WARMUP_BUDGET_MS);
@@ -669,8 +724,9 @@ export async function createRunner({ log = console.log } = {}) {
             // slot from the daily cap and several minutes of the visitor's
             // attention, and left a passport half-written on a public chain.
             const bal = dustBalance();
-            walletStep.detail = bal == null ? 'dust balance unavailable'
-                : `dust balance ${bal}${MIN_DUST ? ` · floor ${MIN_DUST}` : ''}`;
+            walletStep.detail = (bal == null ? 'dust balance unavailable'
+                : `dust balance ${bal}${MIN_DUST ? ` · floor ${MIN_DUST}` : ''}`)
+                + ` · node ${node.chain ?? 'ok'}`;
             if (bal != null && MIN_DUST && bal < MIN_DUST) {
                 throw Object.assign(new Error(
                     `${OUT_OF_DUST} (balance ${bal}, needs about ${MIN_DUST} for a full run). ` +
