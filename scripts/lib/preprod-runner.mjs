@@ -72,7 +72,11 @@ const ZK_CONFIG_DIR = join(ROOT, 'contracts', 'vinpassport', 'src', 'managed', '
 // own deadline, and the run's ceiling is derived from how many stages there
 // are. The outer backstop only catches something pathological.
 const CONFIRM_TIMEOUT_MS = 240_000;   // indexer lag is real; keep this net wide
-const CONFIRM_POLL_MS = 4_000;        // blocks are ~6s, so sleeping 10s first was pure latency
+// Matched to block time. Nearly all the latency the old loop added came from
+// sleeping BEFORE its first look, not from the cadence, so polling faster than
+// blocks arrive only spends someone else's indexer: at 4s a 90s confirm cost
+// 24 requests against 16 here, to save about a second.
+const CONFIRM_POLL_MS = 6_000;
 const GATE_TIMEOUT_MS = 3 * 60_000;   // a wallet 3 minutes behind is a fault, not a wait
 const WARMUP_BUDGET_MS = 7 * 60_000;  // restore, dry-run and the first build
 const STAGE_BUDGET_MS = 8 * 60_000;   // build + fund + submit + confirm, including retries
