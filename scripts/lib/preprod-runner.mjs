@@ -54,6 +54,27 @@ import {
 
 export { randomDemoVin };
 
+/**
+ * May a contract-call proof made when the contract's latest action was
+ * `atBuild` still be submitted now that its latest action is `now`?
+ *
+ * Returns `null` when it may, and otherwise the reason it may not - so the
+ * caller can say why it is about to spend another 30-100s proving.
+ *
+ * The call carries a transcript that has to replay against the contract's
+ * current state, and a call that lands and FAILS costs its fee exactly like
+ * one that succeeds. So this answers "reusable" only on positive evidence
+ * that nothing moved. Not knowing is not the same as nothing having changed:
+ * an indexer that fails to answer, or a contract with no recorded action at
+ * either end, both mean rebuild.
+ */
+export function proofReusable(atBuild, now) {
+    if (atBuild?.hash == null) return 'the contract had no recorded action when the call was proven';
+    if (now?.hash == null) return 'the indexer did not say what the contract\'s latest action is';
+    if (now.hash !== atBuild.hash) return `the contract moved on to ${now.hash}`;
+    return null;
+}
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const NETWORK_ID = 'preprod';
 const NODE_HTTP = 'https://rpc.preprod.midnight.network';
@@ -825,12 +846,19 @@ export async function createRunner({ log = console.log } = {}) {
             let submitted = null;
             let attempt = 0;
             let split = false;
+            // Carries a proven call forward to the next attempt. Set only for a
+            // refused FEE, cleared as soon as it is used: if re-balancing the
+            // same proof is refused too, the proof stops being the cheap answer
+            // and the next attempt proves the call again.
+            let reuse = null;
             for (; ;) {
                 attempt += 1;
                 try {
-                    submitted = await runStageOnce(n, stage, calls, attempt);
+                    submitted = await runStageOnce(n, stage, calls, attempt, reuse);
                     break;
                 } catch (e) {
+                    const spent = reuse;
+                    reuse = null;
                     const msg = String(e?.message ?? e);
                     // A funding failure is not a batching failure. Splitting a
                     // batch we cannot pay for just buys two more proofs we
@@ -866,7 +894,15 @@ export async function createRunner({ log = console.log } = {}) {
                         // one the stage still has room to finish.
                         halt();
                         stageBudget();
-                        log(`demo: stage ${n} rejected by the node (attempt ${attempt}: ${msg}); rebuilding`);
+                        // A refused dust proof says the FEE was proven against
+                        // a root the node has moved past; it says nothing about
+                        // the contract call, which is why the call's proof can
+                        // be carried over and only the fee rebuilt. Offered
+                        // once: if the attempt that reused it is refused too,
+                        // `spent` is set and the next attempt proves again.
+                        reuse = dustProof && !spent && e.reuse ? e.reuse : null;
+                        log(`demo: stage ${n} rejected by the node (attempt ${attempt}: ${msg});`,
+                            reuse ? 'rebuilding the fee only' : 'rebuilding');
                         continue;
                     }
                     throw e;
@@ -920,7 +956,25 @@ export async function createRunner({ log = console.log } = {}) {
         // bound, never the last stage's clock.
         clearTimeout(job.stageTimer);
 
-        async function runStageOnce(n, stage, calls, attempt) {
+        /**
+         * One attempt at a stage: prove, pay, submit.
+         *
+         * `reuse` carries the transaction a previous attempt already proved.
+         * A stale dust proof is a complaint about the FEE, not about the
+         * contract call, so re-proving the call costs ~30-100s of wasm to
+         * arrive at the identical proof. Re-balancing the same built
+         * transaction produces fresh bytes - a new dust proof and a new
+         * binding - which is what a reject requires; only a transport failure
+         * ever licenses sending identical bytes.
+         *
+         * The contract proof is only reusable while the contract's state has
+         * not moved under it: the call carries a transcript that has to replay
+         * against current state, and a call that lands and fails costs its fee
+         * exactly like one that succeeds. So the reuse is conditional on the
+         * contract's latest action being the one it was proven against, and
+         * anything else falls back to a full rebuild.
+         */
+        async function runStageOnce(n, stage, calls, attempt, reuse = null) {
             const suffix = attempt > 1 ? ` (attempt ${attempt})` : '';
             // Proving is ~40s of CPU. Spending it on a transaction we already
             // know we cannot fund is the expensive way to reach the same
@@ -930,8 +984,32 @@ export async function createRunner({ log = console.log } = {}) {
             // stage.label already reads "prove noAccidents" for a single call,
             // so prefixing "Prove " again gave "Prove prove noAccidents".
             const what = /^prove /i.test(stage.label) ? stage.label : `Prove ${stage.label}`;
+
+            // Is the proof we already hold still good? Only if nothing has
+            // touched the contract since it was made. One indexer query
+            // decides whether the next 30-100s of proving is necessary work or
+            // an identical result computed twice.
+            let keep = null;
+            if (reuse) {
+                const now = await latestContractAction();
+                const why = proofReusable(reuse.action, now);
+                if (why !== null) {
+                    log(`demo: stage ${n} cannot reuse its proof (${why}); rebuilding`);
+                } else {
+                    keep = reuse.built;
+                    const row = job.steps.find((x) => x.id === `build:${n}`);
+                    if (row) {
+                        row.status = 'done';
+                        row.detail = 'proof reused - the node refused the fee, not the call';
+                        job.touch();
+                    }
+                    log(`demo: stage ${n} reusing the proven call; only the fee is rebuilt`);
+                }
+            }
+
             halt();                       // a proof is ~40s we cannot take back
-            const built = await runStep(step(`build:${n}`, `${what} (${calls.length} call${calls.length === 1 ? '' : 's'}, in-process)${suffix}`), async () => {
+            const builtAtAction = keep ? reuse.action : await latestContractAction();
+            const built = keep ?? await runStep(step(`build:${n}`, `${what} (${calls.length} call${calls.length === 1 ? '' : 's'}, in-process)${suffix}`), async () => {
                 // Every call in this contract moves no value: they write
                 // commitments, and OUR facade does the dust balancing further
                 // down. So the builder's own wallet sync is pure cost - it
@@ -1107,6 +1185,9 @@ export async function createRunner({ log = console.log } = {}) {
                         log(`demo: stage ${n} submit failed without a pre-mempool reject (${e?.message ?? e});`,
                             'leaving the dust spend in place - it may be on chain');
                     }
+                    // Hand the proven call up with the failure. Whether it can
+                    // be reused is the retry loop's decision, not this one's.
+                    try { e.reuse = { built, action: builtAtAction }; } catch { /* frozen error */ }
                     throw e;
                 }
             });

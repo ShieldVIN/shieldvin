@@ -49,6 +49,9 @@ async function call(base, path, init, timeoutMs = 15000) {
             new Error(e?.name === 'AbortError' ? 'the preprod service did not answer in time' : 'could not reach the preprod service'),
             { unreachable: true });
     } finally { clearTimeout(timer); }
+    // Every response carries a server-generated Date; it is the only honest
+    // "now" the page ever sees, so the clock's skew correction comes from here.
+    noteServerTime(r.headers.get('date'));
     let body = null;
     try { body = await r.json(); } catch { /* non-JSON error page */ }
     if (!r.ok) {
@@ -93,12 +96,28 @@ export function fmtDuration(ms) {
 /**
  * The server owns the clock. It timestamps every step, so a reload or a
  * second viewer sees the same elapsed time instead of starting its own; the
- * only thing done here is correcting for a viewer whose clock is off, using
- * the server time that arrives with each poll.
+ * only thing done here is correcting for a viewer whose clock is off.
+ *
+ * The correction has to come from a genuine server NOW, which is why it is
+ * taken from each response's `Date` header rather than from anything in the
+ * payload. A job's `updatedAt` is when the job last CHANGED, and a stage
+ * spends tens of seconds inside a single proof without changing anything: read
+ * as "now" it would drift further behind on every poll, and each poll would
+ * then drag the displayed time backwards while the ticker walked it forward.
+ *
+ * The header is whole-second and stamped before the reply travels, so it runs
+ * up to a round trip behind. That is invisible on a clock that shows seconds.
  */
 let skewMs = 0;
 const serverNow = () => Date.now() - skewMs;
-const since = (iso) => (iso ? serverNow() - Date.parse(iso) : null);
+/** Elapsed since `iso`, never negative: a clock that goes backwards reads as broken. */
+const since = (iso) => (iso ? Math.max(0, serverNow() - Date.parse(iso)) : null);
+
+function noteServerTime(header) {
+    if (!header) return;
+    const t = Date.parse(header);
+    if (Number.isFinite(t)) skewMs = Date.now() - t;
+}
 
 /** One ticker for the page: live clocks are re-rendered in place, so a poll
  *  landing between ticks cannot fight it for the DOM. */
@@ -106,7 +125,7 @@ let ticker = null;
 function tick() {
     const live = document.querySelectorAll('[data-vp-since]');
     if (!live.length) { clearInterval(ticker); ticker = null; return; }
-    for (const el of live) el.textContent = fmtDuration(serverNow() - Number(el.dataset.vpSince));
+    for (const el of live) el.textContent = fmtDuration(Math.max(0, serverNow() - Number(el.dataset.vpSince)));
 }
 function startTicker() { if (!ticker) ticker = setInterval(tick, 1000); }
 
@@ -231,9 +250,6 @@ function receiptPanel(job, base) {
  * out of order cannot leave the panel in a half-updated state.
  */
 export function renderJob(host, job, base) {
-    // Correct for a viewer whose clock is off, using the server's own stamp.
-    if (job.updatedAt) skewMs = Date.now() - Date.parse(job.updatedAt);
-
     const done = job.status === 'done' || job.status === 'done-with-refusals';
     const live = job.status === 'running' || job.status === 'queued';
     const headline = job.status === 'queued' ? 'Queued'

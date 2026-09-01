@@ -253,6 +253,11 @@ function cors(req, res) {
     if (origin && CORS_ORIGINS.has(origin)) {
         res.setHeader('access-control-allow-origin', origin);
         res.setHeader('vary', 'origin');
+        // `Date` is not one of the headers a cross-origin page may read by
+        // default, and the run page's clock needs it: it is the only true
+        // server "now" the page ever sees, and without it the clock has to
+        // trust the viewer's own, which may be minutes out.
+        res.setHeader('access-control-expose-headers', 'date');
     }
 }
 
