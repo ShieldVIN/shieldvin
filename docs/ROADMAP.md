@@ -55,8 +55,10 @@ circuit here.
       comes with them, are Phase 1
 - [ ] **Measure DUST cost** per anchor and per proof, batched versus unbatched, width 32 versus 16 —
       gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md). Partially done: a guided run costs
-      about 5.1e15 SPECKs across five transactions, but the batched/unbatched and width comparisons
-      are not measured
+      **1.45e18 SPECKs** across five transactions, measured per transaction from the wallet balance
+      either side of each fee — 2.87e17 to 2.91e17 each, a spread of under 2%. The fee is charged
+      per *transaction*, not per call, so batching two calls into one saves ~50% per call; the
+      batched/unbatched and width comparisons are still not measured across the whole run
 - [ ] `contentSaltSeed` persistence **with a tested restore path** — a run seeds its salts per run
       and hands them to the holder in the receipt; there is no long-lived seed to restore yet
 
