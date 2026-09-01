@@ -178,6 +178,7 @@ saveBlob('dust', await facade.dust.serializeState());
 writeFileSync(join(stateDir, 'meta.json'), JSON.stringify({ savedAt: new Date().toISOString(), reason: 'dust-registration' }, null, 2));
 
 log('\nRegistered. Dust now generates from this NIGHT and refills on its own.');
-log('It charges to full over about 7 days; a five-stage run needs roughly 1.45e18 SPECKs');
-log('(measured: about 2.9e17 per transaction).');
+log('It charges to full over about 7 days. A five-stage run consumes dust notes');
+log('totalling 1.4e18-3.5e18 SPECKs; the fee itself is smaller than that and is');
+log('not yet measured - a balance diff sees the note, not the fee. See ROADMAP.md.');
 await facade.stop().catch(() => { });

@@ -54,11 +54,19 @@ circuit here.
       self-renewing DUST from registered NIGHT. Per-organisation sessions, and the attribution that
       comes with them, are Phase 1
 - [ ] **Measure DUST cost** per anchor and per proof, batched versus unbatched, width 32 versus 16 —
-      gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md). Partially done: a guided run costs
-      **1.45e18 SPECKs** across five transactions, measured per transaction from the wallet balance
-      either side of each fee — 2.87e17 to 2.91e17 each, a spread of under 2%. The fee is charged
-      per *transaction*, not per call, so batching two calls into one saves ~50% per call; the
-      batched/unbatched and width comparisons are still not measured across the whole run
+      gates all pricing; see [BUILD-SCOPE.md](BUILD-SCOPE.md). **Not yet measured to a number worth
+      pricing from**, and the reason is worth writing down so the next attempt does not repeat it:
+      the wallet balance either side of a fee measures the dust *note* the balancer consumed, not
+      the fee, and the change returns a stage later. Within one run that reads as a convincingly
+      tight spread — under 2% across five stages — while two runs of the identical five-stage
+      workload differ by 2.4x (2.89e17 vs 7.02e17 per stage) purely because the balancer picked
+      differently sized notes. The whole-run delta is no better: DUST regenerates faster than an
+      idle sample predicts, so one of those runs ended with *more* dust than it started with. The
+      indexer's `fee` field is a placeholder (it reports 1). A run consumes notes totalling
+      1.4e18-3.5e18 SPECKs and the true fee is somewhere below that; closing this needs the
+      per-transaction spend decoded from the `DustSpendProcessed` ledger event, not a balance diff.
+      Fees are charged per *transaction*, not per call, so batching two calls into one still halves
+      the per-call cost whatever the absolute number turns out to be
 - [ ] `contentSaltSeed` persistence **with a tested restore path** — a run seeds its salts per run
       and hands them to the holder in the receipt; there is no long-lived seed to restore yet
 
