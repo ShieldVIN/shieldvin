@@ -31,7 +31,10 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { blake2b } from '@noble/hashes/blake2';
-import { createTxBuilder } from '@odatano/nightgate-tx/txbuilder';
+import {
+    createTxBuilder, submitExtrinsic,
+    classifyNodeReject, isPreMempoolReject, isTransportFailure, isAlreadyImported
+} from '@odatano/nightgate-tx/txbuilder';
 import { HDWallet, Roles } from '@midnightntwrk/wallet-sdk-hd';
 import { WalletFacade, WalletEntrySchema, mergeWalletEntries } from '@midnightntwrk/wallet-sdk-facade';
 import { InMemoryTransactionHistoryStorage } from '@midnightntwrk/wallet-sdk-abstractions';
@@ -501,23 +504,26 @@ export async function createRunner({ log = console.log } = {}) {
     // sent us to a faucet for NIGHT we already had. The sub-code was saying
     // "your proof is stale", and we read it as "your wallet is empty".
     const OUT_OF_DUST = 'out of dust: the signing wallet cannot pay a fee right now';
-    const subCode = (msg) => Number(/Custom error:\s*(\d+)/.exec(msg)?.[1] ?? NaN);
+
+    // The sub-code table lives in nightgate-tx, which owns it: it walks the
+    // error's whole cause chain rather than a single message string, and it
+    // covers the full set - including 196 (nullifier already known, a stale
+    // dust proof by another name) and 117 (NotNormalized, which no amount of
+    // waiting fixes). Our own extra patterns stay as an OR: they came from
+    // messages this preprod node has actually produced.
+    const kindOf = (msgOrErr) => classifyNodeReject(msgOrErr).kind;
 
     // The fee proof itself was refused. Re-gate to the tip and prove again.
-    const isStaleDustProof = (msg) => [170, 171].includes(subCode(msg));
+    const isStaleDustProof = (msg) => kindOf(msg) === 'stale-dust-proof';
 
     // The wallet genuinely cannot pay. Only these say that.
     const isFundsProblem = (msg) =>
-        [138, 173].includes(subCode(msg)) ||
-        /insufficient funds|could not balance dust|InvalidTransaction::Payment/i.test(msg);
+        kindOf(msg) === 'funds' || /InvalidTransaction::Payment/i.test(String(msg));
 
     // The batch's shape is the problem, so splitting it into single calls is
     // the remedy. Nothing else here is worth splitting for.
-    const isSequencingProblem = (msg) => {
-        const c = subCode(msg);
-        return (c >= 219 && c <= 224) || c === 188 ||
-            /causality|sequencing|segment ordering|BatchCausality/i.test(msg);
-    };
+    const isSequencingProblem = (msg) =>
+        kindOf(msg) === 'sequencing' || /segment ordering/i.test(String(msg));
 
     // Every wait on the node gets a bound. The websocket send already had one;
     // opening the API did not, and that is the wait that has actually hurt us:
@@ -527,6 +533,13 @@ export async function createRunner({ log = console.log } = {}) {
     // dependency is gone.
     const NODE_INIT_TIMEOUT_MS = 30_000;
     const NODE_PING_TIMEOUT_MS = 8_000;
+    const SUBMIT_TIMEOUT_MS = 30_000;
+
+    // How long to keep asking the indexer whether a submit we did not get a
+    // clean answer for landed anyway. Long enough to outlast indexer lag on a
+    // transaction that IS in the pool; short enough to stay well inside the
+    // stage budget, which is the real backstop.
+    const LANDING_PROBE_MS = 90_000;
 
     const withTimeout = (promise, ms, what) => {
         let timer;
@@ -562,34 +575,37 @@ export async function createRunner({ log = console.log } = {}) {
     }
 
     // ---- submission (the path that works: encode HTTP, submit one-shot ws) -
-    async function submitFinalized(finalized) {
+    //
+    // Two halves, and each is bounded by whoever can bound it.
+    //
+    // The ENCODE stays here because opening the API is a wait that needs a
+    // deadline: a node that stops answering must surface as a fast, named
+    // failure rather than as a stage that stops making progress.
+    // nightgate-tx's own submitFinalized leaves that open unbounded, so we
+    // keep this half and hand it the encoded extrinsic.
+    //
+    // The SEND is nightgate-tx's submitExtrinsic: it treats a socket that
+    // closes before replying as an immediate transport failure rather than
+    // something to wait out, settles exactly once, ignores frames it cannot
+    // parse, and puts the reject code and the ledger sub-code on the error
+    // object instead of only in its message.
+
+    /** The extrinsic bytes, encoded against the node's live runtime metadata. */
+    async function encodeExtrinsic(finalized) {
         const { ApiPromise, HttpProvider } = await import('@polkadot/api');
-        const { u8aToHex } = await import('@polkadot/util');
         const api = await withTimeout(
             ApiPromise.create({ provider: new HttpProvider(NODE_HTTP), noInitWarn: true }),
             NODE_INIT_TIMEOUT_MS,
             `node API did not open within ${NODE_INIT_TIMEOUT_MS / 1000}s`);
         try {
-            const extrinsicHex = api.tx.midnight.sendMnTransaction(u8aToHex(finalized.serialize())).toHex();
-            return await new Promise((resolve, reject) => {
-                const ws = new WebSocket(NODE_WS);
-                const timer = setTimeout(() => { try { ws.close(); } catch { } reject(new Error('ws submit timeout (30s)')); }, 30_000);
-                ws.onopen = () => ws.send(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'author_submitExtrinsic', params: [extrinsicHex] }));
-                ws.onmessage = (ev) => {
-                    const m = JSON.parse(ev.data);
-                    if (m.id !== 1) return;
-                    clearTimeout(timer); try { ws.close(); } catch { }
-                    // error.data carries the ledger's sub-code, and the
-                    // sub-code is the whole diagnosis - see the table above
-                    // isStaleDustProof for what each one actually means.
-                    // Keep it in the message: without it a rejection is just
-                    // "1010 Invalid Transaction", which says nothing.
-                    if (m.error) reject(new Error(`node rejected: ${m.error.code} ${m.error.message}${m.error.data ? ' | ' + JSON.stringify(m.error.data) : ''}`));
-                    else resolve(String(m.result));
-                };
-                ws.onerror = () => { clearTimeout(timer); reject(new Error('ws error during submit')); };
-            });
+            const bytes = Buffer.from(finalized.serialize());
+            return api.tx.midnight.sendMnTransaction('0x' + bytes.toString('hex')).toHex();
         } finally { try { await api.disconnect(); } catch { } }
+    }
+
+    async function submitFinalized(finalized) {
+        const extrinsicHex = await encodeExtrinsic(finalized);
+        return submitExtrinsic(extrinsicHex, { nodeUrl: NODE_WS, timeoutMs: SUBMIT_TIMEOUT_MS });
     }
 
     // ---- one run -----------------------------------------------------------
@@ -1017,21 +1033,47 @@ export async function createRunner({ log = console.log } = {}) {
                 try {
                     return await submitFinalized(finalized);
                 } catch (e) {
+                    // Set before anything else, including the probe below: from
+                    // here on the wallet's state is something we cannot vouch
+                    // for, so no snapshot gets persisted for this run - not
+                    // even if the probe turns up a transaction that landed
+                    // cleanly. A skipped snapshot costs a re-sync on the next
+                    // restart; a persisted wrong one costs the wallet.
+                    rejected = true;
+
                     // A TRANSPORT failure is not a rejection. The websocket
-                    // timing out says nothing about whether the node took the
-                    // transaction, so treating it as a failure can fail a run
-                    // whose transaction is landing as we speak - and reverting
-                    // the dust for a spend that DID happen would be worse than
-                    // the leak it fixes. Ask the chain before deciding.
-                    if (!/1010|invalid|rejected/i.test(String(e?.message ?? e)) && ids.length) {
-                        await new Promise((r) => setTimeout(r, 12_000));
-                        const landed = await findByIdentifiers(ids);
-                        if (landed) {
-                            log(`demo: stage ${n} submit reported "${e?.message ?? e}" but the tx is on chain (${landed.hash})`);
-                            return landed.hash;
+                    // closing or timing out says nothing about whether the
+                    // node took the transaction, so treating it as a failure
+                    // can fail a run whose transaction is landing as we speak
+                    // - and reverting the dust for a spend that DID happen
+                    // would be worse than the leak it fixes. Ask the chain
+                    // before deciding.
+                    //
+                    // 1013 Already Imported is the same situation read from
+                    // the other side: it is the node telling us the
+                    // transaction IS in the pool, which makes it evidence of
+                    // success, not a failure to report.
+                    if (!isPreMempoolReject(e) && ids.length) {
+                        if (isAlreadyImported(e)) log(`demo: stage ${n} was already in the pool; waiting for it to land`);
+                        else if (isTransportFailure(e)) log(`demo: stage ${n} lost the submit socket; asking the chain whether it landed`);
+                        const until = Date.now() + LANDING_PROBE_MS;
+                        for (let first = true; first || Date.now() < until; first = false) {
+                            await nap(first ? 12_000 : 6_000);
+                            const landed = await findByIdentifiers(ids);
+                            if (landed) {
+                                log(`demo: stage ${n} submit reported "${e?.message ?? e}" but the tx is on chain (${landed.hash})`);
+                                return landed.hash;
+                            }
                         }
                     }
-                    // Give the dust back before rethrowing.
+                    // Give the dust back before rethrowing - but ONLY for a
+                    // reject that provably never reached the mempool (1010 /
+                    // 1014 / 1016). That is the whole condition: on a
+                    // transport failure the transaction may be in the pool
+                    // right now, and reverting a spend that really happens
+                    // desynchronises the wallet from the chain in the
+                    // direction that costs money rather than the one that
+                    // merely wastes dust.
                     //
                     // Balancing marks the spent dust note pending inside the
                     // facade. A node reject happens BEFORE the mempool, so
@@ -1045,15 +1087,25 @@ export async function createRunner({ log = console.log } = {}) {
                     //
                     // Missing this is what made a recoverable stall look like
                     // an empty wallet. (ODATANO's finding 2.)
-                    rejected = true;
-                    try {
-                        await facade.revert(finalized);
-                        log(`demo: stage ${n} rejected; reverted the dust spend`);
-                    } catch (re) {
-                        // Worth saying out loud: from here the pending atoms
-                        // are stranded until the process restarts.
-                        log(`demo: stage ${n} rejected AND the dust revert failed (${re?.message ?? re});`,
-                            'pending dust may be stranded until restart');
+                    if (isPreMempoolReject(e)) {
+                        const { kind, subCode } = classifyNodeReject(e);
+                        try {
+                            await facade.revert(finalized);
+                            log(`demo: stage ${n} rejected before the mempool (${kind}${subCode == null ? '' : ` ${subCode}`});`,
+                                'reverted the dust spend');
+                        } catch (re) {
+                            // Worth saying out loud: from here the pending atoms
+                            // are stranded until the process restarts.
+                            log(`demo: stage ${n} rejected AND the dust revert failed (${re?.message ?? re});`,
+                                'pending dust may be stranded until restart');
+                        }
+                    } else {
+                        // The honest position: we do not know whether this
+                        // spend happened, so we leave the wallet believing it
+                        // did. The atoms stay pending until a restart, which
+                        // is the cheap mistake to make in this direction.
+                        log(`demo: stage ${n} submit failed without a pre-mempool reject (${e?.message ?? e});`,
+                            'leaving the dust spend in place - it may be on chain');
                     }
                     throw e;
                 }

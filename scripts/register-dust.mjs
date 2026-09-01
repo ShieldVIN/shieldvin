@@ -160,25 +160,15 @@ const finalized = await facade.finalizeRecipe(signed);
 
 log('submitting...');
 const { ApiPromise, HttpProvider } = await import('@polkadot/api');
-const { u8aToHex } = await import('@polkadot/util');
+const { submitExtrinsic } = await import('@odatano/nightgate-tx/txbuilder');
 const api = await ApiPromise.create({ provider: new HttpProvider(NODE_HTTP), noInitWarn: true });
-let hash;
+let extrinsicHex;
 try {
-    const hex = api.tx.midnight.sendMnTransaction(u8aToHex(finalized.serialize())).toHex();
-    hash = await new Promise((resolve, reject) => {
-        const ws = new WebSocket(NODE_WS);
-        const timer = setTimeout(() => { try { ws.close(); } catch { } reject(new Error('submit timeout')); }, 60_000);
-        ws.onopen = () => ws.send(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'author_submitExtrinsic', params: [hex] }));
-        ws.onmessage = (ev) => {
-            const m = JSON.parse(ev.data);
-            if (m.id !== 1) return;
-            clearTimeout(timer); try { ws.close(); } catch { }
-            if (m.error) reject(new Error(`node rejected: ${m.error.code} ${m.error.message}${m.error.data ? ' | ' + JSON.stringify(m.error.data) : ''}`));
-            else resolve(String(m.result));
-        };
-        ws.onerror = () => { clearTimeout(timer); reject(new Error('ws error')); };
-    });
+    extrinsicHex = api.tx.midnight.sendMnTransaction('0x' + Buffer.from(finalized.serialize()).toString('hex')).toHex();
 } finally { await api.disconnect().catch(() => { }); }
+// Same send the demo engine uses: fails immediately when the gateway hangs up
+// instead of waiting out the timeout, and says so in the error.
+const hash = await submitExtrinsic(extrinsicHex, { nodeUrl: NODE_WS, timeoutMs: 60_000 });
 
 log(`submitted: ${hash}`);
 log('\nSaving wallet snapshots so the demo service starts from this state.');
