@@ -430,16 +430,45 @@ export async function createRunner({ log = console.log } = {}) {
         } catch { return []; }
     }
 
+    /**
+     * Landing in a block and being applied are different things.
+     *
+     * This asked only for the hash and the height, so a transaction that
+     * reached a block with its call REJECTED came back indistinguishable from
+     * one that wrote what it said - the fee is spent either way. The stage
+     * would have been reported confirmed, the receipt would carry a hash, and
+     * the page would tell a visitor the passport holds a value the ledger
+     * never took.
+     *
+     * transactionResult.status is the ledger's own verdict, so ask for it and
+     * treat anything other than SUCCESS as a failed stage. A partial success
+     * names the segments that failed.
+     */
     async function findByIdentifiers(ids) {
         for (const id of ids) {
             const r = await fetch(INDEXER_HTTP, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    query: `{ transactions(offset: { identifier: "${id}" }) { hash block { height } } }`
+                    query: `{ transactions(offset: { identifier: "${id}" }) { hash block { height } ` +
+                        `... on RegularTransaction { transactionResult { status segments { id success } } } } }`
                 })
             }).then((x) => x.json()).catch(() => null);
             const t = r?.data?.transactions?.[0];
-            if (t?.hash) return { type: 'ContractCall', hash: t.hash, height: t.block?.height ?? 0 };
+            if (!t?.hash) continue;
+            const status = t.transactionResult?.status ?? null;
+            // No status at all means the indexer has the transaction but not
+            // yet its result. Keep waiting rather than guessing either way.
+            if (status == null) continue;
+            if (status !== 'SUCCESS') {
+                const failed = (t.transactionResult?.segments ?? [])
+                    .filter((s) => s && s.success === false).map((s) => s.id);
+                throw Object.assign(new Error(
+                    `the node accepted this transaction but the ledger did not apply it ` +
+                    `(${status}${failed.length ? `, failed segment${failed.length > 1 ? 's' : ''} ${failed.join(', ')}` : ''}). ` +
+                    'The fee is spent and nothing was written; the call has to be rebuilt against current state.'
+                ), { notApplied: true, hash: t.hash, height: t.block?.height ?? 0 });
+            }
+            return { type: 'ContractCall', hash: t.hash, height: t.block?.height ?? 0 };
         }
         return null;
     }
