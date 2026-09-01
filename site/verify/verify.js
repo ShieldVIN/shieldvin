@@ -35,16 +35,20 @@ const qSub = (a) => {
         : `${bound} · proven against an earlier version, since superseded`;
 };
 
-function detailBlock(a, open) {
+function detailBlock(a, ctx) {
     if (a.status === 'not-proven') {
-        return `<div class="vp-detail"${open ? '' : ' hidden'} style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3)">
+        return `<div class="vp-detail vfy-measure" style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3)">
       <p style="margin:0 0 11px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.78)">Nothing on the ledger answers this question. A failed proof writes nothing and no proof was recorded, so the honest rendering is not proven. Ask the seller for it: if the claim is true of the record, producing it costs one transaction.</p>
-      <a href="../intake/" style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:44px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:10px 18px;text-decoration:none">REQUEST THIS PROOF</a>
+      <button type="button" class="vp-ask"
+        data-vehicle="${esc(ctx?.title ?? 'this vehicle')}" data-vin="${esc(ctx?.vin ?? '')}"
+        data-claim="${esc(qLabel(a, a.claim))}"
+        style="display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;min-height:44px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.06em;background:#004AAD;color:#EDE4D8;border:1px solid #004AAD;padding:10px 18px;cursor:pointer">COPY THE REQUEST</button>
+      <span style="display:block;margin-top:9px;font-size:12px;color:rgba(14,23,38,.55)">Copies the vehicle and the claim as text you can send to the seller. Nothing leaves this page — there is no request inbox behind it.</span>
     </div>`;
     }
     const c = a.claim;
     const cname = a.invalid ? 'unrecognised field key' : (a.meta?.name ?? a.field ?? 'field');
-    return `<div class="vp-detail"${open ? '' : ' hidden'} style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8">
+    return `<div class="vp-detail vfy-measure" style="margin:0 0 16px;padding:13px 15px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8">
       <p style="margin:0 0 11px;font-size:13px;line-height:1.55;color:rgba(14,23,38,.78)">A zero-knowledge proof was accepted on the ledger. It could not have been produced unless the hidden value satisfied the bound, and the value itself was never published.</p>
       <div class="mono" style="display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:10.5px">
         <span style="color:rgba(14,23,38,.45)">claim</span><span>${esc(cname)} ${a.atMost ? '≤' : '≥'} ${fmt(c.bound)}</span>
@@ -55,7 +59,7 @@ function detailBlock(a, open) {
     </div>`;
 }
 
-function rowsFor(view, secondary = false) {
+function rowsFor(view, secondary = false, ctx = null) {
     const extras = (view.extras ?? []).map((x) => ({
         field: x.meta?.name, atMost: x.claim.atMost, meta: x.meta,
         // A claim whose fieldKey is not in the canonical vocabulary is not a
@@ -82,11 +86,15 @@ function rowsFor(view, secondary = false) {
         const name = proven
             ? `<b style="display:block;font-size:15.5px">${esc(qLabel(a, a.claim))}</b>`
             : `<b style="display:block;font-size:15.5px;color:rgba(14,23,38,.78)">${esc(qLabel(a, null))}</b>`;
-        return `<div class="row" style="cursor:pointer">
-      ${mark}
-      <div style="flex:1;min-width:0">${name}<span style="font-size:12px;color:rgba(14,23,38,.58)">${esc(qSub(a))}</span></div>
-      <span class="mono vp-toggle" style="flex:none;font-size:12px;color:rgba(14,23,38,.42)">${open ? '−' : '+'}</span>
-    </div>${detailBlock(a, open)}`;
+        // <details>/<summary> rather than a div with a click handler: it
+        // opens with the keyboard, is announced as expandable, and still works
+        // if this script never runs.
+        return `<details class="vp-claim"${open ? ' open' : ''}><summary>
+      <div class="row">
+        ${mark}
+        <div style="flex:1;min-width:0">${name}<span style="font-size:12px;color:rgba(14,23,38,.58)">${esc(qSub(a))}</span></div>
+        <span class="mono vp-toggle" aria-hidden="true" style="flex:none;font-size:12px;color:rgba(14,23,38,.42)"></span>
+      </div></summary>${detailBlock(a, ctx)}</details>`;
     }).join('\n');
 }
 
@@ -129,6 +137,25 @@ const HONESTY =
     <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(14,23,38,.72)">Proven against the anchored record, attributable to a named registrar, tamper-evident. Not a guarantee that the record matched physical reality when it was written. That is the registrar's word, which is why every passport names one.</p>
   </div>`;
 
+/**
+ * What this page is, said once at the top. Everything below assumes the
+ * reader knows that a tick is a proof and a dash is silence, and until now
+ * nothing on the page told them.
+ */
+const LEDE = `<section class="vfy-lede">
+  <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">How to read this page</span>
+  <p class="vfy-measure" style="margin:9px 0 0;font-size:14.5px;line-height:1.6;color:rgba(14,23,38,.8)">
+    This is a buyer's verdict on one vehicle. Each line is a question a buyer actually asks, answered
+    against the record anchored on the ledger. Open any line to see the proof behind it: which field it
+    covers, the commitment it was proven against, and where it sits on the ledger.
+    <b>No reading is ever shown, because none was ever published</b> &mdash; not to this page, and not to the chain.
+  </p>
+  <div class="vfy-legend">
+    <div>${TICK}<span style="font-size:13px;line-height:1.5;color:rgba(14,23,38,.72)"><b style="display:block;font-size:14px;color:#0E1726">Proven</b>A zero-knowledge proof for this claim was accepted on the ledger. It could not exist unless the hidden value satisfied the bound.</span></div>
+    <div><span class="none">&mdash;</span><span style="font-size:13px;line-height:1.5;color:rgba(14,23,38,.72)"><b style="display:block;font-size:14px;color:#0E1726">Not proven</b>Nothing on the ledger answers this question. That is silence, <b>not a no</b> &mdash; the difference matters, and the page will not blur it.</span></div>
+  </div>
+</section>`;
+
 function mainSection(vin, view, vinfo, badge) {
     return `<section class="vfy-card"><header style="padding:20px 0 14px;border-bottom:1px solid rgba(0,74,173,.16)">
     <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Vehicle passport · Reg (EU) 2026/1738</span>
@@ -136,20 +163,27 @@ function mainSection(vin, view, vinfo, badge) {
     <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
   </header>
   ${scoreBand(view, false)}
-  ${rowsFor(view, false)}
-  ${statsBlock(view, vinfo, badge)}
-  ${HONESTY}</section>`;
+  ${rowsFor(view, false, { vin, title: vinfo?.title })}
+  <div class="vfy-foot">${statsBlock(view, vinfo, badge)}${HONESTY}</div></section>`;
 }
 
 function secondarySection(vin, view, vinfo, index) {
-    return `<section class="vfy-card" id="${index === 0 ? 'b' : 'v-' + vin.slice(0, 8)}">
-    <span style="display:block;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#002E6E">Another passport · ${esc(vinfo?.blurb ?? 'on the same ledger')}</span>
-    <h2 style="margin:5px 0 4px;font-size:clamp(24px,6vw,32px);line-height:1;letter-spacing:.01em;text-transform:uppercase">${esc(vinfo?.title ?? 'Vehicle passport')}</h2>
-    <span class="mono" style="font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
-    ${scoreBand(view, true)}
-    ${rowsFor(view, true)}
-    <p style="margin:16px 0 0;font-size:13px"><a href="../proofs/">See every claim in the proof explorer →</a></p>
-  </section>`;
+    const proven = view.answers.filter((a) => a.status === 'proven').length;
+    const total = view.answers.length;
+    return `<details class="vfy-more" id="${index === 0 ? 'b' : 'v-' + vin.slice(0, 8)}"><summary>
+      <span class="vfy-chip"${proven === total ? ' data-all' : ''}>${proven}/${total}</span>
+      <span style="flex:1 1 240px;min-width:0">
+        <b style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:20px;letter-spacing:.02em;text-transform:uppercase">${esc(vinfo?.title ?? 'Vehicle passport')}</b>
+        <span style="font-size:12.5px;color:rgba(14,23,38,.6)">Another passport on the same ledger &middot; ${esc(vinfo?.blurb ?? 'for comparison')}</span>
+      </span>
+      <span class="vfy-open" style="flex:none;font:600 10.5px Barlow,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#004AAD"></span>
+    </summary>
+    <div class="vfy-more-body">
+      <span class="mono" style="display:block;margin-bottom:4px;font-size:10.5px;color:rgba(14,23,38,.5);word-break:break-all">VIN HASH ${vin}</span>
+      ${scoreBand(view, true)}
+      ${rowsFor(view, true, { vin, title: vinfo?.title })}
+      <p style="margin:16px 0 0;font-size:13px"><a href="../proofs/">See every claim in the proof explorer &rarr;</a></p>
+    </div></details>`;
 }
 
 (async () => {
@@ -178,25 +212,49 @@ function secondarySection(vin, view, vinfo, index) {
 
     const holder = document.createElement('div');
     holder.innerHTML =
+        LEDE +
         mainSection(main, passportView(ledger, main, vocabulary), byVin[main], state.badge) +
+        (rest.length
+            ? `<h2 style="margin:8px 0 -8px;font-family:'Barlow Condensed',sans-serif;font-size:20px;letter-spacing:.03em;text-transform:uppercase;color:#002E6E">Other passports on this ledger</h2>
+               <p class="vfy-measure" style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(14,23,38,.7)">Two more vehicles, kept collapsed so they do not compete with the one you came to check. They exist to show the range: a record that answers every question, and one that cannot.</p>`
+            : '') +
         rest.map((v, i) =>
             secondarySection(v, passportView(ledger, v, vocabulary), byVin[v], i)).join('\n');
 
-    const grid = document.createElement('div');
-    grid.className = 'vfy-grid';
-    // One passport should keep a readable column rather than span the page.
-    if (holder.children.length < 2) grid.setAttribute('data-single', '');
-    grid.replaceChildren(...holder.children);
-    root.replaceChildren(nav, grid, footer);
+    const stack = document.createElement('div');
+    stack.className = 'vfy-stack';
+    stack.replaceChildren(...holder.children);
+    root.replaceChildren(nav, stack, footer);
 
-    // +/- toggles: a row opens the detail block that follows it
-    for (const row of root.querySelectorAll('.row')) {
-        const detail = row.nextElementSibling;
-        if (!detail || !detail.classList.contains('vp-detail')) continue;
-        row.addEventListener('click', () => {
-            detail.hidden = !detail.hidden;
-            const t = row.querySelector('.vp-toggle');
-            if (t) t.textContent = detail.hidden ? '+' : '−';
+    // Claim rows are <details>, so opening one needs no script.
+    //
+    // The one thing that does: the not-proven action. It says it copies the
+    // request rather than sending it, so it has to actually copy something,
+    // and it has to say so when the browser refuses the clipboard.
+    for (const btn of root.querySelectorAll('.vp-ask')) {
+        btn.addEventListener('click', async () => {
+            const { vehicle, vin, claim } = btn.dataset;
+            const text =
+                `Please prove this claim on the vehicle passport.\n\n` +
+                `Vehicle: ${vehicle}\n` +
+                (vin ? `VIN hash: ${vin}\n` : '') +
+                `Claim:   ${claim}\n\n` +
+                `A proof writes only a commitment to the ledger; the reading itself stays private.`;
+            const said = (m) => { btn.textContent = m; setTimeout(() => { btn.textContent = 'COPY THE REQUEST'; }, 2600); };
+            try {
+                await navigator.clipboard.writeText(text);
+                said('COPIED');
+            } catch {
+                said('PRESS CTRL+C');
+                // A clipboard the browser will not give us is not a dead end:
+                // select the text so the keyboard can still take it.
+                const pre = document.createElement('textarea');
+                pre.value = text;
+                pre.setAttribute('style', 'width:100%;margin-top:10px;font:11px/1.5 ui-monospace,monospace;padding:8px;border:1px solid rgba(0,74,173,.3);background:#EDE4D8;resize:vertical');
+                pre.rows = 9;
+                btn.after(pre);
+                pre.select();
+            }
         });
     }
 })();
